@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { eventsApi } from '../../api/events';
-import { Event, EventType, DinnerGuest } from '../../types';
+import { Event, EventType, DinnerGuest, EventBooking, EventGuest } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, formatTime } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
@@ -58,7 +58,7 @@ export function EventsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Event | null>(null);
   const [guestsModal, setGuestsModal] = useState<Event | null>(null);
-  const [guests, setGuests] = useState<DinnerGuest[]>([]);
+  const [guests, setGuests] = useState<EventGuest[]>([]);
   const [generatingGroups, setGeneratingGroups] = useState(false);
   const toast = useToast();
 
@@ -134,6 +134,7 @@ export function EventsPage() {
 
   const openGuestsPanel = async (event: Event) => {
     setGuestsModal(event);
+    setGuests([]);
     try {
       const res = await eventsApi.getGuests(event._id);
       setGuests(res.data);
@@ -161,11 +162,15 @@ export function EventsPage() {
   };
 
   const groupedGuests = guests.reduce<Record<number, DinnerGuest[]>>((acc, g) => {
+    if (!isDinnerGuest(g)) return acc;
     const grp = g.assignedGroup || 0;
     if (!acc[grp]) acc[grp] = [];
     acc[grp].push(g);
     return acc;
   }, {});
+
+  const isDinnerEvent = guestsModal?.type === 'dinner-with-strangers';
+  const activeGuestsCount = guests.reduce((count, guest) => guest.status !== 'cancelled' ? count + guestTickets(guest) : count, 0);
 
   return (
     <div className="space-y-6">
@@ -211,9 +216,7 @@ export function EventsPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(e)}>Editar</Button>
-                      {e.type === 'dinner-with-strangers' && (
-                        <Button variant="secondary" size="sm" onClick={() => openGuestsPanel(e)}>Invitados</Button>
-                      )}
+                      <Button variant="secondary" size="sm" onClick={() => openGuestsPanel(e)}>Invitados</Button>
                       <Button variant="danger" size="sm" onClick={() => handleDelete(e._id)} aria-label="Eliminar evento">
                         <X size={15} />
                       </Button>
@@ -279,18 +282,20 @@ export function EventsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-sm text-stone font-body">
-                {guests.filter((g) => g.status !== 'cancelled').length} invitados registrados
+                {activeGuestsCount} {isDinnerEvent ? 'invitados registrados' : 'cupos reservados'}
               </p>
-              <Button onClick={handleGenerateGroups} loading={generatingGroups}>
-                <span className="inline-flex items-center gap-2">
-                  <Sparkles size={16} />
-                  Generar grupos
-                </span>
-              </Button>
+              {isDinnerEvent && (
+                <Button onClick={handleGenerateGroups} loading={generatingGroups} disabled={guests.length === 0}>
+                  <span className="inline-flex items-center gap-2">
+                    <Sparkles size={16} />
+                    Generar grupos
+                  </span>
+                </Button>
+              )}
             </div>
 
             {/* Groups */}
-            {guestsModal.generatedGroups.length > 0 && (
+            {isDinnerEvent && (guestsModal.generatedGroups?.length || 0) > 0 && (
               <div className="space-y-3">
                 <h3 className="font-body font-semibold text-espresso text-sm">Grupos generados</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -320,10 +325,17 @@ export function EventsPage() {
                     <div>
                       <span className="font-medium text-espresso">{g.name}</span>
                       <span className="text-stone ml-2 text-xs">{g.email}</span>
+                      <span className="text-stone ml-2 text-xs">{g.phone}</span>
+                      {!isDinnerGuest(g) && g.notes && (
+                        <p className="text-stone text-xs mt-1">{g.notes}</p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
-                      {g.assignedGroup && (
+                      {isDinnerGuest(g) && g.assignedGroup && (
                         <Badge label={`Grupo ${g.assignedGroup}`} variant="brown" />
+                      )}
+                      {!isDinnerGuest(g) && (
+                        <Badge label={`${g.tickets} ${g.tickets === 1 ? 'cupo' : 'cupos'}`} variant="gray" />
                       )}
                       <Badge
                         label={g.status === 'registered' ? 'Registrado' : g.status === 'confirmed' ? 'Confirmado' : 'Cancelado'}
@@ -340,4 +352,16 @@ export function EventsPage() {
       )}
     </div>
   );
+}
+
+function isDinnerGuest(guest: EventGuest): guest is DinnerGuest {
+  return 'compatibilityProfile' in guest;
+}
+
+function guestTickets(guest: EventGuest) {
+  return isEventBooking(guest) ? guest.tickets : 1;
+}
+
+function isEventBooking(guest: EventGuest): guest is EventBooking {
+  return 'tickets' in guest;
 }

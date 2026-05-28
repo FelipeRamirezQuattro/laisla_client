@@ -243,6 +243,20 @@ export interface DinnerGuest {
   createdAt: string;
 }
 
+export interface EventBooking {
+  _id: string;
+  eventId: string;
+  name: string;
+  email: string;
+  phone: string;
+  tickets: number;
+  notes?: string;
+  status: 'registered' | 'confirmed' | 'cancelled';
+  createdAt: string;
+}
+
+export type EventGuest = DinnerGuest | EventBooking;
+
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 export interface HourlySale {

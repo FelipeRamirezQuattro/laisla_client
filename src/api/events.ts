@@ -1,5 +1,5 @@
 import api from './axios';
-import { Event, DinnerGuest } from '../types';
+import { Event, DinnerGuest, EventGuest } from '../types';
 
 interface EventsResponse {
   events: Event[];
@@ -16,7 +16,7 @@ export const eventsApi = {
   delete: (id: string) => api.delete(`/admin/events/${id}`),
   generateGroups: (id: string) =>
     api.post<{ groups: Event['generatedGroups']; guests: DinnerGuest[] }>(`/admin/events/${id}/generate-groups`),
-  getGuests: (id: string) => api.get<DinnerGuest[]>(`/admin/events/${id}/guests`),
+  getGuests: (id: string) => api.get<EventGuest[]>(`/admin/events/${id}/guests`),
   reassignGuest: (id: string, guestId: string, groupNumber: number) =>
     api.patch(`/admin/events/${id}/reassign-guest`, { guestId, groupNumber }),
 };
