@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand — 5 colors */
+  --color-lagoon:     #7CC1E7;
+  --color-maize:      #F2D17E;
+  --color-olive:      #ACAD79;
+  --color-espresso:   #43593B;
+  --color-terracotta: #E87A5D;
+  /* Neutrals */
+  --color-paper:      #FFF9EC;  /* alias: cream */
+  --color-ink:        #1F2A1B;
+  --color-muted:      #6B7768;  /* alias: stone */
+  --color-rule:       #E7DEC6;
+  --color-rule-strong:#C9BC9B;
+  --color-success:    #6B8E5A;
+  --color-success-ink:#3F5733;
+  --color-success-tint:#E5ECDC;
+  --color-warning:    #C68B3B;
+  --color-warning-ink:#7A5117;
+  --color-warning-tint:#F6E6C4;
+  --color-error:      #B14A36;
+  --color-error-ink:  #6E2A1C;
+  --color-error-tint: #F2D6CE;
+  --color-info:       #4A88B0;
+  --color-info-ink:   #21516E;
+  --color-info-tint:  #D6E4EE;
+  /* Surface */
+  --color-surface-tint: #FBF3DE;
+}
+
+@layer base {
+  html {
+    font-family: "DM Sans", system-ui, sans-serif;
+    color: var(--color-ink);
+    background-color: var(--color-paper);
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--color-paper);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: "DM Sans", system-ui, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-terracotta text-cream font-body font-semibold px-5 py-2.5 rounded-lg hover:bg-opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-espresso border border-rule font-body font-medium px-5 py-2.5 rounded-lg hover:bg-surface-tint hover:border-rule-strong transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply text-stone font-body font-medium px-4 py-2 rounded-lg hover:bg-surface-tint transition-all duration-200;
+  }
+
+  .input-base {
+    @apply w-full border border-rule rounded-lg px-4 py-2.5 bg-white text-ink placeholder-stone placeholder-opacity-60 focus:outline-none focus:ring-2 focus:ring-terracotta focus:border-transparent transition-all duration-200 font-body;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-rule p-6;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-rule-strong);
+  border-radius: 3px;
+  opacity: 0.5;
+}
