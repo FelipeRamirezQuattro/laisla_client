@@ -94,9 +94,12 @@ export function RecipesPage() {
     !search || r.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const activeVariantCost = (variant: Recipe['variants'][number]) =>
+    variant.costingMethod === 'full-cost' ? variant.totalCost : variant.directMaterialCost;
+
   const avgCost = (r: Recipe) => {
     if (!r.variants.length) return 0;
-    return r.variants.reduce((s, v) => s + v.totalCost, 0) / r.variants.length;
+    return r.variants.reduce((s, v) => s + activeVariantCost(v), 0) / r.variants.length;
   };
 
   const salePriceValue = (variant: Recipe['variants'][number]) => variant.finalPrice ?? variant.salePrice;
@@ -116,13 +119,21 @@ export function RecipesPage() {
   const avgProfit = (r: Recipe) => {
     const pricedVariants = r.variants.filter((v) => v.salePriceWithoutTax > 0);
     if (!pricedVariants.length) return null;
-    return pricedVariants.reduce((s, v) => s + v.profitAmount, 0) / pricedVariants.length;
+    return pricedVariants.reduce((s, v) => s + (v.salePriceWithoutTax - activeVariantCost(v)), 0) / pricedVariants.length;
   };
 
   const avgMargin = (r: Recipe) => {
     const pricedVariants = r.variants.filter((v) => v.salePriceWithoutTax > 0);
     if (!pricedVariants.length) return null;
-    return pricedVariants.reduce((s, v) => s + v.grossMarginPct, 0) / pricedVariants.length;
+    return pricedVariants.reduce((s, v) => {
+      const profit = v.salePriceWithoutTax - activeVariantCost(v);
+      return s + profit / v.salePriceWithoutTax;
+    }, 0) / pricedVariants.length;
+  };
+
+  const costingMethodLabel = (r: Recipe) => {
+    const methods = new Set(r.variants.map((v) => v.costingMethod === 'full-cost' ? 'MOD + GIF' : 'Food cost'));
+    return methods.size === 1 ? Array.from(methods)[0] : 'Mixto';
   };
 
   const formatPercent = (value: number) =>
@@ -178,6 +189,7 @@ export function RecipesPage() {
                 <th className="text-right px-4 py-3 text-stone font-medium">Costo prom.</th>
                 <th className="text-right px-4 py-3 text-stone font-medium">Utilidad prom.</th>
                 <th className="text-right px-4 py-3 text-stone font-medium">Margen prom.</th>
+                <th className="text-center px-4 py-3 text-stone font-medium">Costeo</th>
                 <th className="text-center px-4 py-3 text-stone font-medium">Producto</th>
                 <th className="text-center px-4 py-3 text-stone font-medium">Estado</th>
                 <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
@@ -210,6 +222,9 @@ export function RecipesPage() {
                       {margin === null ? 'Pendiente' : formatPercent(margin)}
                     </td>
                     <td className="px-4 py-3 text-center">
+                      <Badge label={costingMethodLabel(r)} variant="gray" />
+                    </td>
+                    <td className="px-4 py-3 text-center">
                       <Badge label={r.isProduct ? 'En pedidos' : 'Borrador'} variant={r.isProduct ? 'blue' : 'gray'} />
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -236,7 +251,7 @@ export function RecipesPage() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="text-center py-10 text-stone">No se encontraron recetas.</td>
+                  <td colSpan={11} className="text-center py-10 text-stone">No se encontraron recetas.</td>
                 </tr>
               )}
             </tbody>
