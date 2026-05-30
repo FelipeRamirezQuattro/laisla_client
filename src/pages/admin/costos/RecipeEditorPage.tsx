@@ -37,7 +37,9 @@ interface EditVariant {
   taxType: 'NONE' | 'IVA_19' | 'CONSUMO_8';
   taxRate: number;
   taxIncluded: boolean;
+  costingMethod: 'food-cost' | 'full-cost';
   targetMargin: number;
+  targetFoodCostPct: number;
 }
 
 type IngredientDrawerTarget =
@@ -72,7 +74,9 @@ const emptyVariant = (): EditVariant => ({
   taxType: 'IVA_19',
   taxRate: 0.19,
   taxIncluded: true,
-  targetMargin: 0.3,
+  costingMethod: 'food-cost',
+  targetMargin: 0.4,
+  targetFoodCostPct: 0.3,
 });
 
 const TAX_OPTIONS: Array<{ value: EditVariant['taxType']; label: string; rate: number }> = [
@@ -155,7 +159,9 @@ export function RecipeEditorPage() {
           taxType: v.taxType ?? 'IVA_19',
           taxRate: v.taxRate ?? 0.19,
           taxIncluded: v.taxIncluded ?? true,
-          targetMargin: v.targetMargin ?? 0.3,
+          costingMethod: v.costingMethod ?? 'food-cost',
+          targetMargin: v.targetMargin ?? 0.4,
+          targetFoodCostPct: v.targetFoodCostPct ?? 0.3,
         })));
       }).catch(() => {
         toast.error('Error al cargar receta');
@@ -208,7 +214,9 @@ export function RecipeEditorPage() {
         taxType: variant.taxType ?? 'IVA_19',
         taxRate: variant.taxRate ?? 0.19,
         taxIncluded: variant.taxIncluded ?? true,
-        targetMargin: variant.targetMargin ?? 0.3,
+        costingMethod: variant.costingMethod ?? 'food-cost',
+        targetMargin: variant.targetMargin ?? 0.4,
+        targetFoodCostPct: variant.targetFoodCostPct ?? 0.3,
       })),
     } : null);
     setRawForm(null);
@@ -352,7 +360,9 @@ export function RecipeEditorPage() {
       preparationTimeMinutes: totalPreparationTime,
       laborCostPerMinute: (params.hourlyWage * params.numberOfWorkers) / 60,
       salePrice: v.salePrice,
+      costingMethod: v.costingMethod,
       targetMargin: v.targetMargin || undefined,
+      targetFoodCostPct: v.targetFoodCostPct || undefined,
       ivaRate: params.ivaRate,
       taxRate: v.taxRate,
       taxIncluded: v.taxIncluded,
@@ -454,12 +464,19 @@ export function RecipeEditorPage() {
   const preview = v ? calcPreview(v) : null;
   const hasNetSalePrice = !!preview && preview.salePriceWithoutTax > 0;
   const totalPreparationTime = v ? variantPreparationTotal(v) : preparationTimeMinutes;
-  const suggestedBasePrice =
-    preview && v?.targetMargin && v.targetMargin > 0 && v.targetMargin < 1
-      ? preview.totalCost / (1 - v.targetMargin)
-      : 0;
+  const isFoodCostMethod = v?.costingMethod !== 'full-cost';
+  const suggestedBasePrice = preview && v
+    ? isFoodCostMethod
+      ? v.targetFoodCostPct > 0 && v.targetFoodCostPct < 1
+        ? preview.directMaterialCost / v.targetFoodCostPct
+        : 0
+      : v.targetMargin > 0 && v.targetMargin < 1
+        ? preview.totalCost / (1 - v.targetMargin)
+        : 0
+    : 0;
   const suggestedTaxAmount = suggestedBasePrice * (v?.taxRate ?? 0);
   const suggestedFinalPrice = suggestedBasePrice + suggestedTaxAmount;
+  const activeCostingLabel = isFoodCostMethod ? 'Food cost' : 'MOD + GIF';
 
   return (
     <div className="w-full max-w-none space-y-6">
@@ -588,6 +605,21 @@ export function RecipeEditorPage() {
                     {packs.map((p) => <option key={p._id} value={p._id}>{p.name} ({formatCOPDecimal(p.totalCost)})</option>)}
                   </select>
                 </div>
+                <div>
+                  <label className="text-sm font-medium text-ink font-body block mb-1">Método de costeo</label>
+                  <select
+                    className="input-base"
+                    value={v.costingMethod}
+                    onChange={(e) =>
+                      updateVariant(activeTab, {
+                        costingMethod: e.target.value as EditVariant['costingMethod'],
+                      })
+                    }
+                  >
+                    <option value="food-cost">Básico: food cost</option>
+                    <option value="full-cost">Completo: MOD + GIF</option>
+                  </select>
+                </div>
                 <Input
                   label="Precio de venta (COP)"
                   type="number"
@@ -621,13 +653,23 @@ export function RecipeEditorPage() {
 	                    El precio ingresado no incluye impuesto
 	                  </label>
 	                </div>
-                <Input
-                  label="Margen objetivo (0.0 – 1.0)"
-                  type="number"
-                  step="0.01"
-                  value={v.targetMargin}
-                  onChange={(e) => updateVariant(activeTab, { targetMargin: +e.target.value })}
-                />
+                {v.costingMethod === 'food-cost' ? (
+                  <Input
+                    label="Food cost objetivo (0.0 – 1.0)"
+                    type="number"
+                    step="0.01"
+                    value={v.targetFoodCostPct}
+                    onChange={(e) => updateVariant(activeTab, { targetFoodCostPct: +e.target.value })}
+                  />
+                ) : (
+                  <Input
+                    label="Margen objetivo (0.0 – 1.0)"
+                    type="number"
+                    step="0.01"
+                    value={v.targetMargin}
+                    onChange={(e) => updateVariant(activeTab, { targetMargin: +e.target.value })}
+                  />
+                )}
               </div>
 
               {variants.length > 1 && (
@@ -645,38 +687,56 @@ export function RecipeEditorPage() {
               {preview && params ? (
                 <div className="space-y-4">
                   <CostPreviewSection
-                    title="Costo de producir"
-                    tooltip="Suma lo que cuesta preparar una unidad de esta variante antes de impuestos y utilidad."
+                    title={`Costo de producir · ${activeCostingLabel}`}
+                    tooltip={
+                      isFoodCostMethod
+                        ? 'Usa solo materiales directos como costo base. MOD y GIF quedan fuera de este método.'
+                        : 'Suma materiales directos, MOD y GIF antes de impuestos y utilidad.'
+                    }
                   >
                     <Row
                       label="Materiales directos"
                       value={formatCOPDecimal(preview.directMaterialCost)}
                       tooltip="Ingredientes, sub-recetas y pack desechable seleccionado para esta variante."
                     />
-                    <Row
-                      label="MOD"
-                      value={formatCOPDecimal(preview.laborCost)}
-                      tooltip={
-                        totalPreparationTime > 0
-                          ? `Mano de obra calculada con ${totalPreparationTime.toFixed(1)} min de preparación y ${formatCOPDecimal((params.hourlyWage * params.numberOfWorkers) / 60)} por minuto.`
-                          : `Mano de obra directa por ítem. Viene de Parámetros MOD/GIF y hoy está en ${formatCOPDecimal(params.laborPerItem)} por producto.`
-                      }
-                    />
-                    <Row
-                      label="Tiempo preparación"
-                      value={`${totalPreparationTime.toFixed(1)} min`}
-                      tooltip="Tiempo base de esta receta más las sub-recetas marcadas para sumar tiempo."
-                    />
-                    <Row
-                      label="GIF"
-                      value={formatCOPDecimal(preview.overheadCost)}
-                      tooltip={`Gastos indirectos por ítem. Viene de Parámetros MOD/GIF y hoy está en ${formatCOPDecimal(params.overheadPerItem)} por producto.`}
-                    />
+                    {isFoodCostMethod ? (
+                      <Row
+                        label="Food cost objetivo"
+                        value={formatPct(v.targetFoodCostPct)}
+                        tooltip="Porcentaje objetivo del precio neto que ocuparán los materiales directos."
+                      />
+                    ) : (
+                      <>
+                        <Row
+                          label="MOD"
+                          value={formatCOPDecimal(preview.laborCost)}
+                          tooltip={
+                            totalPreparationTime > 0
+                              ? `Mano de obra calculada con ${totalPreparationTime.toFixed(1)} min de preparación y ${formatCOPDecimal((params.hourlyWage * params.numberOfWorkers) / 60)} por minuto.`
+                              : `Mano de obra directa por ítem. Viene de Parámetros MOD/GIF y hoy está en ${formatCOPDecimal(params.laborPerItem)} por producto.`
+                          }
+                        />
+                        <Row
+                          label="Tiempo preparación"
+                          value={`${totalPreparationTime.toFixed(1)} min`}
+                          tooltip="Tiempo base de esta receta más las sub-recetas marcadas para sumar tiempo."
+                        />
+                        <Row
+                          label="GIF"
+                          value={formatCOPDecimal(preview.overheadCost)}
+                          tooltip={`Gastos indirectos por ítem. Viene de Parámetros MOD/GIF y hoy está en ${formatCOPDecimal(params.overheadPerItem)} por producto.`}
+                        />
+                      </>
+                    )}
                     <div className="border-t border-rule pt-2 mt-2">
                       <Row
-                        label="Costo total"
+                        label={isFoodCostMethod ? 'Costo base' : 'Costo total'}
                         value={formatCOPDecimal(preview.totalCost)}
-                        tooltip="Materiales directos + MOD + GIF. Es la base para calcular utilidad y precio sugerido."
+                        tooltip={
+                          isFoodCostMethod
+                            ? 'Materiales directos. Es la base para el precio sugerido por food cost.'
+                            : 'Materiales directos + MOD + GIF. Es la base para calcular utilidad y precio sugerido.'
+                        }
                         bold
                       />
                     </div>
@@ -721,32 +781,48 @@ export function RecipeEditorPage() {
                     )}
                   </CostPreviewSection>
 
-                  <CostPreviewSection
-                    title="Rentabilidad"
-                    tooltip="Muestra cuánto queda después de cubrir el costo total. El margen se calcula sobre la venta neta, no sobre el precio con impuesto."
-                  >
+	                  <CostPreviewSection
+	                    title="Rentabilidad"
+	                    tooltip={
+                        isFoodCostMethod
+                          ? 'Muestra margen bruto sobre materiales directos. MOD y GIF no se descuentan en este método.'
+                          : 'Muestra cuánto queda después de cubrir el costo total. El margen se calcula sobre la venta neta, no sobre el precio con impuesto.'
+                      }
+	                  >
                     <Row
                       label="Utilidad neta"
                       value={hasNetSalePrice ? formatCOPDecimal(preview.profitAmount) : 'Pendiente'}
                       tooltip="Venta neta sin impuesto menos costo total."
                     />
-                    <Row
-                      label="Margen sobre venta neta"
-                      value={hasNetSalePrice ? formatPct(preview.grossMarginPct) : 'Pendiente'}
-                      tooltip="Porcentaje de la venta neta que queda como utilidad. Fórmula: utilidad neta / venta neta sin impuesto."
-                    />
-                  </CostPreviewSection>
+	                    <Row
+	                      label={isFoodCostMethod ? 'Margen bruto sobre venta neta' : 'Margen sobre venta neta'}
+	                      value={hasNetSalePrice ? formatPct(preview.grossMarginPct) : 'Pendiente'}
+	                      tooltip={
+                          isFoodCostMethod
+                            ? 'Porcentaje de venta neta que queda después de cubrir materiales directos.'
+                            : 'Porcentaje de la venta neta que queda como utilidad. Fórmula: utilidad neta / venta neta sin impuesto.'
+                        }
+	                    />
+	                  </CostPreviewSection>
 
-                  {v.targetMargin > 0 && (
-                    <CostPreviewSection
-                      title="Precio sugerido"
-                      tooltip="Calcula el precio necesario para alcanzar el margen objetivo configurado en esta variante."
-                    >
-                      <Row
-                        label="Precio sugerido base"
-                        value={formatCOPDecimal(suggestedBasePrice)}
-                        tooltip={`Precio sin impuesto necesario para lograr ${(v.targetMargin * 100).toFixed(0)}% de margen sobre venta neta.`}
-                      />
+	                  {((isFoodCostMethod && v.targetFoodCostPct > 0) || (!isFoodCostMethod && v.targetMargin > 0)) && (
+	                    <CostPreviewSection
+	                      title="Precio sugerido"
+	                      tooltip={
+                          isFoodCostMethod
+                            ? 'Calcula el precio necesario para alcanzar el food cost objetivo configurado.'
+                            : 'Calcula el precio necesario para alcanzar el margen objetivo configurado en esta variante.'
+                        }
+	                    >
+	                      <Row
+	                        label="Precio sugerido base"
+	                        value={formatCOPDecimal(suggestedBasePrice)}
+	                        tooltip={
+                            isFoodCostMethod
+                              ? `Precio sin impuesto para que materiales directos sean ${(v.targetFoodCostPct * 100).toFixed(0)}% de la venta neta.`
+                              : `Precio sin impuesto necesario para lograr ${(v.targetMargin * 100).toFixed(0)}% de margen sobre venta neta.`
+                          }
+	                      />
                       {v.taxRate > 0 && (
                         <>
                           <Row

@@ -125,13 +125,21 @@ export function CostSheetPage() {
 
               {/* Cost breakdown */}
               <div className="space-y-2">
-                <p className="text-xs font-body text-stone uppercase tracking-wide mb-2">Estructura de costos</p>
+                <p className="text-xs font-body text-stone uppercase tracking-wide mb-2">
+                  Estructura de costos · {v.costingMethod === 'full-cost' ? 'MOD + GIF' : 'Food cost'}
+                </p>
                 <CostRow label="Materiales directos" value={formatCOPDecimal(v.directMaterialCost)} />
                 <CostRow label="Tiempo preparación" value={`${(v.totalPreparationTimeMinutes ?? recipe.preparationTimeMinutes ?? 0).toFixed(1)} min`} />
-                <CostRow label="Mano de obra (MOD)" value={formatCOPDecimal(v.laborCost)} />
-                <CostRow label="Gastos indirectos (GIF)" value={formatCOPDecimal(v.overheadCost)} />
+                {v.costingMethod === 'full-cost' ? (
+                  <>
+                    <CostRow label="Mano de obra (MOD)" value={formatCOPDecimal(v.laborCost)} />
+                    <CostRow label="Gastos indirectos (GIF)" value={formatCOPDecimal(v.overheadCost)} />
+                  </>
+                ) : (
+                  <CostRow label="Food cost objetivo" value={formatPct(v.targetFoodCostPct ?? 0.3)} />
+                )}
                 <div className="border-t border-espresso pt-2 mt-2">
-                  <CostRow label="Costo total" value={formatCOPDecimal(v.totalCost)} bold />
+                  <CostRow label={v.costingMethod === 'full-cost' ? 'Costo total' : 'Costo base'} value={formatCOPDecimal(v.totalCost)} bold />
                 </div>
                 <div className="border-t border-rule pt-2 mt-2 space-y-2">
                   <CostRow label={v.taxIncluded ?? true ? 'Precio final ingresado' : 'Precio base ingresado'} value={formatCOP(v.salePrice)} />
@@ -146,10 +154,18 @@ export function CostSheetPage() {
                     </>
                   )}
                   <CostRow label="Utilidad neta" value={formatCOPDecimal(v.profitAmount)} />
-                  <CostRow label="Margen sobre venta neta" value={formatPct(v.grossMarginPct)} />
+                  <CostRow label={v.costingMethod === 'full-cost' ? 'Margen sobre venta neta' : 'Margen bruto sobre venta neta'} value={formatPct(v.grossMarginPct)} />
                   <CostRow label="Markup sobre costo" value={formatPct(v.profitPct)} />
                   {v.suggestedPrice > 0 && (
-                    <CostRow label={`Precio sugerido final (${((v.targetMargin ?? 0) * 100).toFixed(0)}% margen)`} value={formatCOPDecimal(v.suggestedPrice)} bold />
+                    <CostRow
+                      label={
+                        v.costingMethod === 'full-cost'
+                          ? `Precio sugerido final (${((v.targetMargin ?? 0) * 100).toFixed(0)}% margen)`
+                          : `Precio sugerido final (${((v.targetFoodCostPct ?? 0.3) * 100).toFixed(0)}% food cost)`
+                      }
+                      value={formatCOPDecimal(v.suggestedPrice)}
+                      bold
+                    />
                   )}
                 </div>
               </div>

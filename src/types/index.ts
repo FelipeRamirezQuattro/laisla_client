@@ -383,7 +383,9 @@ export interface RecipeVariant {
   taxRate?: number;
   taxIncluded?: boolean;
   salePriceWithoutTax: number;
+  costingMethod?: 'food-cost' | 'full-cost';
   targetMargin?: number;
+  targetFoodCostPct?: number;
   totalPreparationTimeMinutes?: number;
   directMaterialCost: number;
   laborCost: number;
