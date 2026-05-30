@@ -1,5 +1,14 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-import { Download, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Download,
+  Pencil,
+  Plus,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { insumosInvApi } from "../../../api/inventario";
 import { rawMaterialsApi } from "../../../api/costs";
@@ -57,6 +66,88 @@ const UNIT_OPTIONS = MEASUREMENT_UNITS.map((u) => ({
 
 const costCategoryLabel = (c: RawMaterialCategory) =>
   COST_CATEGORIES.find((x) => x.value === c)?.label ?? c;
+
+type InsumoSortKey =
+  | "orden"
+  | "nombre"
+  | "cantidadPresentacion"
+  | "unidad"
+  | "nivelBueno"
+  | "nivelRegular"
+  | "nivelAgotado"
+  | "precioLista"
+  | "activo";
+
+type SortDirection = "asc" | "desc";
+
+interface InsumoSort {
+  key: InsumoSortKey;
+  direction: SortDirection;
+}
+
+const defaultInsumoSort: InsumoSort = { key: "orden", direction: "asc" };
+
+function compareNullableValues(
+  a: string | number | boolean | null | undefined,
+  b: string | number | boolean | null | undefined,
+) {
+  const aEmpty = a === null || a === undefined || a === "";
+  const bEmpty = b === null || b === undefined || b === "";
+  if (aEmpty && bEmpty) return 0;
+  if (aEmpty) return 1;
+  if (bEmpty) return -1;
+
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  if (typeof a === "boolean" && typeof b === "boolean") return Number(b) - Number(a);
+
+  return String(a).localeCompare(String(b), "es", {
+    numeric: true,
+    sensitivity: "base",
+  });
+}
+
+function sortInsumos(insumos: Insumo[], sort: InsumoSort) {
+  return [...insumos].sort((a, b) => {
+    const result = compareNullableValues(a[sort.key], b[sort.key]);
+    return sort.direction === "asc" ? result : -result;
+  });
+}
+
+function SortableHeader({
+  label,
+  sortKey,
+  activeSort,
+  onSort,
+  children,
+}: {
+  label: string;
+  sortKey: InsumoSortKey;
+  activeSort: InsumoSort;
+  onSort: (key: InsumoSortKey) => void;
+  children?: React.ReactNode;
+}) {
+  const active = activeSort.key === sortKey;
+  const Icon = active
+    ? activeSort.direction === "asc"
+      ? ArrowUp
+      : ArrowDown
+    : ArrowUpDown;
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      className="group inline-flex items-center gap-1.5 text-left uppercase tracking-wide transition-colors hover:text-espresso"
+      aria-label={`Ordenar por ${label}`}
+    >
+      <span>{children ?? label}</span>
+      <Icon
+        size={13}
+        className={active ? "text-espresso" : "text-stone/60 group-hover:text-espresso"}
+      />
+    </button>
+  );
+}
 
 interface CostFormData {
   category: RawMaterialCategory;
@@ -155,6 +246,7 @@ export function CatalogoInsumosPage() {
     "insumos",
   );
   const [activeCat, setActiveCat] = useState<string>("all");
+  const [insumoSort, setInsumoSort] = useState<InsumoSort>(defaultInsumoSort);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [costLoading, setCostLoading] = useState(true);
@@ -437,6 +529,7 @@ export function CatalogoInsumosPage() {
         categoriaId: catId,
       });
       setNewRow(null);
+      setInsumoSort(defaultInsumoSort);
       load();
       toast.success("Insumo creado");
     } catch {
@@ -508,10 +601,25 @@ export function CatalogoInsumosPage() {
     e.target.value = "";
   };
 
-  const visibleGrupos =
-    activeCat === "all"
-      ? grupos
-      : grupos.filter((g) => g.categoria._id === activeCat);
+  const visibleGrupos = useMemo(() => {
+    const filtered =
+      activeCat === "all"
+        ? grupos
+        : grupos.filter((g) => g.categoria._id === activeCat);
+
+    return filtered.map((grupo) => ({
+      ...grupo,
+      insumos: sortInsumos(grupo.insumos, insumoSort),
+    }));
+  }, [activeCat, grupos, insumoSort]);
+
+  const toggleInsumoSort = (key: InsumoSortKey) => {
+    setInsumoSort((current) =>
+      current.key === key
+        ? { key, direction: current.direction === "asc" ? "desc" : "asc" }
+        : { key, direction: "asc" },
+    );
+  };
   const categoryCounts = Object.fromEntries(
     grupos.map((g) => [g.categoria._id, g.insumos.length]),
   );
@@ -682,23 +790,79 @@ export function CatalogoInsumosPage() {
                   <thead>
                     <tr className="bg-surface-tint text-stone text-xs uppercase tracking-wide">
                       {isAdmin && <th className="px-3 py-2 w-8"></th>}
-                      <th className="px-3 py-2 text-left">Nombre</th>
                       <th className="px-3 py-2 text-left">
-                        <span className="block">Cantidad por presentación</span>
+                        <SortableHeader
+                          label="Nombre"
+                          sortKey="nombre"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        />
                       </th>
                       <th className="px-3 py-2 text-left">
-                        Unidad de presentación
+                        <SortableHeader
+                          label="Cantidad por presentación"
+                          sortKey="cantidadPresentacion"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        >
+                          <span className="block">Cantidad por presentación</span>
+                        </SortableHeader>
                       </th>
-                      <th className="px-3 py-2 text-left">Nivel Bueno</th>
-                      <th className="px-3 py-2 text-left">Nivel Regular</th>
-                      <th className="px-3 py-2 text-left">Nivel Agotado</th>
                       <th className="px-3 py-2 text-left">
-                        <span className="block">Costo por unidad</span>
-                        <span className="block text-[11px] font-normal normal-case text-stone">
-                          COP / unidad
-                        </span>
+                        <SortableHeader
+                          label="Unidad de presentación"
+                          sortKey="unidad"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        />
                       </th>
-                      <th className="px-3 py-2 text-left">Estado</th>
+                      <th className="px-3 py-2 text-left">
+                        <SortableHeader
+                          label="Nivel Bueno"
+                          sortKey="nivelBueno"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        />
+                      </th>
+                      <th className="px-3 py-2 text-left">
+                        <SortableHeader
+                          label="Nivel Regular"
+                          sortKey="nivelRegular"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        />
+                      </th>
+                      <th className="px-3 py-2 text-left">
+                        <SortableHeader
+                          label="Nivel Agotado"
+                          sortKey="nivelAgotado"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        />
+                      </th>
+                      <th className="px-3 py-2 text-left">
+                        <SortableHeader
+                          label="Costo por unidad"
+                          sortKey="precioLista"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        >
+                          <span>
+                            <span className="block">Costo por unidad</span>
+                            <span className="block text-[11px] font-normal normal-case text-stone">
+                              COP / unidad
+                            </span>
+                          </span>
+                        </SortableHeader>
+                      </th>
+                      <th className="px-3 py-2 text-left">
+                        <SortableHeader
+                          label="Estado"
+                          sortKey="activo"
+                          activeSort={insumoSort}
+                          onSort={toggleInsumoSort}
+                        />
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-rule">
