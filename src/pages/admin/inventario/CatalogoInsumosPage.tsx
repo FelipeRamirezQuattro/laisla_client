@@ -522,7 +522,7 @@ export function CatalogoInsumosPage() {
     const catId = activeCat !== "all" ? activeCat : categorias[0]?._id;
     if (!catId) return;
     try {
-      await insumosInvApi.create({
+      const res = await insumosInvApi.create({
         nombre: newRow.nombre.trim(),
         unidad: newRow.unidad,
         cantidadPresentacion: newRow.cantidadPresentacion || 1,
@@ -530,7 +530,13 @@ export function CatalogoInsumosPage() {
       });
       setNewRow(null);
       setInsumoSort(defaultInsumoSort);
-      load();
+      setGrupos((prev) =>
+        prev.map((grupo) =>
+          grupo.categoria._id === catId
+            ? { ...grupo, insumos: [res.data, ...grupo.insumos] }
+            : grupo,
+        ),
+      );
       toast.success("Insumo creado");
     } catch {
       toast.error("Error al crear insumo");
