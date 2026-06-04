@@ -2,10 +2,18 @@
 
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   email: string;
-  role: 'admin' | 'staff';
+  role: UserRole;
+  isActive?: boolean;
+  avatarInitials?: string;
+  createdBy?: string;
+  lastLoginAt?: string;
+  createdAt?: string;
 }
+
+export type UserRole = 'superadmin' | 'admin' | 'user';
 
 // ─── Product ─────────────────────────────────────────────────────────────────
 
@@ -620,4 +628,71 @@ export interface ReporteInsumoCritico {
   nombre: string;
   categoria: string;
   agotadoCount: number;
+}
+
+// ─── Projects, Tasks & Notifications ────────────────────────────────────────
+
+export type ProjectTaskStatus = 'pending' | 'in-progress' | 'review' | 'done' | 'cancelled';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export interface Project {
+  _id: string;
+  name: string;
+  description?: string;
+  color: string;
+  icon?: string;
+  isActive: boolean;
+  createdBy: string | User;
+  createdAt: string;
+  updatedAt: string;
+  taskCounts?: Partial<Record<ProjectTaskStatus, number>>;
+}
+
+export interface TaskAttachment {
+  _id: string;
+  filename: string;
+  url: string;
+  addedBy: string | User;
+  addedAt: string;
+}
+
+export interface ProjectTask {
+  _id: string;
+  projectId: string | Project;
+  title: string;
+  description?: string;
+  status: ProjectTaskStatus;
+  priority: TaskPriority;
+  assignedTo: User[];
+  createdBy: string | User;
+  dueDate?: string;
+  completedAt?: string;
+  notes?: string;
+  attachments: TaskAttachment[];
+  tags: string[];
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type NotificationType =
+  | 'task_assigned'
+  | 'task_updated'
+  | 'task_due_soon'
+  | 'task_overdue'
+  | 'project_created'
+  | 'general';
+
+export interface Notification {
+  _id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  entityType?: 'task' | 'project';
+  entityId?: string;
+  linkTo?: string;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
 }

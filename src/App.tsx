@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
+import { RoleGuard } from './components/RoleGuard';
 
 // Admin pages
 import { LoginPage } from './pages/admin/LoginPage';
@@ -18,6 +19,11 @@ import { ReservationsPage } from './pages/admin/ReservationsPage';
 import { ExpensesPage } from './pages/admin/ExpensesPage';
 import { CashFlowPage } from './pages/admin/CashFlowPage';
 import { ReportsPage } from './pages/admin/ReportsPage';
+import { UsuariosPage } from './pages/admin/UsuariosPage';
+import { NotificacionesPage } from './pages/admin/NotificacionesPage';
+import { ProyectosPage } from './pages/admin/proyectos/ProyectosPage';
+import { ProyectoDetailPage } from './pages/admin/proyectos/ProyectoDetailPage';
+import { MisTareasPage } from './pages/admin/proyectos/MisTareasPage';
 
 // Inventario diario pages
 import { ControlDiarioPage } from './pages/admin/inventario/ControlDiarioPage';
@@ -67,27 +73,32 @@ export default function App() {
             <Route path="/admin/expenses" element={<ExpensesPage />} />
             <Route path="/admin/cashflow" element={<CashFlowPage />} />
             <Route path="/admin/reports" element={<ReportsPage />} />
+            <Route path="/admin/mis-tareas" element={<MisTareasPage />} />
+            <Route path="/admin/notificaciones" element={<NotificacionesPage />} />
+            <Route path="/admin/proyectos" element={<RoleGuard roles={['admin', 'superadmin']}><ProyectosPage /></RoleGuard>} />
+            <Route path="/admin/proyectos/:id" element={<RoleGuard roles={['admin', 'superadmin']}><ProyectoDetailPage /></RoleGuard>} />
+            <Route path="/admin/usuarios" element={<RoleGuard roles={['superadmin']}><UsuariosPage /></RoleGuard>} />
             {/* Cost module */}
-            <Route path="/admin/costos/dashboard" element={<DashboardCostosPage />} />
-            <Route path="/admin/costos/parametros" element={<ParametrosMODGIFPage />} />
-            <Route path="/admin/costos/recetas" element={<RecipesPage />} />
-            <Route path="/admin/costos/recetas/:id" element={<RecipeEditorPage />} />
-            <Route path="/admin/costos/recetas/:id/ficha" element={<CostSheetPage />} />
-            <Route path="/admin/costos/packs-desechables" element={<DisposablePacksPage />} />
-            <Route path="/admin/costos/proyecciones/:year" element={<ProjectionsPage />} />
-            <Route path="/admin/costos/resultados/:year" element={<ActualResultsPage />} />
-            <Route path="/admin/costos/inventario" element={<InventoryPage />} />
+            <Route path="/admin/costos/dashboard" element={<RoleGuard roles={['admin', 'superadmin']}><DashboardCostosPage /></RoleGuard>} />
+            <Route path="/admin/costos/parametros" element={<RoleGuard roles={['admin', 'superadmin']}><ParametrosMODGIFPage /></RoleGuard>} />
+            <Route path="/admin/costos/recetas" element={<RoleGuard roles={['admin', 'superadmin']}><RecipesPage /></RoleGuard>} />
+            <Route path="/admin/costos/recetas/:id" element={<RoleGuard roles={['admin', 'superadmin']}><RecipeEditorPage /></RoleGuard>} />
+            <Route path="/admin/costos/recetas/:id/ficha" element={<RoleGuard roles={['admin', 'superadmin']}><CostSheetPage /></RoleGuard>} />
+            <Route path="/admin/costos/packs-desechables" element={<RoleGuard roles={['admin', 'superadmin']}><DisposablePacksPage /></RoleGuard>} />
+            <Route path="/admin/costos/proyecciones/:year" element={<RoleGuard roles={['admin', 'superadmin']}><ProjectionsPage /></RoleGuard>} />
+            <Route path="/admin/costos/resultados/:year" element={<RoleGuard roles={['admin', 'superadmin']}><ActualResultsPage /></RoleGuard>} />
+            <Route path="/admin/costos/inventario" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
             {/* Inventario diario */}
-            <Route path="/admin/inventario/control" element={<ControlDiarioPage />} />
-            <Route path="/admin/inventario/alertas" element={<InventoryPage />} />
-            <Route path="/admin/inventario/catalogo" element={<CatalogoInsumosPage />} />
-            <Route path="/admin/inventario/recetas" element={<RecipesPage />} />
-            <Route path="/admin/inventario/recetas/:id" element={<RecipeEditorPage />} />
-            <Route path="/admin/inventario/recetas/:id/ficha" element={<CostSheetPage />} />
-            <Route path="/admin/inventario/packs-desechables" element={<DisposablePacksPage />} />
-            <Route path="/admin/inventario/stock" element={<InventoryPage />} />
-            <Route path="/admin/inventario/historial" element={<ControlDiarioPage initialTab="historial" />} />
-            <Route path="/admin/inventario/reportes" element={<ReportesInventarioPage />} />
+            <Route path="/admin/inventario/control" element={<RoleGuard roles={['admin', 'superadmin']}><ControlDiarioPage /></RoleGuard>} />
+            <Route path="/admin/inventario/alertas" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
+            <Route path="/admin/inventario/catalogo" element={<RoleGuard roles={['admin', 'superadmin']}><CatalogoInsumosPage /></RoleGuard>} />
+            <Route path="/admin/inventario/recetas" element={<RoleGuard roles={['admin', 'superadmin']}><RecipesPage /></RoleGuard>} />
+            <Route path="/admin/inventario/recetas/:id" element={<RoleGuard roles={['admin', 'superadmin']}><RecipeEditorPage /></RoleGuard>} />
+            <Route path="/admin/inventario/recetas/:id/ficha" element={<RoleGuard roles={['admin', 'superadmin']}><CostSheetPage /></RoleGuard>} />
+            <Route path="/admin/inventario/packs-desechables" element={<RoleGuard roles={['admin', 'superadmin']}><DisposablePacksPage /></RoleGuard>} />
+            <Route path="/admin/inventario/stock" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
+            <Route path="/admin/inventario/historial" element={<RoleGuard roles={['admin', 'superadmin']}><ControlDiarioPage initialTab="historial" /></RoleGuard>} />
+            <Route path="/admin/inventario/reportes" element={<RoleGuard roles={['admin', 'superadmin']}><ReportesInventarioPage /></RoleGuard>} />
           </Route>
         </Route>
 

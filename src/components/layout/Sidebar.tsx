@@ -7,9 +7,11 @@ import {
   PackageOpen, LineChart, Wallet, Archive, ChevronDown, ChevronUp,
   CircleDollarSign, ClipboardCheck, Package, ReceiptText, X,
   HandCoins,
+  FolderOpen, ListChecks, UserCog,
 } from 'lucide-react';
 import { alertasInvApi } from '../../api/inventario';
 import { useUiStore } from '../../store/uiStore';
+import { useAuthStore } from '../../store/authStore';
 import type { LucideIcon } from 'lucide-react';
 
 interface NavItemDef {
@@ -26,6 +28,7 @@ const navItems: NavItemDef[] = [
   { to: '/admin/orders', label: 'Pedidos', Icon: ClipboardList, end: true },
   { to: '/admin/orders/active', label: 'Pedidos activos', Icon: ClipboardCheck },
   { to: '/admin/billing', label: 'Facturación', Icon: ReceiptText },
+  { to: '/admin/mis-tareas', label: 'Mis tareas', Icon: ListChecks },
   { to: '/admin/expenses', label: 'Gastos', Icon: HandCoins },
   { to: '/admin/cashflow', label: 'Caja / Cierre', Icon: Banknote },
   { to: '/admin/reservations', label: 'Reservaciones', Icon: Calendar },
@@ -54,6 +57,14 @@ const gestionItems: NavItemDef[] = [
   { to: '/admin/reports', label: 'Reportes', Icon: BarChart2 },
 ];
 
+const projectItems: NavItemDef[] = [
+  { to: '/admin/proyectos', label: 'Proyectos', Icon: FolderOpen },
+];
+
+const configItems: NavItemDef[] = [
+  { to: '/admin/usuarios', label: 'Usuarios', Icon: UserCog },
+];
+
 function NavItem({ to, label, Icon, end }: NavItemDef) {
   return (
     <NavLink
@@ -75,6 +86,7 @@ function NavItem({ to, label, Icon, end }: NavItemDef) {
 
 export function Sidebar() {
   const { sidebarOpen } = useUiStore();
+  const { isAdmin, isSuperAdmin } = useAuthStore();
   const location = useLocation();
   const isCostRoute = location.pathname.startsWith('/admin/costos');
   const isInventarioRoute = location.pathname.startsWith('/admin/inventario');
@@ -82,13 +94,16 @@ export function Sidebar() {
   const [costOpen, setCostOpen] = useState(isCostRoute);
   const [inventarioOpen, setInventarioOpen] = useState(isInventarioRoute);
   const [gestionOpen, setGestionOpen] = useState(isGestionRoute);
+  const [projectOpen, setProjectOpen] = useState(location.pathname.startsWith('/admin/proyectos'));
+  const [configOpen, setConfigOpen] = useState(location.pathname.startsWith('/admin/usuarios'));
   const [agotadoCount, setAgotadoCount] = useState(0);
 
   useEffect(() => {
+    if (!isAdmin) return;
     alertasInvApi.getAll()
       .then((res) => setAgotadoCount(res.data.filter((a) => a.detalle.nivel === 'AGOTADO').length))
       .catch(() => {});
-  }, [location.pathname]);
+  }, [location.pathname, isAdmin]);
 
   return (
     <>
@@ -155,75 +170,117 @@ export function Sidebar() {
             </div>
           )}
 
-          {/* Control de Inventario collapsible group */}
-          <button
-            onClick={() => setInventarioOpen((o) => !o)}
-            className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
-          >
-            <span className="flex items-center gap-3">
-              <ClipboardCheck size={16} strokeWidth={1.75} />
-              Control de Inventario
-              {agotadoCount > 0 && (
-                <span className="bg-error text-cream text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
-                  {agotadoCount}
+          {isAdmin && (
+            <>
+              <button
+                onClick={() => setProjectOpen((o) => !o)}
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              >
+                <span className="flex items-center gap-3">
+                  <FolderOpen size={16} strokeWidth={1.75} />
+                  Gestión de Proyecto
                 </span>
-              )}
-            </span>
-            {inventarioOpen
-              ? <ChevronUp size={14} className="opacity-60" />
-              : <ChevronDown size={14} className="opacity-60" />
-            }
-          </button>
+                {projectOpen ? <ChevronUp size={14} className="opacity-60" /> : <ChevronDown size={14} className="opacity-60" />}
+              </button>
 
-          {inventarioOpen && (
-            <div className="pl-4">
-              {inventarioItems.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `flex items-center justify-between px-6 py-2.5 text-sm font-body transition-all duration-200 ${
-                      isActive
-                        ? 'bg-cream text-espresso font-medium'
-                        : 'text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10'
-                    }`
-                  }
-                >
-                  <span className="flex items-center gap-3">
-                    <item.Icon size={16} strokeWidth={1.75} />
-                    {item.label}
-                  </span>
-                  {item.to.includes('stock') && agotadoCount > 0 && (
+              {projectOpen && (
+                <div className="pl-4">
+                  {projectItems.map((item) => <NavItem key={item.to} {...item} />)}
+                </div>
+              )}
+
+              {/* Control de Inventario collapsible group */}
+              <button
+                onClick={() => setInventarioOpen((o) => !o)}
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              >
+                <span className="flex items-center gap-3">
+                  <ClipboardCheck size={16} strokeWidth={1.75} />
+                  Control de Inventario
+                  {agotadoCount > 0 && (
                     <span className="bg-error text-cream text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
                       {agotadoCount}
                     </span>
                   )}
-                </NavLink>
-              ))}
-            </div>
+                </span>
+                {inventarioOpen
+                  ? <ChevronUp size={14} className="opacity-60" />
+                  : <ChevronDown size={14} className="opacity-60" />
+                }
+              </button>
+
+              {inventarioOpen && (
+                <div className="pl-4">
+                  {inventarioItems.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `flex items-center justify-between px-6 py-2.5 text-sm font-body transition-all duration-200 ${
+                          isActive
+                            ? 'bg-cream text-espresso font-medium'
+                            : 'text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10'
+                        }`
+                      }
+                    >
+                      <span className="flex items-center gap-3">
+                        <item.Icon size={16} strokeWidth={1.75} />
+                        {item.label}
+                      </span>
+                      {item.to.includes('stock') && agotadoCount > 0 && (
+                        <span className="bg-error text-cream text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
+                          {agotadoCount}
+                        </span>
+                      )}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+
+              {/* Costos & Finanzas collapsible group */}
+              <button
+                onClick={() => setCostOpen((o) => !o)}
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              >
+                <span className="flex items-center gap-3">
+                  <CircleDollarSign size={16} strokeWidth={1.75} />
+                  Costos &amp; Finanzas
+                </span>
+                {costOpen
+                  ? <ChevronUp size={14} className="opacity-60" />
+                  : <ChevronDown size={14} className="opacity-60" />
+                }
+              </button>
+
+              {costOpen && (
+                <div className="pl-4">
+                  {costItems.map((item) => (
+                    <NavItem key={item.to} {...item} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
-          {/* Costos & Finanzas collapsible group */}
-          <button
-            onClick={() => setCostOpen((o) => !o)}
-            className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
-          >
-            <span className="flex items-center gap-3">
-              <CircleDollarSign size={16} strokeWidth={1.75} />
-              Costos &amp; Finanzas
-            </span>
-            {costOpen
-              ? <ChevronUp size={14} className="opacity-60" />
-              : <ChevronDown size={14} className="opacity-60" />
-            }
-          </button>
+          {isSuperAdmin && (
+            <>
+              <button
+                onClick={() => setConfigOpen((o) => !o)}
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              >
+                <span className="flex items-center gap-3">
+                  <UserCog size={16} strokeWidth={1.75} />
+                  Configuración
+                </span>
+                {configOpen ? <ChevronUp size={14} className="opacity-60" /> : <ChevronDown size={14} className="opacity-60" />}
+              </button>
 
-          {costOpen && (
-            <div className="pl-4">
-              {costItems.map((item) => (
-                <NavItem key={item.to} {...item} />
-              ))}
-            </div>
+              {configOpen && (
+                <div className="pl-4">
+                  {configItems.map((item) => <NavItem key={item.to} {...item} />)}
+                </div>
+              )}
+            </>
           )}
         </nav>
 
