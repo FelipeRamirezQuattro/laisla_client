@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, useCallback, useMemo, type FormEvent, type ReactNode } from 'react';
 import { reservationsApi } from '../../api/reservations';
 import { tablesApi } from '../../api/tables';
 import { CafeTable, Reservation, ReservationStatus } from '../../types';
@@ -48,6 +48,7 @@ export function ReservationsPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
   const [reserveDate, setReserveDate] = useState(todayLocal());
   const [tables, setTables] = useState<CafeTable[]>([]);
   const [reserveForm, setReserveForm] = useState({
@@ -100,6 +101,25 @@ export function ReservationsPage() {
 
   const tableName = (table?: string | CafeTable | null) =>
     typeof table === 'object' && table ? table.name : tables.find((item) => item._id === table)?.name || '-';
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredReservations = useMemo(() => reservations.filter((reservation) => {
+    if (!normalizedSearch) return true;
+    return [
+      reservation.confirmationCode,
+      reservation.clientName,
+      reservation.email,
+      reservation.phone,
+      reservation.status,
+      zoneLabels[reservation.zone],
+      reservation.zone,
+      tableName(reservation.tableId),
+      reservation.detail,
+      formatDate(reservation.date),
+      formatTime(reservation.timeSlot),
+      String(reservation.partySize),
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  }), [reservations, normalizedSearch, tables]);
 
   useEffect(() => {
     if (!viewReservation) return;
@@ -193,7 +213,7 @@ export function ReservationsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-body text-2xl font-bold text-espresso">Reservaciones</h1>
-        <p className="text-stone font-body text-sm">{total} reservaciones</p>
+        <p className="text-stone font-body text-sm">{filteredReservations.length} reservaciones en esta página · {total} total</p>
       </div>
 
       <div className="card">
@@ -247,7 +267,12 @@ export function ReservationsPage() {
         </form>
       </div>
 
-      <div className="card flex gap-3">
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por código, cliente, email, mesa o zona..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
         <Select
           options={[
             { value: '', label: 'Todos los estados' },
@@ -259,7 +284,6 @@ export function ReservationsPage() {
           ]}
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="w-48"
         />
       </div>
 
@@ -279,7 +303,7 @@ export function ReservationsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-rule">
-              {reservations.map((r) => (
+              {filteredReservations.map((r) => (
                 <tr key={r._id} className="hover:bg-surface-tint transition-colors">
                   <td className="px-4 py-3 font-mono text-xs text-espresso font-bold">{r.confirmationCode}</td>
                   <td className="px-4 py-3">
@@ -300,7 +324,7 @@ export function ReservationsPage() {
                   </td>
                 </tr>
               ))}
-              {reservations.length === 0 && (
+              {filteredReservations.length === 0 && (
                 <tr><td colSpan={8} className="text-center py-10 text-stone">No hay reservaciones.</td></tr>
               )}
             </tbody>

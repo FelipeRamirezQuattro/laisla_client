@@ -76,6 +76,7 @@ export function UsuariosPage() {
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
   const [passwordUser, setPasswordUser] = useState<User | null>(null);
+  const [search, setSearch] = useState('');
   const toast = useToast();
   const { user: currentUser } = useAuthStore();
 
@@ -186,15 +187,39 @@ export function UsuariosPage() {
   };
 
   const currentId = currentUser ? (currentUser._id || currentUser.id) : '';
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredUsers = users.filter((item) => {
+    if (!normalizedSearch) return true;
+    const activeLabel = (item.isActive ?? true) ? 'activo' : 'inactivo';
+    return [
+      item.name,
+      item.email,
+      roleLabels[item.role],
+      item.role,
+      activeLabel,
+      item.lastLoginAt ? formatDateTime(item.lastLoginAt) : '',
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-body text-2xl font-bold text-espresso">Usuarios</h1>
-          <p className="text-stone font-body text-sm">{users.length} usuarios registrados</p>
+          <p className="text-stone font-body text-sm">{filteredUsers.length} usuarios registrados</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo usuario</Button>
+      </div>
+
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por usuario, email, rol o estado..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+          {filteredUsers.length} de {users.length} usuarios
+        </div>
       </div>
 
       {loading ? <PageLoader /> : (
@@ -211,7 +236,7 @@ export function UsuariosPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-rule">
-              {users.map((item) => {
+              {filteredUsers.map((item) => {
                 const ownUser = userId(item) === currentId;
                 return (
                   <tr key={userId(item)} className="hover:bg-surface-tint transition-colors">
@@ -249,6 +274,11 @@ export function UsuariosPage() {
                   </tr>
                 );
               })}
+              {filteredUsers.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-stone">No se encontraron usuarios.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -246,6 +246,7 @@ export function CatalogoInsumosPage() {
     "insumos",
   );
   const [activeCat, setActiveCat] = useState<string>("all");
+  const [insumoSearch, setInsumoSearch] = useState("");
   const [insumoSort, setInsumoSort] = useState<InsumoSort>(defaultInsumoSort);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -608,6 +609,7 @@ export function CatalogoInsumosPage() {
   };
 
   const visibleGrupos = useMemo(() => {
+    const normalizedSearch = insumoSearch.trim().toLowerCase();
     const filtered =
       activeCat === "all"
         ? grupos
@@ -615,9 +617,24 @@ export function CatalogoInsumosPage() {
 
     return filtered.map((grupo) => ({
       ...grupo,
-      insumos: sortInsumos(grupo.insumos, insumoSort),
-    }));
-  }, [activeCat, grupos, insumoSort]);
+      insumos: sortInsumos(
+        grupo.insumos.filter((insumo) => {
+          if (!normalizedSearch) return true;
+          return [
+            insumo.nombre,
+            grupo.categoria.nombre,
+            insumo.unidad,
+            insumo.nivelBueno,
+            insumo.nivelRegular,
+            insumo.nivelAgotado,
+            insumo.activo ? "activo" : "inactivo",
+            String(insumo.precioLista ?? ""),
+          ].some((value) => String(value || "").toLowerCase().includes(normalizedSearch));
+        }),
+        insumoSort,
+      ),
+    })).filter((grupo) => grupo.insumos.length > 0 || !normalizedSearch);
+  }, [activeCat, grupos, insumoSort, insumoSearch]);
 
   const toggleInsumoSort = (key: InsumoSortKey) => {
     setInsumoSort((current) =>
@@ -737,6 +754,17 @@ export function CatalogoInsumosPage() {
 
       {view === "insumos" && (
         <>
+          <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+            <Input
+              placeholder="Buscar por insumo, categoría, unidad, nivel o estado..."
+              value={insumoSearch}
+              onChange={(e) => setInsumoSearch(e.target.value)}
+            />
+            <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+              {visibleGrupos.reduce((sum, grupo) => sum + grupo.insumos.length, 0)} resultados
+            </div>
+          </div>
+
           {/* Category tabs */}
           <div className="flex gap-2 flex-wrap">
             <button
@@ -1063,6 +1091,11 @@ export function CatalogoInsumosPage() {
               </div>
             </div>
           ))}
+          {visibleGrupos.length === 0 && (
+            <div className="card text-center text-stone">
+              No se encontraron insumos.
+            </div>
+          )}
         </>
       )}
 
@@ -1140,12 +1173,11 @@ export function CatalogoInsumosPage() {
 
       {view === "costos" && (
         <div className="space-y-4">
-          <div className="card flex flex-col sm:flex-row gap-3">
+          <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
             <Input
-              placeholder="Buscar por nombre..."
+              placeholder="Buscar por nombre, proveedor o presentación..."
               value={costSearch}
               onChange={(e) => setCostSearch(e.target.value)}
-              className="flex-1"
             />
             <Select
               options={[
@@ -1154,7 +1186,6 @@ export function CatalogoInsumosPage() {
               ]}
               value={costCatFilter}
               onChange={(e) => setCostCatFilter(e.target.value)}
-              className="sm:w-56"
             />
           </div>
 

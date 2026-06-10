@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminLayout } from './components/layout/AdminLayout';
@@ -21,6 +22,7 @@ import { CashFlowPage } from './pages/admin/CashFlowPage';
 import { ReportsPage } from './pages/admin/ReportsPage';
 import { UsuariosPage } from './pages/admin/UsuariosPage';
 import { NotificacionesPage } from './pages/admin/NotificacionesPage';
+import { BoletinesPage } from './pages/admin/BoletinesPage';
 import { ProyectosPage } from './pages/admin/proyectos/ProyectosPage';
 import { ProyectoDetailPage } from './pages/admin/proyectos/ProyectoDetailPage';
 import { MisTareasPage } from './pages/admin/proyectos/MisTareasPage';
@@ -50,7 +52,9 @@ import { EventsListPage } from './pages/public/EventsListPage';
 import { EventDetailPage } from './pages/public/EventDetailPage';
 import { DinnerWithStrangersPage } from './pages/public/DinnerWithStrangersPage';
 
-export default function App() {
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
+function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
@@ -75,6 +79,7 @@ export default function App() {
             <Route path="/admin/reports" element={<ReportsPage />} />
             <Route path="/admin/mis-tareas" element={<MisTareasPage />} />
             <Route path="/admin/notificaciones" element={<NotificacionesPage />} />
+            <Route path="/admin/boletines" element={<RoleGuard roles={['admin', 'superadmin']}><BoletinesPage /></RoleGuard>} />
             <Route path="/admin/proyectos" element={<RoleGuard roles={['admin', 'superadmin']}><ProyectosPage /></RoleGuard>} />
             <Route path="/admin/proyectos/:id" element={<RoleGuard roles={['admin', 'superadmin']}><ProyectoDetailPage /></RoleGuard>} />
             <Route path="/admin/usuarios" element={<RoleGuard roles={['superadmin']}><UsuariosPage /></RoleGuard>} />
@@ -117,5 +122,15 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+  );
+}
+
+export default function App() {
+  if (!googleClientId) return <AppRoutes />;
+
+  return (
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <AppRoutes />
+    </GoogleOAuthProvider>
   );
 }

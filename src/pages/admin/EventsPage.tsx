@@ -1,5 +1,5 @@
 import { Plus, Sparkles, X } from 'lucide-react';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -55,6 +55,7 @@ export function EventsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Event | null>(null);
   const [guestsModal, setGuestsModal] = useState<Event | null>(null);
@@ -171,15 +172,43 @@ export function EventsPage() {
 
   const isDinnerEvent = guestsModal?.type === 'dinner-with-strangers';
   const activeGuestsCount = guests.reduce((count, guest) => guest.status !== 'cancelled' ? count + guestTickets(guest) : count, 0);
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredEvents = useMemo(() => events.filter((event) => {
+    if (!normalizedSearch) return true;
+    return [
+      event.title,
+      event.description,
+      typeLabels[event.type],
+      event.type,
+      event.status,
+      event.isPublished ? 'publicado si publicado' : 'borrador no',
+      formatDate(event.date),
+      formatTime(event.time),
+      formatCOP(event.pricePerPerson),
+      String(event.maxCapacity),
+      String(event.currentRegistrations),
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  }), [events, normalizedSearch]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-body text-2xl font-bold text-espresso">Eventos</h1>
-          <p className="text-stone font-body text-sm">{total} eventos</p>
+          <p className="text-stone font-body text-sm">{filteredEvents.length} eventos en esta página · {total} total</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo evento</Button>
+      </div>
+
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por título, tipo, fecha, estado o cupos..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+          {filteredEvents.length} de {events.length} eventos
+        </div>
       </div>
 
       {loading ? <PageLoader /> : (
@@ -198,7 +227,7 @@ export function EventsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-rule">
-              {events.map((e) => (
+              {filteredEvents.map((e) => (
                 <tr key={e._id} className="hover:bg-surface-tint transition-colors">
                   <td className="px-4 py-3 font-medium text-espresso max-w-xs truncate">{e.title}</td>
                   <td className="px-4 py-3 text-stone">{typeLabels[e.type]}</td>
@@ -224,7 +253,7 @@ export function EventsPage() {
                   </td>
                 </tr>
               ))}
-              {events.length === 0 && (
+              {filteredEvents.length === 0 && (
                 <tr><td colSpan={8} className="text-center py-10 text-stone">No hay eventos.</td></tr>
               )}
             </tbody>

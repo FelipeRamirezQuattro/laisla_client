@@ -90,9 +90,20 @@ export function RecipesPage() {
     }
   };
 
-  const filtered = recipes.filter((r) =>
-    !search || r.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const normalizedSearch = search.trim().toLowerCase();
+  const filtered = recipes.filter((r) => {
+    if (!normalizedSearch) return true;
+    return [
+      r.name,
+      r.description,
+      catLabel(r.category),
+      r.category,
+      r.variants.map((variant) => variant.size).join(' '),
+      r.isSubRecipe ? 'sub-receta subreceta' : 'receta',
+      r.isProduct ? 'producto pedidos' : 'borrador',
+      r.active ? 'activa activo' : 'inactiva inactivo',
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  });
 
   const activeVariantCost = (variant: Recipe['variants'][number]) =>
     variant.costingMethod === 'full-cost' ? variant.totalCost : variant.directMaterialCost;
@@ -162,18 +173,16 @@ export function RecipesPage() {
         </div>
       </div>
 
-      <div className="card flex flex-col sm:flex-row gap-3">
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
         <Input
-          placeholder="Buscar por nombre..."
+          placeholder="Buscar por nombre, categoría, variante o estado..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1"
         />
         <Select
           options={[{ value: '', label: 'Todas las categorías' }, ...categories.map((c) => ({ value: c.value, label: c.label }))]}
           value={catFilter}
           onChange={(e) => setCatFilter(e.target.value)}
-          className="sm:w-56"
         />
       </div>
 

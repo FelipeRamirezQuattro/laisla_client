@@ -7,6 +7,7 @@ import { formatCOP } from '../../utils/formatCurrency';
 import { formatShortDate, todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
 import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 import { OrderStatusBadge } from '../../components/ui/Badge';
 import { PageLoader } from '../../components/ui/Spinner';
 import {
@@ -28,6 +29,7 @@ export function ActiveOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(todayInput());
+  const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Order | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
@@ -93,6 +95,28 @@ export function ActiveOrdersPage() {
     [stats]
   );
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredOrders = useMemo(
+    () => orders.filter((order) => {
+      if (!normalizedSearch) return true;
+      const tableLabel = !order.tableId
+        ? 'Sin mesa / Mostrador'
+        : typeof order.tableId === 'object'
+          ? order.tableId.name
+          : order.tableId;
+      const itemsLabel = order.items.map((item) => item.productName).join(' ');
+      return [
+        tableLabel,
+        order.status,
+        order._id,
+        itemsLabel,
+        formatCOP(order.total),
+        String(order.total),
+      ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+    }),
+    [orders, normalizedSearch]
+  );
+
   if (loading) return <PageLoader />;
 
   return (
@@ -117,8 +141,19 @@ export function ActiveOrdersPage() {
           </label>
           <div className="card px-4 py-3">
             <p className="text-xs text-stone font-body">En espera</p>
-            <p className="font-body font-semibold text-espresso">{orders.length} pedido(s)</p>
+            <p className="font-body font-semibold text-espresso">{filteredOrders.length} pedido(s)</p>
           </div>
+        </div>
+      </div>
+
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por mesa, producto, estado o total..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+          {filteredOrders.length} de {orders.length} pedidos
         </div>
       </div>
 
@@ -140,7 +175,7 @@ export function ActiveOrdersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule">
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <tr key={order._id} className="hover:bg-surface-tint">
                     <td className="px-4 py-3 font-medium text-espresso">
                       {!order.tableId ? 'Sin mesa / Mostrador' : typeof order.tableId === 'object' ? order.tableId.name : order.tableId}
@@ -167,7 +202,7 @@ export function ActiveOrdersPage() {
                     </td>
                   </tr>
                 ))}
-                {orders.length === 0 && (
+                {filteredOrders.length === 0 && (
                   <tr>
                     <td colSpan={6} className="text-center py-10 text-stone">No hay pedidos pendientes de entrega.</td>
                   </tr>

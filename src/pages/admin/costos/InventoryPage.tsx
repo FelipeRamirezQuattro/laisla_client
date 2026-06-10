@@ -325,15 +325,33 @@ export function InventoryPage() {
     }
   };
 
+  const normalizedSearch = search.trim().toLowerCase();
   const filtered = inventory.filter((item) => {
-    const matchSearch = !search || item.insumo.nombre.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !normalizedSearch || [
+      item.insumo.nombre,
+      typeof item.insumo.categoriaId === 'object' ? item.insumo.categoriaId.nombre : '',
+      providerName(item.insumo.proveedorPrincipalId),
+      item.pendingCount > 0 ? 'pendiente pendientes' : 'ok aprobado',
+      formatMeasurementUnit(item.unit),
+      String(item.stock),
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
     const matchPending = !showPendingOnly || item.pendingCount > 0;
     return matchSearch && matchPending;
   });
 
   const pendingCount = inventory.reduce((sum, item) => sum + item.pendingCount, 0);
-  const agotados = alertas.filter((a) => a.detalle.nivel === 'AGOTADO');
-  const regulares = alertas.filter((a) => a.detalle.nivel === 'REGULAR');
+  const filteredAlertas = alertas.filter((alerta) => {
+    if (!normalizedSearch) return true;
+    return [
+      alerta.insumo.nombre,
+      alerta.categoria.nombre,
+      alerta.detalle.nivel,
+      alerta.insumo.nivelAgotado,
+      alerta.insumo.nivelRegular,
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  });
+  const agotados = filteredAlertas.filter((a) => a.detalle.nivel === 'AGOTADO');
+  const regulares = filteredAlertas.filter((a) => a.detalle.nivel === 'REGULAR');
   const chartData = (history?.points ?? []).map((point) => ({
     ...point,
     label: new Date(point.date).toLocaleDateString('es-CO', { month: 'short', day: 'numeric' }),
@@ -375,14 +393,13 @@ export function InventoryPage() {
 
       {view === 'stock' && (
         <>
-          <div className="card flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
             <Input
-              placeholder="Buscar insumo..."
+              placeholder="Buscar por insumo, categoría, proveedor o estado..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1"
             />
-            <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer whitespace-nowrap">
+            <label className="flex items-center gap-2 rounded-lg border border-rule bg-surface-tint px-4 py-2 text-sm font-body text-ink cursor-pointer whitespace-nowrap">
               <input
                 type="checkbox"
                 checked={showPendingOnly}
@@ -464,11 +481,24 @@ export function InventoryPage() {
 
       {view === 'alertas' && (
         <div className="space-y-4">
-          {alertsLoading ? <PageLoader /> : alertas.length === 0 ? (
+          <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+            <Input
+              placeholder="Buscar por insumo, categoría o nivel..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+              {filteredAlertas.length} de {alertas.length} alertas
+            </div>
+          </div>
+
+          {alertsLoading ? <PageLoader /> : filteredAlertas.length === 0 ? (
             <div className="card flex flex-col items-center py-16 gap-4">
               <CheckCircle size={48} className="text-success" />
-              <p className="font-body text-xl text-espresso">Todo en orden por hoy</p>
-              <p className="text-sm font-body text-stone">No hay insumos agotados o en nivel regular.</p>
+              <p className="font-body text-xl text-espresso">{search ? 'Sin resultados' : 'Todo en orden por hoy'}</p>
+              <p className="text-sm font-body text-stone">
+                {search ? 'No hay alertas que coincidan con la búsqueda.' : 'No hay insumos agotados o en nivel regular.'}
+              </p>
             </div>
           ) : (
             <>

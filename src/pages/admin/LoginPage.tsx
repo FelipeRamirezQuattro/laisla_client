@@ -1,3 +1,4 @@
+import { GoogleLogin } from '@react-oauth/google';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,8 +17,9 @@ type FormData = z.infer<typeof schema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const { error: showError } = useToast();
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -44,6 +46,34 @@ export function LoginPage() {
         {/* Card */}
         <div className="bg-white rounded-lg shadow-sm border border-rule p-8">
           <h2 className="font-body text-xl font-semibold text-espresso mb-6">Iniciar sesión</h2>
+
+          {googleClientId && (
+            <>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  width="288"
+                  onSuccess={async (credentialResponse) => {
+                    if (!credentialResponse.credential) {
+                      showError('Google no devolvió una credencial válida.');
+                      return;
+                    }
+                    try {
+                      await signInWithGoogle(credentialResponse.credential);
+                      navigate('/admin');
+                    } catch {
+                      showError('No pudimos iniciar sesión con Google. Verifica que tu Gmail esté registrado en el panel.');
+                    }
+                  }}
+                  onError={() => showError('No pudimos iniciar sesión con Google.')}
+                />
+              </div>
+              <div className="my-5 flex items-center gap-3">
+                <span className="h-px flex-1 bg-rule" />
+                <span className="text-xs font-body text-stone">o ingresa con correo</span>
+                <span className="h-px flex-1 bg-rule" />
+              </div>
+            </>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input

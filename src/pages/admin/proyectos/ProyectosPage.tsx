@@ -34,6 +34,7 @@ export function ProyectosPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const toast = useToast();
   const { register, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -72,19 +73,41 @@ export function ProyectosPage() {
     }
   };
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredProjects = projects.filter((project) => {
+    if (!normalizedSearch) return true;
+    return [
+      project.name,
+      project.description,
+      project.createdAt,
+      ...Object.entries(project.taskCounts ?? {}).map(([status, count]) => `${status} ${statusLabels[status as ProjectTaskStatus]} ${count}`),
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-body text-2xl font-bold text-espresso">Proyectos</h1>
-          <p className="text-stone font-body text-sm">{projects.length} proyectos activos</p>
+          <p className="text-stone font-body text-sm">{filteredProjects.length} proyectos activos</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo proyecto</Button>
       </div>
 
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por proyecto, descripción o estado de tareas..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+          {filteredProjects.length} de {projects.length} proyectos
+        </div>
+      </div>
+
       {loading ? <PageLoader /> : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <Link
               key={project._id}
               to={`/admin/proyectos/${project._id}`}
@@ -111,7 +134,7 @@ export function ProyectosPage() {
               </div>
             </Link>
           ))}
-          {projects.length === 0 && (
+          {filteredProjects.length === 0 && (
             <div className="card md:col-span-2 xl:col-span-3 text-center text-stone">
               No hay proyectos activos.
             </div>

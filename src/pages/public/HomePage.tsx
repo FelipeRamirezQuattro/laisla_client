@@ -8,7 +8,7 @@ import {
   MessageCircle,
   Sparkles,
 } from "lucide-react";
-import type { ImgHTMLAttributes, ReactNode } from "react";
+import type { FormEvent, ImgHTMLAttributes, ReactNode } from "react";
 import { PublicNavbar } from "../../components/layout/PublicNavbar";
 import { publicApi } from "../../api/public";
 import { publicMenuApi } from "../../api/publicMenu";
@@ -138,6 +138,11 @@ export function HomePage() {
     [],
   );
   const [publicEvents, setPublicEvents] = useState<Event[]>([]);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
 
   useEffect(() => {
     publicMenuApi
@@ -191,6 +196,22 @@ export function HomePage() {
     .filter((event) => event.type === "picnic")
     .slice(0, 3);
   const calendarEvents = publicEvents.slice(0, 4);
+
+  const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setNewsletterStatus("loading");
+    setNewsletterMessage("");
+
+    try {
+      await publicApi.subscribeNewsletter({ email: newsletterEmail });
+      setNewsletterStatus("success");
+      setNewsletterMessage("Listo. Te apuntamos al boletin mensual.");
+      setNewsletterEmail("");
+    } catch {
+      setNewsletterStatus("error");
+      setNewsletterMessage("No pudimos registrar el correo. Intentalo de nuevo.");
+    }
+  };
 
   return (
     <div className="la-isla-home min-h-screen bg-paper text-ink">
@@ -526,14 +547,24 @@ export function HomePage() {
             <span>Sal del ruido.</span>
             <span>Ven a La Isla.</span>
           </div>
-          <form>
+          <form onSubmit={handleNewsletterSubmit}>
             <label>Boletin · una vez al mes, no mas</label>
             <div>
-              <input type="email" placeholder="tu@correo.com" />
-              <button type="button">Apuntarme</button>
+              <input
+                type="email"
+                placeholder="tu@correo.com"
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
+                disabled={newsletterStatus === "loading"}
+                required
+              />
+              <button type="submit" disabled={newsletterStatus === "loading"}>
+                {newsletterStatus === "loading" ? "Enviando" : "Apuntarme"}
+              </button>
             </div>
             <p>
-              Reservas para cenas, catas y eventos. Cero promos, cero ruido.
+              {newsletterMessage ||
+                "Reservas para cenas, catas y eventos. Cero promos, cero ruido."}
             </p>
           </form>
         </aside>
@@ -853,6 +884,7 @@ const homeStyles = `
 .newsletter form > div { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 12px 0; }
 .newsletter input { border: 1px solid var(--home-rule); border-radius: 999px; padding: 13px 15px; background: white; color: var(--home-ink); }
 .newsletter button { border: 0; border-radius: 999px; padding: 0 16px; background: var(--home-espresso); color: var(--home-paper); font-weight: 900; }
+.newsletter button:disabled, .newsletter input:disabled { opacity: .68; cursor: wait; }
 .newsletter p { color: var(--home-muted); font-size: 12px; line-height: 1.5; }
 .home-footer { display: grid; grid-template-columns: 1.2fr .7fr .7fr; gap: 30px; padding: 42px clamp(20px, 6vw, 72px); background: var(--home-ink); color: var(--home-paper); }
 .home-footer h2 { font-family: "DM Sans", system-ui, sans-serif; font-size: 28px; margin: 10px 0 8px; }

@@ -1,11 +1,20 @@
 import { format, parseISO } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 
 const TIMEZONE = 'America/Bogota';
 
 export function formatDate(dateStr: string, fmt = 'd MMMM yyyy'): string {
   try {
-    const date = typeof dateStr === 'string' ? parseISO(dateStr) : new Date(dateStr);
+    const dateOnlyMatch = typeof dateStr === 'string'
+      ? dateStr.match(/^(\d{4}-\d{2}-\d{2})(?:T00:00:00(?:\.000)?(?:Z|\+00:00))?$/)
+      : null;
+    if (dateOnlyMatch) {
+      const [year, month, day] = dateOnlyMatch[1].split('-').map(Number);
+      return format(new Date(year, month - 1, day), fmt, { locale: es });
+    }
+    const parsed = typeof dateStr === 'string' ? parseISO(dateStr) : new Date(dateStr);
+    const date = toZonedTime(parsed, TIMEZONE);
     return format(date, fmt, { locale: es });
   } catch {
     return dateStr;
@@ -20,10 +29,16 @@ export function formatShortDate(dateStr: string): string {
   return formatDate(dateStr, 'dd/MM/yyyy');
 }
 
-/** Returns today's date as YYYY-MM-DD in the browser's local timezone (Colombia). */
+/** Returns today's date as YYYY-MM-DD in Colombia, independent of browser timezone. */
 export function todayLocal(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}`;
 }
 
 export function formatTime(timeStr: string): string {

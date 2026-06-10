@@ -43,6 +43,7 @@ export function TablesPage() {
   const [releasingAll, setReleasingAll] = useState(false);
   const [releaseAllModalOpen, setReleaseAllModalOpen] = useState(false);
   const [zoneFilter, setZoneFilter] = useState('');
+  const [search, setSearch] = useState('');
   const toast = useToast();
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -199,8 +200,20 @@ export function TablesPage() {
     }
   };
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredTables = tables.filter((table) => {
+    if (!normalizedSearch) return true;
+    return [
+      table.name,
+      table.zone,
+      table.status,
+      `${table.capacity}`,
+      zones.find((zone) => zone.value === table.zone)?.label,
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  });
+
   const grouped = displayZones.reduce<Record<string, CafeTable[]>>((acc, z) => {
-    acc[z.value] = tables.filter((t) => t.zone === z.value);
+    acc[z.value] = filteredTables.filter((t) => t.zone === z.value);
     return acc;
   }, {});
 
@@ -209,7 +222,7 @@ export function TablesPage() {
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h1 className="font-body text-2xl font-bold text-espresso">Mesas</h1>
-          <p className="text-stone font-body text-sm">{tables.length} mesas en total</p>
+          <p className="text-stone font-body text-sm">{filteredTables.length} mesas en total</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="secondary" onClick={openZoneManager}>
@@ -218,14 +231,21 @@ export function TablesPage() {
           <Button variant="secondary" onClick={() => setReleaseAllModalOpen(true)} loading={releasingAll}>
             Liberar todas
           </Button>
-          <Select
-            options={[{ value: '', label: 'Todas las zonas' }, ...zoneOptions]}
-            value={zoneFilter}
-            onChange={(e) => setZoneFilter(e.target.value)}
-            className="w-44"
-          />
           <Button onClick={openCreate} icon={<Plus size={15} />}>Nueva mesa</Button>
         </div>
+      </div>
+
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por mesa, zona, estado o capacidad..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <Select
+          options={[{ value: '', label: 'Todas las zonas' }, ...zoneOptions]}
+          value={zoneFilter}
+          onChange={(e) => setZoneFilter(e.target.value)}
+        />
       </div>
 
       {loading ? <PageLoader /> : (

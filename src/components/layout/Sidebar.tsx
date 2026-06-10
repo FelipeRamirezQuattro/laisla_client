@@ -7,7 +7,7 @@ import {
   PackageOpen, LineChart, Wallet, Archive, ChevronDown, ChevronUp,
   CircleDollarSign, ClipboardCheck, Package, ReceiptText, X,
   HandCoins,
-  FolderOpen, ListChecks, UserCog,
+  FolderOpen, ListChecks, UserCog, Mail,
 } from 'lucide-react';
 import { alertasInvApi } from '../../api/inventario';
 import { useUiStore } from '../../store/uiStore';
@@ -54,6 +54,7 @@ const gestionItems: NavItemDef[] = [
   { to: '/admin/clients', label: 'Clientes', Icon: Users },
   { to: '/admin/providers', label: 'Proveedores', Icon: Truck },
   { to: '/admin/events', label: 'Eventos', Icon: CalendarDays },
+  { to: '/admin/boletines', label: 'Boletines', Icon: Mail },
   { to: '/admin/reports', label: 'Reportes', Icon: BarChart2 },
 ];
 

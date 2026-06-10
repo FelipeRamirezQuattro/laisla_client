@@ -27,6 +27,7 @@ export function DisposablePacksPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<DisposablePack | null>(null);
   const [packName, setPackName] = useState('');
+  const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [items, setItems] = useState<PackItem[]>([]);
   const [saving, setSaving] = useState(false);
@@ -92,6 +93,17 @@ export function DisposablePacksPage() {
     });
     return `Paquete de ${insumo.cantidadPresentacion ?? 1} unidades. Costo por unidad: ${formatCOPDecimal(unitCost)}.`;
   };
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredPacks = packs.filter((pack) => {
+    if (!normalizedSearch) return true;
+    const itemNames = pack.items.map((item) => rmName(item.rawMaterialId)).join(' ');
+    return [
+      pack.name,
+      itemNames,
+      formatCOPDecimal(pack.totalCost),
+      String(pack.totalCost),
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  });
 
   const openCreate = () => {
     setEditing(null);
@@ -153,14 +165,25 @@ export function DisposablePacksPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-body text-2xl font-bold text-espresso">Packs Desechables</h1>
-          <p className="text-stone font-body text-sm">{packs.length} packs configurados</p>
+          <p className="text-stone font-body text-sm">{filteredPacks.length} packs configurados</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo pack</Button>
       </div>
 
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por pack, insumo o costo..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+          {filteredPacks.length} de {packs.length} packs
+        </div>
+      </div>
+
       {loading ? <PageLoader /> : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {packs.map((p) => (
+          {filteredPacks.map((p) => (
             <div key={p._id} className="card">
               <div className="flex items-start justify-between mb-3">
                 <h3 className="font-body text-base font-semibold text-espresso">{p.name}</h3>
@@ -186,7 +209,7 @@ export function DisposablePacksPage() {
               </div>
             </div>
           ))}
-          {packs.length === 0 && (
+          {filteredPacks.length === 0 && (
             <div className="col-span-3 text-center py-12 text-stone font-body">
               No hay packs configurados. Crea el primero.
             </div>

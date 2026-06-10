@@ -10,10 +10,16 @@ export function useAuth() {
     return res.data;
   };
 
+  const signInWithGoogle = async (credential: string) => {
+    const res = await authApi.googleLogin(credential);
+    login(res.data.token, res.data.user);
+    return res.data;
+  };
+
   const signOut = () => {
     authApi.logout().catch(() => {});
     logout();
   };
 
-  return { token, user, isAuthenticated, signIn, signOut };
+  return { token, user, isAuthenticated, signIn, signInWithGoogle, signOut };
 }

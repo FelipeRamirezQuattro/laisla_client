@@ -11,4 +11,6 @@ export const publicApi = {
     api.post<{ message: string; booking: EventBooking; event: Pick<Event, 'title' | 'date' | 'time'> }>(`/public/events/${id}/book`, data),
   registerDinnerGuest: (data: Partial<DinnerGuest>) =>
     api.post<DinnerGuest>('/public/dinner-registrations', data),
+  subscribeNewsletter: (data: { email: string; name?: string }) =>
+    api.post<{ message: string; subscriber: { _id: string; email: string; status: string } }>('/public/newsletter/subscribe', data),
 };

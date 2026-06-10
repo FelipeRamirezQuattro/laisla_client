@@ -9,5 +9,7 @@ export interface LoginResponse {
 export const authApi = {
   login: (email: string, password: string) =>
     api.post<LoginResponse>('/auth/login', { email, password }),
+  googleLogin: (credential: string) =>
+    api.post<LoginResponse>('/auth/google', { credential }),
   logout: () => api.post('/auth/logout'),
 };

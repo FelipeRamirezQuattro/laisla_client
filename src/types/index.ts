@@ -265,6 +265,38 @@ export interface EventBooking {
 
 export type EventGuest = DinnerGuest | EventBooking;
 
+// ─── Newsletter ──────────────────────────────────────────────────────────────
+
+export interface NewsletterSubscriber {
+  _id: string;
+  email: string;
+  name?: string;
+  status: 'active' | 'unsubscribed';
+  source: 'homepage' | 'admin';
+  subscribedAt: string;
+  unsubscribedAt?: string;
+  createdAt: string;
+}
+
+export interface NewsletterCampaign {
+  _id: string;
+  subject: string;
+  preheader?: string;
+  body: string;
+  status: 'draft' | 'sent';
+  recipientsCount: number;
+  sentCount: number;
+  failedCount: number;
+  sentAt?: string;
+  createdAt: string;
+}
+
+export interface NewsletterSummary {
+  activeSubscribers: number;
+  totalSubscribers: number;
+  sentCampaigns: number;
+}
+
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 
 export interface HourlySale {

@@ -13,7 +13,6 @@ export const CANCEL_REASONS = [
   'Problemas con el cliente',
   'Pedido duplicado',
   'Error al tomar el pedido',
-  'Otra',
 ];
 
 const statusLabel: Record<string, string> = {
@@ -193,13 +192,28 @@ export function CancelOrderModal({
 }) {
   const [reason, setReason] = useState(CANCEL_REASONS[0]);
   const [detail, setDetail] = useState('');
+  const [customReasons, setCustomReasons] = useState<string[]>([]);
+  const [newReason, setNewReason] = useState('');
 
   useEffect(() => {
     if (order) {
       setReason(CANCEL_REASONS[0]);
       setDetail('');
+      setNewReason('');
     }
   }, [order]);
+
+  const reasonOptions = [...CANCEL_REASONS, ...customReasons];
+
+  const addCustomReason = () => {
+    const value = newReason.trim();
+    if (!value) return;
+    if (!reasonOptions.some((item) => item.toLowerCase() === value.toLowerCase())) {
+      setCustomReasons((prev) => [...prev, value]);
+    }
+    setReason(value);
+    setNewReason('');
+  };
 
   return (
     <Modal isOpen={!!order} onClose={onCancel} title="Eliminar pedido">
@@ -207,30 +221,64 @@ export function CancelOrderModal({
         <p className="text-sm text-stone font-body">
           Selecciona la razón para eliminar el pedido. Esta información quedará en la línea de tiempo y en caja.
         </p>
-        <label className="block">
-          <span className="block text-sm font-medium text-ink font-body mb-1">Razón</span>
-          <input
-            list="cancel-reasons"
-            className="input-base"
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-          />
-          <datalist id="cancel-reasons">
-            {CANCEL_REASONS.map((item) => <option key={item} value={item} />)}
-          </datalist>
-        </label>
-        {(reason === 'Otra' || !CANCEL_REASONS.includes(reason)) && (
-          <div>
-            <label className="block text-sm font-medium text-ink font-body mb-1">Motivo específico</label>
-            <textarea className="input-base h-20 resize-none" value={detail} onChange={(event) => setDetail(event.target.value)} />
+
+        <div>
+          <span className="block text-sm font-medium text-ink font-body mb-2">Razón</span>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {reasonOptions.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setReason(item)}
+                className={`rounded-lg border px-3 py-2 text-left font-body text-sm transition-colors ${
+                  reason === item
+                    ? 'border-espresso bg-espresso text-cream'
+                    : 'border-rule bg-white text-espresso hover:bg-surface-tint'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
+
+        <div className="rounded-lg border border-rule bg-surface-tint p-3">
+          <label className="block text-sm font-medium text-ink font-body mb-2">Agregar otra opción</label>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <input
+              className="input-base"
+              value={newReason}
+              onChange={(event) => setNewReason(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  addCustomReason();
+                }
+              }}
+              placeholder="Ej: Cliente cambió el pedido"
+            />
+            <Button type="button" variant="secondary" onClick={addCustomReason} disabled={!newReason.trim()}>
+              Agregar
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-ink font-body mb-1">Detalle opcional</label>
+          <textarea
+            className="input-base h-20 resize-none"
+            value={detail}
+            onChange={(event) => setDetail(event.target.value)}
+            placeholder="Notas internas para caja o seguimiento"
+          />
+        </div>
+
         <div className="flex justify-end gap-3 pt-2">
           <Button variant="secondary" onClick={onCancel}>Cancelar</Button>
           <Button
             variant="danger"
             loading={loading}
-            disabled={!reason.trim() || ((reason === 'Otra' || !CANCEL_REASONS.includes(reason)) && !detail.trim())}
+            disabled={!reason.trim()}
             onClick={() => onConfirm(reason.trim(), detail.trim())}
           >
             Eliminar pedido

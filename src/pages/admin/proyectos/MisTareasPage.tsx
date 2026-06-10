@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { tasksApi } from '../../../api/tasks';
 import { Button } from '../../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
 import { useToast } from '../../../hooks/useToast';
@@ -28,6 +29,7 @@ function projectColor(task: ProjectTask) {
 export function MisTareasPage() {
   const [tasks, setTasks] = useState<ProjectTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const toast = useToast();
 
   const fetchTasks = async () => {
@@ -44,12 +46,26 @@ export function MisTareasPage() {
 
   useEffect(() => { fetchTasks(); }, []);
 
-  const grouped = useMemo(() => tasks.reduce<Record<string, ProjectTask[]>>((acc, task) => {
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredTasks = useMemo(() => tasks.filter((task) => {
+    if (!normalizedSearch) return true;
+    return [
+      task.title,
+      task.description,
+      projectName(task),
+      statusLabels[task.status],
+      task.status,
+      task.priority,
+      task.dueDate,
+    ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+  }), [tasks, normalizedSearch]);
+
+  const grouped = useMemo(() => filteredTasks.reduce<Record<string, ProjectTask[]>>((acc, task) => {
     const name = projectName(task);
     acc[name] = acc[name] || [];
     acc[name].push(task);
     return acc;
-  }, {}), [tasks]);
+  }, {}), [filteredTasks]);
 
   const updateStatus = async (task: ProjectTask, status: ProjectTaskStatus) => {
     try {
@@ -67,7 +83,18 @@ export function MisTareasPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-body text-2xl font-bold text-espresso">Mis tareas</h1>
-        <p className="text-stone font-body text-sm">{tasks.length} tareas asignadas</p>
+        <p className="text-stone font-body text-sm">{filteredTasks.length} tareas asignadas</p>
+      </div>
+
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <Input
+          placeholder="Buscar por tarea, proyecto, estado o prioridad..."
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+          {filteredTasks.length} de {tasks.length} tareas
+        </div>
       </div>
 
       {Object.entries(grouped).map(([name, items]) => (
@@ -104,7 +131,7 @@ export function MisTareasPage() {
         </section>
       ))}
 
-      {tasks.length === 0 && (
+      {filteredTasks.length === 0 && (
         <div className="card text-center text-stone">No tienes tareas asignadas por ahora.</div>
       )}
     </div>
