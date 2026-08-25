@@ -929,6 +929,7 @@ const homeStyles = `
   .li-reasons-grid { grid-template-columns: 1fr; }
   .li-reason-card-3 { display: none; }
   .li-menu-row { flex-wrap: wrap; }
+  .li-menu-row-name { white-space: normal; flex: 1 1 100%; }
   .li-menu-row-leader { display: none; }
   .li-menu-row-price { margin-left: auto; }
   .li-events-grid { grid-template-columns: 1fr; }
@@ -938,6 +939,7 @@ const homeStyles = `
   .li-dinner-chip-mark { height: 66px; font-size: 26px; }
   .li-booking-tags { display: none; }
   .li-chip-btn { min-width: 62px; font-size: 11px; }
+  .li-booking-submit { padding: 18px 10px; }
   .li-footer-grid { grid-template-columns: 1fr; }
   .li-footer-bottom { flex-direction: column; gap: 6px; }
 }
