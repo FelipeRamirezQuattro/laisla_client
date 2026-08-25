@@ -20,7 +20,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const palette = ['#43593B', '#7CC1E7', '#F2D17E', '#ACAD79', '#E87A5D', '#6B7768'];
+const palette = ['#2B3FBE', '#F5A623', '#1A2480', '#F5E6D3', '#8B9BDD', '#F9CA7B'];
 
 const statusLabels: Record<ProjectTaskStatus, string> = {
   pending: 'Pendientes',
@@ -88,8 +88,8 @@ export function ProyectosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Proyectos</h1>
-          <p className="text-stone font-body text-sm">{filteredProjects.length} proyectos activos</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Proyectos</h1>
+          <p className="text-island-dark/70 font-body text-sm">{filteredProjects.length} proyectos activos</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo proyecto</Button>
       </div>
@@ -100,7 +100,7 @@ export function ProyectosPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredProjects.length} de {projects.length} proyectos
         </div>
       </div>
@@ -111,23 +111,23 @@ export function ProyectosPage() {
             <Link
               key={project._id}
               to={`/admin/proyectos/${project._id}`}
-              className="card block hover:border-rule-strong hover:shadow-md transition-all"
+              className="card block hover:border-island-blue/40 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 rounded-lg flex items-center justify-center text-cream" style={{ backgroundColor: project.color }}>
+                  <div className="h-11 w-11 rounded-lg flex items-center justify-center text-white" style={{ backgroundColor: project.color }}>
                     <FolderOpen size={20} />
                   </div>
                   <div>
-                    <h2 className="font-body text-lg font-semibold text-espresso">{project.name}</h2>
-                    <p className="text-xs text-stone">{new Date(project.createdAt).toLocaleDateString('es-CO')}</p>
+                    <h2 className="font-body text-lg font-semibold text-island-dark">{project.name}</h2>
+                    <p className="text-xs text-island-dark/70">{new Date(project.createdAt).toLocaleDateString('es-CO')}</p>
                   </div>
                 </div>
               </div>
-              <p className="mt-4 text-sm text-stone min-h-[2.5rem]">{project.description || 'Sin descripción'}</p>
+              <p className="mt-4 text-sm text-island-dark/70 min-h-[2.5rem]">{project.description || 'Sin descripción'}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {(Object.keys(statusLabels) as ProjectTaskStatus[]).map((status) => (
-                  <span key={status} className="badge bg-surface-tint text-stone">
+                  <span key={status} className="badge bg-sand text-island-dark/70">
                     {statusLabels[status]}: {project.taskCounts?.[status] ?? 0}
                   </span>
                 ))}
@@ -135,7 +135,7 @@ export function ProyectosPage() {
             </Link>
           ))}
           {filteredProjects.length === 0 && (
-            <div className="card md:col-span-2 xl:col-span-3 text-center text-stone">
+            <div className="card md:col-span-2 xl:col-span-3 text-center text-island-dark/70">
               No hay proyectos activos.
             </div>
           )}
@@ -146,18 +146,18 @@ export function ProyectosPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input label="Nombre" error={errors.name?.message} {...register('name')} />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">Descripción</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">Descripción</label>
             <textarea className="input-base h-24 resize-none" {...register('description')} />
           </div>
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-2">Color</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-2">Color</label>
             <div className="flex flex-wrap gap-2">
               {palette.map((color) => (
                 <button
                   key={color}
                   type="button"
                   onClick={() => setValue('color', color)}
-                  className={`h-9 w-9 rounded-lg border-2 ${selectedColor === color ? 'border-espresso' : 'border-rule'}`}
+                  className={`h-9 w-9 rounded-lg border-2 ${selectedColor === color ? 'border-island-dark' : 'border-island-blue/20'}`}
                   style={{ backgroundColor: color }}
                   aria-label={`Usar color ${color}`}
                 />

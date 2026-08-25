@@ -117,8 +117,8 @@ export function ActualResultsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Resultados Reales {yearNum}</h1>
-          <p className="text-stone font-body text-sm">{results.length} meses registrados</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Resultados Reales {yearNum}</h1>
+          <p className="text-island-dark/70 font-body text-sm">{results.length} meses registrados</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Registrar mes</Button>
       </div>
@@ -126,11 +126,11 @@ export function ActualResultsPage() {
       {results.length > 0 && (
         <div className="grid grid-cols-2 gap-4">
           <div className="card">
-            <p className="text-xs text-stone font-body">Ventas acumuladas {yearNum}</p>
-            <p className="text-xl font-body font-bold text-espresso mt-1">{formatCOP(annualTotals.sales)}</p>
+            <p className="text-xs text-island-dark/70 font-body">Ventas acumuladas {yearNum}</p>
+            <p className="text-xl font-body font-bold text-island-dark mt-1">{formatCOP(annualTotals.sales)}</p>
           </div>
           <div className="card">
-            <p className="text-xs text-stone font-body">Utilidad acumulada {yearNum}</p>
+            <p className="text-xs text-island-dark/70 font-body">Utilidad acumulada {yearNum}</p>
             <p className={`text-xl font-body font-bold mt-1 ${annualTotals.profit >= 0 ? 'text-success' : 'text-error-ink'}`}>
               {formatCOP(annualTotals.profit)}
             </p>
@@ -140,29 +140,29 @@ export function ActualResultsPage() {
 
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm font-body">
-          <thead className="bg-surface-tint border-b border-rule">
+          <thead className="bg-sand border-b border-island-blue/20">
             <tr>
-              <th className="text-left px-4 py-3 text-stone font-medium">Mes</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Ventas</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Costo ventas</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Margen bruto</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Gastos op.</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Utilidad neta</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+              <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mes</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Ventas</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Costo ventas</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Margen bruto</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Gastos op.</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Utilidad neta</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
             {results.map((r) => (
-              <tr key={r._id} className="hover:bg-surface-tint transition-colors">
-                <td className="px-4 py-3 font-medium text-ink">{MONTHS[r.month - 1]}</td>
-                <td className="px-4 py-3 text-right text-ink">{formatCOP(r.totalSales)}</td>
-                <td className="px-4 py-3 text-right text-stone">
+              <tr key={r._id} className="hover:bg-sand transition-colors">
+                <td className="px-4 py-3 font-medium text-island-dark">{MONTHS[r.month - 1]}</td>
+                <td className="px-4 py-3 text-right text-island-dark">{formatCOP(r.totalSales)}</td>
+                <td className="px-4 py-3 text-right text-island-dark/70">
                   {formatCOP(r.costOfSales)} <span className="text-xs">({formatPct(r.costOfSalesPct)})</span>
                 </td>
-                <td className="px-4 py-3 text-right text-ink">
-                  {formatCOP(r.grossMargin)} <span className="text-xs text-stone">({formatPct(r.grossMarginPct)})</span>
+                <td className="px-4 py-3 text-right text-island-dark">
+                  {formatCOP(r.grossMargin)} <span className="text-xs text-island-dark/70">({formatPct(r.grossMarginPct)})</span>
                 </td>
-                <td className="px-4 py-3 text-right text-stone">{formatCOP(r.totalOperatingExpenses)}</td>
+                <td className="px-4 py-3 text-right text-island-dark/70">{formatCOP(r.totalOperatingExpenses)}</td>
                 <td className={`px-4 py-3 text-right font-medium ${r.netProfit >= 0 ? 'text-success' : 'text-error-ink'}`}>
                   {formatCOP(r.netProfit)} <span className="text-xs">({formatPct(r.netProfitPct)})</span>
                 </td>
@@ -173,7 +173,7 @@ export function ActualResultsPage() {
             ))}
             {results.length === 0 && (
               <tr>
-                <td colSpan={7} className="text-center py-10 text-stone">
+                <td colSpan={7} className="text-center py-10 text-island-dark/70">
                   No hay resultados registrados para {yearNum}.
                 </td>
               </tr>
@@ -185,13 +185,13 @@ export function ActualResultsPage() {
       {/* Insights */}
       {editing?.insights && editing.insights.length > 0 && (
         <div className="card">
-          <h3 className="font-body text-base font-semibold text-espresso mb-3">
+          <h3 className="font-body text-base font-semibold text-island-dark mb-3">
             Insights — {MONTHS[(editing.month ?? 1) - 1]}
           </h3>
           <ul className="space-y-1">
             {editing.insights.map((ins, i) => (
-              <li key={i} className="text-sm font-body text-stone flex gap-2">
-                <span className="text-terracotta">•</span>
+              <li key={i} className="text-sm font-body text-island-dark/70 flex gap-2">
+                <span className="text-island-blue">•</span>
                 <span>{ins}</span>
               </li>
             ))}
@@ -208,7 +208,7 @@ export function ActualResultsPage() {
         <div className="space-y-5">
           {!editing && (
             <div>
-              <label className="text-sm font-medium text-ink font-body block mb-1">Mes</label>
+              <label className="text-sm font-medium text-island-dark font-body block mb-1">Mes</label>
               <select
                 className="input-base"
                 value={selectedMonth}
@@ -227,11 +227,11 @@ export function ActualResultsPage() {
           </div>
 
           <div>
-            <p className="text-sm font-medium text-ink font-body mb-2">Gastos operativos</p>
+            <p className="text-sm font-medium text-island-dark font-body mb-2">Gastos operativos</p>
             <div className="grid grid-cols-2 gap-3">
               {(Object.keys(EXPENSE_LABELS) as (keyof ActualExpenses)[]).map((key) => (
                 <div key={key}>
-                  <label className="text-xs text-stone font-body block mb-1">{EXPENSE_LABELS[key]}</label>
+                  <label className="text-xs text-island-dark/70 font-body block mb-1">{EXPENSE_LABELS[key]}</label>
                   <input
                     className="input-base text-sm"
                     type="number"
@@ -245,20 +245,20 @@ export function ActualResultsPage() {
           </div>
 
           {/* Live preview */}
-          <div className="bg-surface-tint rounded-lg p-4 grid grid-cols-3 gap-3 text-sm font-body">
+          <div className="bg-sand rounded-lg p-4 grid grid-cols-3 gap-3 text-sm font-body">
             <div>
-              <p className="text-stone text-xs">Margen bruto</p>
-              <p className="font-medium text-ink">{formatCOP(grossMargin)}</p>
-              <p className="text-xs text-stone">{totalSales > 0 ? formatPct(grossMargin / totalSales) : '—'}</p>
+              <p className="text-island-dark/70 text-xs">Margen bruto</p>
+              <p className="font-medium text-island-dark">{formatCOP(grossMargin)}</p>
+              <p className="text-xs text-island-dark/70">{totalSales > 0 ? formatPct(grossMargin / totalSales) : '—'}</p>
             </div>
             <div>
-              <p className="text-stone text-xs">Gastos totales</p>
-              <p className="font-medium text-ink">{formatCOP(totalOpExp)}</p>
+              <p className="text-island-dark/70 text-xs">Gastos totales</p>
+              <p className="font-medium text-island-dark">{formatCOP(totalOpExp)}</p>
             </div>
             <div>
-              <p className="text-stone text-xs">Utilidad neta</p>
+              <p className="text-island-dark/70 text-xs">Utilidad neta</p>
               <p className={`font-bold ${netProfit >= 0 ? 'text-success' : 'text-error-ink'}`}>{formatCOP(netProfit)}</p>
-              <p className="text-xs text-stone">{totalSales > 0 ? formatPct(netProfit / totalSales) : '—'}</p>
+              <p className="text-xs text-island-dark/70">{totalSales > 0 ? formatPct(netProfit / totalSales) : '—'}</p>
             </div>
           </div>
 

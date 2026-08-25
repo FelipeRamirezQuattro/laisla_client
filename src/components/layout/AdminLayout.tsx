@@ -5,7 +5,7 @@ import { ServiceQuickNav } from './ServiceQuickNav';
 
 export function AdminLayout() {
   return (
-    <div className="flex h-screen bg-paper overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       <Sidebar />
       <div className="flex flex-col min-w-0 flex-1 overflow-hidden transition-all duration-300">
         <Topbar />

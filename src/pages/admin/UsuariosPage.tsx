@@ -54,9 +54,9 @@ const roleLabels: Record<UserRole, string> = {
 
 function roleBadge(role: UserRole) {
   const classes = {
-    superadmin: 'bg-espresso text-cream',
-    admin: 'bg-lagoon text-ink',
-    user: 'bg-olive text-ink',
+    superadmin: 'bg-island-dark text-white',
+    admin: 'bg-island-blue text-white',
+    user: 'bg-sun-yellow text-island-dark',
   }[role];
   return <span className={`badge ${classes}`}>{roleLabels[role]}</span>;
 }
@@ -205,8 +205,8 @@ export function UsuariosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Usuarios</h1>
-          <p className="text-stone font-body text-sm">{filteredUsers.length} usuarios registrados</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Usuarios</h1>
+          <p className="text-island-dark/70 font-body text-sm">{filteredUsers.length} usuarios registrados</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo usuario</Button>
       </div>
@@ -217,7 +217,7 @@ export function UsuariosPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredUsers.length} de {users.length} usuarios
         </div>
       </div>
@@ -225,30 +225,30 @@ export function UsuariosPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">Usuario</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Email</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Rol</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Estado</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Último acceso</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Usuario</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Email</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Rol</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Último acceso</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-rule">
               {filteredUsers.map((item) => {
                 const ownUser = userId(item) === currentId;
                 return (
-                  <tr key={userId(item)} className="hover:bg-surface-tint transition-colors">
+                  <tr key={userId(item)} className="hover:bg-sand transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-espresso text-cream flex items-center justify-center text-sm font-semibold">
+                        <div className="w-9 h-9 rounded-full bg-island-dark text-white flex items-center justify-center text-sm font-semibold">
                           {initials(item)}
                         </div>
-                        <span className="font-medium text-espresso">{item.name}</span>
+                        <span className="font-medium text-island-dark">{item.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-stone">{item.email}</td>
+                    <td className="px-4 py-3 text-island-dark/70">{item.email}</td>
                     <td className="px-4 py-3">{roleBadge(item.role)}</td>
                     <td className="px-4 py-3">
                       <button
@@ -259,7 +259,7 @@ export function UsuariosPage() {
                         {(item.isActive ?? true) ? 'Activo' : 'Inactivo'}
                       </button>
                     </td>
-                    <td className="px-4 py-3 text-stone">{item.lastLoginAt ? formatDateTime(item.lastLoginAt) : '—'}</td>
+                    <td className="px-4 py-3 text-island-dark/70">{item.lastLoginAt ? formatDateTime(item.lastLoginAt) : '—'}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="ghost" size="sm" onClick={() => openEdit(item)} icon={<Edit2 size={14} />}>Editar</Button>
@@ -276,7 +276,7 @@ export function UsuariosPage() {
               })}
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center py-10 text-stone">No se encontraron usuarios.</td>
+                  <td colSpan={6} className="text-center py-10 text-island-dark/70">No se encontraron usuarios.</td>
                 </tr>
               )}
             </tbody>
@@ -295,8 +295,8 @@ export function UsuariosPage() {
               <Input label="Confirmar contraseña" type="password" error={errors.confirmPassword?.message} {...register('confirmPassword')} />
             </div>
           )}
-          <label className="flex items-center gap-3 text-sm text-ink font-body">
-            <input type="checkbox" className="h-4 w-4 accent-terracotta" {...register('isActive')} />
+          <label className="flex items-center gap-3 text-sm text-island-dark font-body">
+            <input type="checkbox" className="h-4 w-4 accent-island-blue" {...register('isActive')} />
             {isActive ? 'Usuario activo' : 'Usuario inactivo'}
           </label>
           <div className="flex justify-end gap-3 pt-2">

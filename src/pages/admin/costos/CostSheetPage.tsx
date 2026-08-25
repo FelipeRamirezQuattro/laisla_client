@@ -56,7 +56,7 @@ export function CostSheetPage() {
       {/* Printable content */}
       <div id="cost-sheet-print-area" className="bg-white print:shadow-none shadow rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-espresso text-cream px-8 py-6 print:bg-espresso">
+        <div className="bg-island-dark text-white px-8 py-6 print:bg-island-dark">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="font-body text-2xl font-bold">{recipe.name}</h1>
@@ -65,13 +65,13 @@ export function CostSheetPage() {
             <div className="text-right text-sm font-body opacity-70">
               <p>{now.getDate()} {MONTH_NAMES[now.getMonth()]} {now.getFullYear()}</p>
               <p>{recipe.category.replace(/_/g, ' ')}</p>
-              {recipe.isSubRecipe && <p className="text-terracotta font-medium opacity-100">Sub-receta</p>}
+              {recipe.isSubRecipe && <p className="text-island-blue font-medium opacity-100">Sub-receta</p>}
             </div>
           </div>
         </div>
 
         {/* Params summary */}
-        <div className="px-8 py-4 bg-surface-tint border-b border-rule grid grid-cols-5 gap-4 text-sm font-body">
+        <div className="px-8 py-4 bg-sand border-b border-island-blue/20 grid grid-cols-5 gap-4 text-sm font-body">
           <Kpi label="MOD/ítem" value={formatCOPDecimal(params.laborPerItem)} />
           <Kpi label="MOD/min" value={formatCOPDecimal(laborCostPerMinute)} />
           <Kpi label="GIF/ítem" value={formatCOPDecimal(params.overheadPerItem)} />
@@ -81,11 +81,11 @@ export function CostSheetPage() {
 
         {/* Variants */}
         {recipe.variants.map((v) => (
-          <div key={v.size} className="px-8 py-6 border-b border-rule last:border-0">
-            <h2 className="font-body text-lg font-semibold text-espresso mb-4">
+          <div key={v.size} className="px-8 py-6 border-b border-island-blue/20 last:border-0">
+            <h2 className="font-body text-lg font-semibold text-island-dark mb-4">
               Variante {v.size}
               {v.salePrice > 0 && (
-                <span className="ml-3 text-sm font-body text-stone font-normal">
+                <span className="ml-3 text-sm font-body text-island-dark/70 font-normal">
                   {v.taxIncluded ?? true ? 'Precio final' : 'Precio base'}: {formatCOP(v.salePrice)}
                 </span>
               )}
@@ -94,30 +94,30 @@ export function CostSheetPage() {
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Ingredients */}
               <div>
-                <p className="text-xs font-body text-stone uppercase tracking-wide mb-2">Ingredientes</p>
+                <p className="text-xs font-body text-island-dark/70 uppercase tracking-wide mb-2">Ingredientes</p>
                 <table className="w-full text-sm font-body">
                   <thead>
-                    <tr className="border-b border-rule">
-                      <th className="text-left py-1 text-stone font-medium">Ingrediente</th>
-                      <th className="text-right py-1 text-stone font-medium">Cant.</th>
-                      <th className="text-center py-1 text-stone font-medium">Tiempo</th>
-                      <th className="text-right py-1 text-stone font-medium">Costo</th>
+                    <tr className="border-b border-island-blue/20">
+                      <th className="text-left py-1 text-island-dark/70 font-medium">Ingrediente</th>
+                      <th className="text-right py-1 text-island-dark/70 font-medium">Cant.</th>
+                      <th className="text-center py-1 text-island-dark/70 font-medium">Tiempo</th>
+                      <th className="text-right py-1 text-island-dark/70 font-medium">Costo</th>
                     </tr>
                   </thead>
                   <tbody>
                     {v.ingredients.map((ing, idx) => (
-                      <tr key={idx} className="border-b border-rule border-opacity-50">
-                        <td className="py-1.5 text-ink">{ing.name ?? ing.ingredientRefId}</td>
-                        <td className="py-1.5 text-right text-stone">{ing.quantity} {formatMeasurementUnit(ing.unit)}</td>
-                        <td className="py-1.5 text-center text-stone">
+                      <tr key={idx} className="border-b border-island-blue/20 border-opacity-50">
+                        <td className="py-1.5 text-island-dark">{ing.name ?? ing.ingredientRefId}</td>
+                        <td className="py-1.5 text-right text-island-dark/70">{ing.quantity} {formatMeasurementUnit(ing.unit)}</td>
+                        <td className="py-1.5 text-center text-island-dark/70">
                           {ing.ingredientType === 'recipe' ? (ing.includePreparationTime ? 'Suma' : 'No suma') : '-'}
                         </td>
-                        <td className="py-1.5 text-right text-ink">{formatCOPDecimal(ing.cost)}</td>
+                        <td className="py-1.5 text-right text-island-dark">{formatCOPDecimal(ing.cost)}</td>
                       </tr>
                     ))}
                     <tr className="font-medium">
-                      <td colSpan={3} className="pt-2 text-stone text-xs">Mat. directos</td>
-                      <td className="pt-2 text-right text-espresso">{formatCOPDecimal(v.directMaterialCost)}</td>
+                      <td colSpan={3} className="pt-2 text-island-dark/70 text-xs">Mat. directos</td>
+                      <td className="pt-2 text-right text-island-dark">{formatCOPDecimal(v.directMaterialCost)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -125,7 +125,7 @@ export function CostSheetPage() {
 
               {/* Cost breakdown */}
               <div className="space-y-2">
-                <p className="text-xs font-body text-stone uppercase tracking-wide mb-2">
+                <p className="text-xs font-body text-island-dark/70 uppercase tracking-wide mb-2">
                   Estructura de costos · {v.costingMethod === 'full-cost' ? 'MOD + GIF' : 'Food cost'}
                 </p>
                 <CostRow label="Materiales directos" value={formatCOPDecimal(v.directMaterialCost)} />
@@ -138,10 +138,10 @@ export function CostSheetPage() {
                 ) : (
                   <CostRow label="Food cost objetivo" value={formatPct(v.targetFoodCostPct ?? 0.3)} />
                 )}
-                <div className="border-t border-espresso pt-2 mt-2">
+                <div className="border-t border-island-blue/20 pt-2 mt-2">
                   <CostRow label={v.costingMethod === 'full-cost' ? 'Costo total' : 'Costo base'} value={formatCOPDecimal(v.totalCost)} bold />
                 </div>
-                <div className="border-t border-rule pt-2 mt-2 space-y-2">
+                <div className="border-t border-island-blue/20 pt-2 mt-2 space-y-2">
                   <CostRow label={v.taxIncluded ?? true ? 'Precio final ingresado' : 'Precio base ingresado'} value={formatCOP(v.salePrice)} />
                   {(v.taxRate ?? 0) > 0 && (
                     <>
@@ -174,7 +174,7 @@ export function CostSheetPage() {
         ))}
 
         {/* Footer */}
-        <div className="px-8 py-4 bg-surface-tint text-xs text-stone font-body flex justify-between">
+        <div className="px-8 py-4 bg-sand text-xs text-island-dark/70 font-body flex justify-between">
           <span>La Isla Café Picnic — Ibagué, Colombia</span>
           <span>Documento interno — No distribuir</span>
         </div>
@@ -232,17 +232,17 @@ export function CostSheetPage() {
 function Kpi({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-stone text-xs">{label}</p>
-      <p className="font-medium text-espresso">{value}</p>
+      <p className="text-island-dark/70 text-xs">{label}</p>
+      <p className="font-medium text-island-dark">{value}</p>
     </div>
   );
 }
 
 function CostRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
-    <div className={`flex justify-between text-sm font-body ${bold ? 'font-semibold text-espresso' : 'text-stone'}`}>
+    <div className={`flex justify-between text-sm font-body ${bold ? 'font-semibold text-island-dark' : 'text-island-dark/70'}`}>
       <span>{label}</span>
-      <span className={bold ? '' : 'text-ink'}>{value}</span>
+      <span className={bold ? '' : 'text-island-dark'}>{value}</span>
     </div>
   );
 }

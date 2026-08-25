@@ -25,7 +25,7 @@ export function ServiceQuickNav() {
   if (sidebarOpen) return null;
 
   return (
-    <nav className="shrink-0 border-b border-rule bg-white px-4 py-2 shadow-sm">
+    <nav className="shrink-0 border-b border-island-blue/20 bg-white px-4 py-2 shadow-sm">
       <div className="flex gap-2 overflow-x-auto">
         {serviceItems.map(({ to, label, Icon, end }) => (
           <NavLink
@@ -35,8 +35,8 @@ export function ServiceQuickNav() {
             className={({ isActive }) =>
               `inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 font-body text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-espresso text-cream shadow-sm'
-                  : 'border border-rule bg-surface-tint text-espresso hover:border-rule-strong hover:bg-white'
+                  ? 'bg-island-dark text-white shadow-sm'
+                  : 'border border-island-blue/20 bg-sand text-island-dark hover:border-island-blue/40 hover:bg-white'
               }`
             }
           >

@@ -221,8 +221,8 @@ export function TablesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Mesas</h1>
-          <p className="text-stone font-body text-sm">{filteredTables.length} mesas en total</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Mesas</h1>
+          <p className="text-island-dark/70 font-body text-sm">{filteredTables.length} mesas en total</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="secondary" onClick={openZoneManager}>
@@ -255,16 +255,16 @@ export function TablesPage() {
             if (zoneFilter && zoneFilter !== zone.value) return null;
             return (
               <div key={zone.value}>
-                <h2 className="font-body text-lg font-semibold text-espresso mb-3">{zone.label}</h2>
+                <h2 className="font-body text-lg font-semibold text-island-dark mb-3">{zone.label}</h2>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {zoneTables.map((table) => (
                     <div
                       key={table._id}
-                      className={`bg-white border border-rule rounded-xl p-4 ${statusBorder[table.status]} transition-all hover:shadow-sm`}
+                      className={`bg-white border border-island-blue/20 rounded-xl p-4 ${statusBorder[table.status]} transition-all hover:shadow-sm`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="min-w-0 truncate pr-2 font-body font-semibold text-espresso text-sm">{table.name}</span>
-                        <span className="shrink-0 text-xs text-stone">{table.capacity}p</span>
+                        <span className="min-w-0 truncate pr-2 font-body font-semibold text-island-dark text-sm">{table.name}</span>
+                        <span className="shrink-0 text-xs text-island-dark/70">{table.capacity}p</span>
                       </div>
                       <div>
                         <TableStatusBadge status={table.status} />
@@ -302,8 +302,8 @@ export function TablesPage() {
                     </div>
                   ))}
                   {zoneTables.length === 0 && (
-                    <div className="border border-dashed border-rule rounded-xl p-4 bg-white flex items-center justify-center">
-                      <span className="text-xs text-stone font-body">Sin mesas</span>
+                    <div className="border border-dashed border-island-blue/20 rounded-xl p-4 bg-white flex items-center justify-center">
+                      <span className="text-xs text-island-dark/70 font-body">Sin mesas</span>
                     </div>
                   )}
                 </div>
@@ -340,10 +340,10 @@ export function TablesPage() {
         <div className="space-y-5">
           <div className="space-y-2">
             {zones.map((zone) => (
-              <div key={zone._id} className="flex items-center justify-between rounded-lg border border-rule px-3 py-2">
+              <div key={zone._id} className="flex items-center justify-between rounded-lg border border-island-blue/20 px-3 py-2">
                 <div>
-                  <p className="font-body text-sm font-semibold text-espresso">{zone.label}</p>
-                  <p className="font-body text-xs text-stone">{grouped[zone.value]?.length || 0} mesas</p>
+                  <p className="font-body text-sm font-semibold text-island-dark">{zone.label}</p>
+                  <p className="font-body text-xs text-island-dark/70">{grouped[zone.value]?.length || 0} mesas</p>
                 </div>
                 <Button type="button" variant="ghost" size="sm" onClick={() => editZone(zone)}>
                   Editar
@@ -352,7 +352,7 @@ export function TablesPage() {
             ))}
           </div>
 
-          <form onSubmit={saveZone} className="space-y-4 border-t border-rule pt-4">
+          <form onSubmit={saveZone} className="space-y-4 border-t border-island-blue/20 pt-4">
             <Input
               label={editingZone ? 'Editar zona' : 'Nueva zona'}
               value={zoneName}
@@ -360,7 +360,7 @@ export function TablesPage() {
               placeholder="Ej: Terraza interna"
               autoFocus
             />
-            <p className="text-xs font-body text-stone">
+            <p className="text-xs font-body text-island-dark/70">
               Si editas una zona, las mesas asociadas se moverán automáticamente al nuevo nombre.
             </p>
             <div className="flex justify-end gap-3">
@@ -394,9 +394,9 @@ export function TablesPage() {
         size="sm"
       >
         <div className="space-y-5">
-          <p className="font-body text-sm leading-6 text-stone">
+          <p className="font-body text-sm leading-6 text-island-dark/70">
             ¿Quieres eliminar la mesa{' '}
-            <span className="font-semibold text-espresso">{deleteTarget?.name}</span>?
+            <span className="font-semibold text-island-dark">{deleteTarget?.name}</span>?
             Esta acción no se puede deshacer.
           </p>
           <div className="flex justify-end gap-3">
@@ -431,9 +431,9 @@ export function TablesPage() {
         <div className="space-y-5">
           <div className="rounded-lg border border-warning bg-warning-tint p-4 font-body">
             <p className="font-semibold text-warning-ink">Esta acción liberará todas las mesas.</p>
-            <p className="mt-2 text-sm leading-6 text-stone">
+            <p className="mt-2 text-sm leading-6 text-island-dark/70">
               Los pedidos activos asociados no se eliminarán. Pasarán a quedar como
-              <span className="font-semibold text-espresso"> Sin mesa / Mostrador</span>.
+              <span className="font-semibold text-island-dark"> Sin mesa / Mostrador</span>.
             </p>
           </div>
           <div className="flex justify-end gap-3">

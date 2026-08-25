@@ -22,13 +22,13 @@ const NIVEL_STYLES: Record<NivelInventario, string> = {
   BUENO: 'bg-success-tint border-l-4 border-success',
   REGULAR: 'bg-warning-tint border-l-4 border-warning',
   AGOTADO: 'bg-error-tint border-l-4 border-error',
-  NO_REVISADO: 'bg-white border-l-4 border-rule',
+  NO_REVISADO: 'bg-white border-l-4 border-island-blue/20',
 };
 
 const NIVEL_BTN: Record<string, string> = {
-  BUENO: 'bg-success hover:bg-success-ink text-cream',
-  REGULAR: 'bg-warning hover:bg-warning-ink text-ink',
-  AGOTADO: 'bg-error hover:bg-error-ink text-cream',
+  BUENO: 'bg-success hover:bg-success-ink text-white',
+  REGULAR: 'bg-warning hover:bg-warning-ink text-island-dark',
+  AGOTADO: 'bg-error hover:bg-error-ink text-white',
 };
 
 export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'control' | 'historial' } = {}) {
@@ -194,8 +194,8 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Control de Inventario</h1>
-          <p className="text-stone font-body text-sm mt-0.5">
+          <h1 className="font-body text-2xl font-bold text-island-dark">Control de Inventario</h1>
+          <p className="text-island-dark/70 font-body text-sm mt-0.5">
             {new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             {' · '}{user?.name}
           </p>
@@ -203,7 +203,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
         {activeTab === 'control' && (
         <div className="flex items-center gap-3 flex-wrap">
           {/* Turno selector */}
-          <div className="inline-flex rounded-lg border border-rule bg-white p-1 shadow-sm">
+          <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
             {[
               { value: 'MATUTINO' as TurnoInventario, label: 'Mañana', Icon: Sun },
               { value: 'VESPERTINO' as TurnoInventario, label: 'Tarde', Icon: Moon },
@@ -215,8 +215,8 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
                 disabled={locked}
                 className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-body transition-all ${
                   turno === value
-                    ? 'bg-espresso text-cream'
-                    : 'text-espresso hover:bg-surface-tint disabled:text-stone disabled:hover:bg-transparent'
+                    ? 'bg-island-dark text-white'
+                    : 'text-island-dark hover:bg-sand disabled:text-island-dark/70 disabled:hover:bg-transparent'
                 }`}
               >
                 <Icon size={15} />
@@ -225,7 +225,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
             ))}
           </div>
           {/* Progress */}
-          <span className="text-sm font-body text-stone bg-white px-3 py-1.5 rounded-lg border border-rule">
+          <span className="text-sm font-body text-island-dark/70 bg-white px-3 py-1.5 rounded-lg border border-island-blue/20">
             {revisados} / {allInsumos.length} revisados
           </span>
           {/* Bulk toggle */}
@@ -253,16 +253,16 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
         )}
       </div>
 
-      <div className="inline-flex rounded-lg border border-rule bg-white p-1 shadow-sm">
+      <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
         <button
           onClick={() => setActiveTab('control')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'control' ? 'bg-espresso text-cream' : 'text-espresso hover:bg-surface-tint'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'control' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
         >
           Revisión diaria
         </button>
         <button
           onClick={() => setActiveTab('historial')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'historial' ? 'bg-espresso text-cream' : 'text-espresso hover:bg-surface-tint'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'historial' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
         >
           Historial
         </button>
@@ -275,11 +275,11 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
 
       {/* Category groups */}
       {grupos.map((grupo) => (
-        <div key={grupo.categoria._id} className="rounded-xl overflow-hidden shadow-sm border border-rule">
+        <div key={grupo.categoria._id} className="rounded-xl overflow-hidden shadow-sm border border-island-blue/20">
           {/* Category header */}
-          <div className="px-4 py-3 flex items-center justify-between bg-white border-b border-rule">
-            <span className="font-body font-semibold text-espresso text-sm tracking-wide">{grupo.categoria.nombre}</span>
-            <span className="text-xs font-body text-stone">
+          <div className="px-4 py-3 flex items-center justify-between bg-white border-b border-island-blue/20">
+            <span className="font-body font-semibold text-island-dark text-sm tracking-wide">{grupo.categoria.nombre}</span>
+            <span className="text-xs font-body text-island-dark/70">
               {grupo.insumos.filter((i) => detalles[i._id]?.nivel !== 'NO_REVISADO').length}/{grupo.insumos.length}
             </span>
           </div>
@@ -300,20 +300,20 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
                     {bulkMode && !locked && (
                       <button onClick={() => toggleSelected(insumo._id)}>
                         {isSelected
-                          ? <CheckSquare size={18} className="text-terracotta" />
-                          : <Square size={18} className="text-stone" />
+                          ? <CheckSquare size={18} className="text-island-blue" />
+                          : <Square size={18} className="text-island-dark/70" />
                         }
                       </button>
                     )}
 
                     {/* Name + levels hint */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-body font-medium text-espresso text-sm truncate">{insumo.nombre}</p>
-                      <p className="text-xs text-stone font-body opacity-70">
+                      <p className="font-body font-medium text-island-dark text-sm truncate">{insumo.nombre}</p>
+                      <p className="text-xs text-island-dark/70 font-body opacity-70">
                         {insumo.cantidadPresentacion ?? 1} {formatMeasurementUnit(insumo.unidad)}
                       </p>
                       {(insumo.nivelBueno || insumo.nivelRegular || insumo.nivelAgotado) && (
-                        <p className="flex items-center gap-1.5 text-xs text-stone font-body mt-0.5 opacity-60">
+                        <p className="flex items-center gap-1.5 text-xs text-island-dark/70 font-body mt-0.5 opacity-60">
                           <span className="h-2 w-2 rounded-full bg-success" /> {insumo.nivelBueno}
                           <span className="mx-0.5">·</span>
                           <span className="h-2 w-2 rounded-full bg-warning" /> {insumo.nivelRegular}
@@ -334,7 +334,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
                             className={`px-3 py-1.5 rounded-lg text-xs font-body font-semibold transition-all duration-150 ${
                               nivel === n
                                 ? NIVEL_BTN[n] + ' ring-2 ring-offset-1 ring-current'
-                                : 'bg-rule hover:bg-rule-strong text-stone'
+                                : 'bg-island-blue/20 hover:bg-island-blue/40 text-island-dark/70'
                             }`}
                           >
                             <span className="inline-flex items-center gap-1">
@@ -356,7 +356,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
                     {!locked && (
                       <button
                         onClick={() => setExpanded((e) => ({ ...e, [insumo._id]: !e[insumo._id] }))}
-                        className="text-stone hover:text-stone shrink-0"
+                        className="text-island-dark/70 hover:text-island-dark/70 shrink-0"
                       >
                         {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
@@ -408,7 +408,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
       {comparacion && (
         <div className="card">
           <button
-            className="flex items-center gap-2 text-sm font-body font-medium text-stone w-full"
+            className="flex items-center gap-2 text-sm font-body font-medium text-island-dark/70 w-full"
             onClick={() => setShowComparacion((v) => !v)}
           >
             {showComparacion ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -429,7 +429,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
 
       {/* Bulk sticky footer */}
       {bulkMode && selected.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-espresso text-cream rounded-xl shadow-2xl px-5 py-3 flex items-center gap-3 z-50">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-island-dark text-white rounded-xl shadow-2xl px-5 py-3 flex items-center gap-3 z-50">
           <span className="text-sm font-body">{selected.size} seleccionados</span>
           {(['BUENO', 'REGULAR', 'AGOTADO'] as NivelInventario[]).map((n) => (
             <button
@@ -444,7 +444,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
             </button>
           ))}
           <button onClick={() => { setBulkMode(false); setSelected(new Set()); }}>
-            <X size={16} className="text-cream opacity-60 hover:opacity-100" />
+            <X size={16} className="text-white opacity-60 hover:opacity-100" />
           </button>
         </div>
       )}
@@ -452,15 +452,15 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
       {/* Close warning modal */}
       <Modal isOpen={closeModal} onClose={() => setCloseModal(false)} title="Ítems sin revisar">
         <div className="space-y-4">
-          <p className="font-body text-sm text-stone">
+          <p className="font-body text-sm text-island-dark/70">
             Hay <strong>{closeWarning?.noRevisados}</strong> ítems marcados como <em>NO REVISADO</em>:
           </p>
-          <ul className="text-sm font-body text-ink max-h-48 overflow-y-auto space-y-1">
+          <ul className="text-sm font-body text-island-dark max-h-48 overflow-y-auto space-y-1">
             {closeWarning?.itemNames.map((name) => (
-              <li key={name} className="px-2 py-1 bg-surface-tint rounded text-xs">{name}</li>
+              <li key={name} className="px-2 py-1 bg-sand rounded text-xs">{name}</li>
             ))}
           </ul>
-          <p className="text-xs text-stone font-body">¿Deseas cerrar la revisión de todos modos?</p>
+          <p className="text-xs text-island-dark/70 font-body">¿Deseas cerrar la revisión de todos modos?</p>
           <div className="flex gap-3 justify-end">
             <Button variant="secondary" onClick={() => setCloseModal(false)}>Cancelar</Button>
             <Button onClick={confirmCerrar} disabled={closing}>

@@ -54,8 +54,8 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-body text-2xl font-bold text-espresso">Dashboard</h1>
-        <p className="text-stone font-body text-sm mt-1">
+        <h1 className="font-body text-2xl font-bold text-island-dark">Dashboard</h1>
+        <p className="text-island-dark/70 font-body text-sm mt-1">
           {new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
@@ -76,25 +76,25 @@ export function DashboardPage() {
           label="Ventas del día"
           value={formatCOP(summary.todaySales)}
           icon={<DollarSign size={22} />}
-          color="terracotta"
+          color="blue"
         />
         <SummaryCard
           label="Pedidos hoy"
           value={String(summary.todayOrders)}
           icon={<ClipboardList size={22} />}
-          color="lagoon"
+          color="sky"
         />
         <SummaryCard
           label="Mesas activas"
           value={String(summary.openTables)}
           icon={<Table2 size={22} />}
-          color="olive"
+          color="yellow"
         />
         <SummaryCard
           label="Próximos eventos"
           value={String(summary.upcomingEvents.length)}
           icon={<CalendarDays size={22} />}
-          color="espresso"
+          color="dark"
         />
       </div>
 
@@ -103,27 +103,27 @@ export function DashboardPage() {
           label="Promedio entrega"
           value={`${Math.round(timingStats?.avgDeliveryMinutes ?? 0)} min`}
           icon={<ClipboardList size={22} />}
-          color="lagoon"
+          color="sky"
         />
         <SummaryCard
           label="Promedio permanencia"
           value={`${Math.round(timingStats?.avgStayMinutes ?? 0)} min`}
           icon={<Table2 size={22} />}
-          color="olive"
+          color="yellow"
         />
         <div className="card">
-          <h2 className="font-body text-lg font-semibold text-espresso mb-4">Tiempos recientes</h2>
+          <h2 className="font-body text-lg font-semibold text-island-dark mb-4">Tiempos recientes</h2>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={timingChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-rule)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
               <XAxis dataKey="name" tick={{ fontSize: 11, fontFamily: 'DM Sans' }} />
               <YAxis tick={{ fontSize: 11, fontFamily: 'DM Sans' }} />
               <Tooltip
                 formatter={(value: number, name: string) => [`${value} min`, name === 'entrega' ? 'Entrega' : 'Permanencia']}
                 labelStyle={{ fontFamily: 'DM Sans' }}
-                contentStyle={{ borderRadius: 8, border: '1px solid var(--color-rule)', fontFamily: 'DM Sans' }}
+                contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontFamily: 'DM Sans' }}
               />
-              <Bar dataKey="entrega" fill="var(--color-terracotta)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="entrega" fill="var(--color-island-blue)" radius={[4, 4, 0, 0]} />
               <Bar dataKey="permanencia" fill="var(--color-info)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -132,18 +132,18 @@ export function DashboardPage() {
 
       {/* Chart */}
       <div className="card">
-        <h2 className="font-body text-lg font-semibold text-espresso mb-4">Ventas por hora — hoy</h2>
+        <h2 className="font-body text-lg font-semibold text-island-dark mb-4">Ventas por hora — hoy</h2>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={summary.hourlySales.filter((h) => h.revenue > 0 || parseInt(h.hour) >= 7 && parseInt(h.hour) <= 22)}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-rule)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
             <XAxis dataKey="hour" tick={{ fontSize: 11, fontFamily: 'DM Sans' }} />
             <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11, fontFamily: 'DM Sans' }} />
             <Tooltip
               formatter={(value: number) => [formatCOP(value), 'Ventas']}
               labelStyle={{ fontFamily: 'DM Sans' }}
-              contentStyle={{ borderRadius: 8, border: '1px solid var(--color-rule)', fontFamily: 'DM Sans' }}
+              contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontFamily: 'DM Sans' }}
             />
-            <Bar dataKey="revenue" fill="var(--color-terracotta)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="revenue" fill="var(--color-island-blue)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -151,7 +151,7 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quick Actions */}
         <div className="card">
-          <h2 className="font-body text-lg font-semibold text-espresso mb-4">Acciones rápidas</h2>
+          <h2 className="font-body text-lg font-semibold text-island-dark mb-4">Acciones rápidas</h2>
           <div className="space-y-2">
             <QuickLink to="/admin/orders" icon={<ClipboardList size={18} />} label="Crear nuevo pedido" />
             <QuickLink to="/admin/tables" icon={<Table2 size={18} />} label="Ver estado de mesas" />
@@ -162,17 +162,17 @@ export function DashboardPage() {
 
         {/* Upcoming Events */}
         <div className="card">
-          <h2 className="font-body text-lg font-semibold text-espresso mb-4">Próximos eventos</h2>
+          <h2 className="font-body text-lg font-semibold text-island-dark mb-4">Próximos eventos</h2>
           {summary.upcomingEvents.length === 0 ? (
-            <p className="text-stone font-body text-sm">No hay eventos próximos.</p>
+            <p className="text-island-dark/70 font-body text-sm">No hay eventos próximos.</p>
           ) : (
             <div className="space-y-3">
               {summary.upcomingEvents.map((event) => (
-                <div key={event._id} className="flex items-center gap-3 p-3 bg-surface-tint rounded-lg">
-                  <Sparkles size={22} className="text-terracotta shrink-0" />
+                <div key={event._id} className="flex items-center gap-3 p-3 bg-sand rounded-lg">
+                  <Sparkles size={22} className="text-island-blue shrink-0" />
                   <div>
-                    <p className="font-body font-medium text-espresso text-sm">{event.title}</p>
-                    <p className="text-xs text-stone font-body">
+                    <p className="font-body font-medium text-island-dark text-sm">{event.title}</p>
+                    <p className="text-xs text-island-dark/70 font-body">
                       {formatDate(event.date)} · {formatTime(event.time)}
                     </p>
                   </div>
@@ -188,10 +188,10 @@ export function DashboardPage() {
 
 function SummaryCard({ label, value, icon, color }: { label: string; value: string; icon: ReactNode; color: string }) {
   const colorClasses: Record<string, string> = {
-    terracotta: 'bg-surface-tint text-espresso',
-    lagoon: 'bg-surface-tint text-espresso',
-    olive: 'bg-surface-tint text-espresso',
-    espresso: 'bg-surface-tint text-espresso',
+    blue: 'bg-sand text-island-dark',
+    sky: 'bg-sand text-island-dark',
+    yellow: 'bg-sand text-island-dark',
+    dark: 'bg-sand text-island-dark',
   };
 
   return (
@@ -200,8 +200,8 @@ function SummaryCard({ label, value, icon, color }: { label: string; value: stri
         {icon}
       </div>
       <div>
-        <p className="text-xs text-stone font-body uppercase tracking-wide">{label}</p>
-        <p className="text-xl font-body font-bold text-espresso">{value}</p>
+        <p className="text-xs text-island-dark/70 font-body uppercase tracking-wide">{label}</p>
+        <p className="text-xl font-body font-bold text-island-dark">{value}</p>
       </div>
     </div>
   );
@@ -211,13 +211,13 @@ function QuickLink({ to, icon, label }: { to: string; icon: ReactNode; label: st
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-tint transition-colors group"
+      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-sand transition-colors group"
     >
-      <span className="text-stone group-hover:text-terracotta transition-colors">{icon}</span>
-      <span className="font-body text-sm text-ink group-hover:text-terracotta transition-colors">
+      <span className="text-island-dark/70 group-hover:text-island-blue transition-colors">{icon}</span>
+      <span className="font-body text-sm text-island-dark group-hover:text-island-blue transition-colors">
         {label}
       </span>
-      <ChevronRight size={16} className="ml-auto text-stone group-hover:text-terracotta transition-colors" />
+      <ChevronRight size={16} className="ml-auto text-island-dark/70 group-hover:text-island-blue transition-colors" />
     </Link>
   );
 }

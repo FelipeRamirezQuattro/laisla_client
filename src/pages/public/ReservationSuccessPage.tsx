@@ -13,8 +13,8 @@ export function ReservationSuccessPage() {
   if (!reservation) {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
-        <p className="text-stone font-body">No se encontró información de la reservación.</p>
-        <Link to="/" className="mt-4 inline-block text-terracotta font-body font-medium">Volver al inicio</Link>
+        <p className="text-island-dark/70 font-body">No se encontró información de la reservación.</p>
+        <Link to="/" className="mt-4 inline-block text-island-blue font-body font-medium">Volver al inicio</Link>
       </div>
     );
   }
@@ -25,17 +25,17 @@ export function ReservationSuccessPage() {
         <div className="w-20 h-20 rounded-full bg-success-tint flex items-center justify-center mx-auto mb-5">
           <Check size={40} className="text-success" />
         </div>
-        <h1 className="font-body text-3xl font-bold text-espresso">¡Reservación confirmada!</h1>
-        <p className="font-body text-stone mt-2">
+        <h1 className="font-body text-3xl font-bold text-island-dark">¡Reservación confirmada!</h1>
+        <p className="font-body text-island-dark/70 mt-2">
           Te esperamos en La Isla Café. Guarda tu código de confirmación.
         </p>
       </div>
 
-      <div className="bg-white rounded-lg border border-rule shadow-sm p-8">
+      <div className="bg-white rounded-lg border border-island-blue/20 shadow-sm p-8">
         {/* Confirmation Code */}
-        <div className="text-center mb-6 pb-6 border-b border-rule">
-          <p className="text-xs text-stone font-body uppercase tracking-widest mb-2">Código de confirmación</p>
-          <p className="font-mono text-4xl font-bold text-espresso tracking-widest">{reservation.confirmationCode}</p>
+        <div className="text-center mb-6 pb-6 border-b border-island-blue/20">
+          <p className="text-xs text-island-dark/70 font-body uppercase tracking-widest mb-2">Código de confirmación</p>
+          <p className="font-mono text-4xl font-bold text-island-dark tracking-widest">{reservation.confirmationCode}</p>
         </div>
 
         {/* Details */}
@@ -51,20 +51,20 @@ export function ReservationSuccessPage() {
         </div>
       </div>
 
-      <p className="text-center text-sm text-stone font-body mt-6">
+      <p className="text-center text-sm text-island-dark/70 font-body mt-6">
         Recibirás un correo de confirmación en <strong>{reservation.email}</strong>
       </p>
 
       <div className="flex flex-col sm:flex-row gap-3 mt-8">
         <Link
           to="/"
-          className="flex-1 text-center py-3 rounded-xl border-2 border-rule text-espresso font-body font-medium hover:bg-surface-tint transition-all"
+          className="flex-1 text-center py-3 rounded-xl border-2 border-island-blue/20 text-island-dark font-body font-medium hover:bg-sand transition-all"
         >
           Volver al inicio
         </Link>
         <Link
           to="/reservar/eventos"
-          className="flex-1 text-center py-3 rounded-xl bg-espresso text-cream font-body font-medium hover:bg-surface-tint transition-all"
+          className="flex-1 text-center py-3 rounded-xl bg-island-dark text-white font-body font-medium hover:bg-sand transition-all"
         >
           Ver eventos
         </Link>
@@ -75,9 +75,9 @@ export function ReservationSuccessPage() {
 
 function InfoRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex justify-between items-center py-1.5 border-b border-rule last:border-0">
-      <span className="text-stone">{label}</span>
-      <span className="font-medium text-espresso">{value}</span>
+    <div className="flex justify-between items-center py-1.5 border-b border-island-blue/20 last:border-0">
+      <span className="text-island-dark/70">{label}</span>
+      <span className="font-medium text-island-dark">{value}</span>
     </div>
   );
 }

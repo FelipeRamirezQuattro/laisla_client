@@ -158,8 +158,8 @@ export function RecipesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Recetas</h1>
-          <p className="text-stone font-body text-sm">{filtered.length} recetas</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Recetas</h1>
+          <p className="text-island-dark/70 font-body text-sm">{filtered.length} recetas</p>
         </div>
         <div className="flex gap-2 flex-wrap justify-end">
           {isAdmin && (
@@ -189,19 +189,19 @@ export function RecipesPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">Nombre</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Categoría</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Variantes</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Precio venta</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Costo prom.</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Utilidad prom.</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Margen prom.</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Costeo</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Producto</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Estado</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Nombre</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Categoría</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Variantes</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Precio venta</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Costo prom.</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Utilidad prom.</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Margen prom.</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Costeo</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Producto</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-rule">
@@ -209,25 +209,25 @@ export function RecipesPage() {
                 const profit = avgProfit(r);
                 const margin = avgMargin(r);
                 return (
-                  <tr key={r._id} className="hover:bg-surface-tint transition-colors">
+                  <tr key={r._id} className="hover:bg-sand transition-colors">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-ink">{r.name}</p>
-                      {r.isSubRecipe && <span className="text-xs text-terracotta font-body">Sub-receta</span>}
+                      <p className="font-medium text-island-dark">{r.name}</p>
+                      {r.isSubRecipe && <span className="text-xs text-island-blue font-body">Sub-receta</span>}
                     </td>
-                    <td className="px-4 py-3 text-stone">{catLabel(r.category)}</td>
-                    <td className="px-4 py-3 text-center text-stone">
+                    <td className="px-4 py-3 text-island-dark/70">{catLabel(r.category)}</td>
+                    <td className="px-4 py-3 text-center text-island-dark/70">
                       {r.variants.map((v) => v.size).join(', ')}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-ink whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-medium text-island-dark whitespace-nowrap">
                       {salePriceLabel(r)}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-espresso whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-medium text-island-dark whitespace-nowrap">
                       {formatCOPDecimal(avgCost(r))}
                     </td>
-                    <td className={`px-4 py-3 text-right font-medium whitespace-nowrap ${profit !== null && profit < 0 ? 'text-error-ink' : 'text-ink'}`}>
+                    <td className={`px-4 py-3 text-right font-medium whitespace-nowrap ${profit !== null && profit < 0 ? 'text-error-ink' : 'text-island-dark'}`}>
                       {profit === null ? 'Pendiente' : formatCOPDecimal(profit)}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-stone whitespace-nowrap">
+                    <td className="px-4 py-3 text-right font-medium text-island-dark/70 whitespace-nowrap">
                       {margin === null ? 'Pendiente' : formatPercent(margin)}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -260,7 +260,7 @@ export function RecipesPage() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={11} className="text-center py-10 text-stone">No se encontraron recetas.</td>
+                  <td colSpan={11} className="text-center py-10 text-island-dark/70">No se encontraron recetas.</td>
                 </tr>
               )}
             </tbody>
@@ -277,7 +277,7 @@ export function RecipesPage() {
             placeholder="Ej: Postres, Sanduches, Bebidas frías"
             autoFocus
           />
-          <p className="text-xs font-body text-stone">
+          <p className="text-xs font-body text-island-dark/70">
             Estas categorías son para productos/recetas. No modifican las categorías de insumos del inventario.
           </p>
           <div className="flex justify-end gap-3 pt-2">

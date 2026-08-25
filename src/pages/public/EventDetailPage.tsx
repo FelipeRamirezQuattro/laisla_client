@@ -70,8 +70,8 @@ export function EventDetailPage() {
   if (loading) return <PageLoader />;
   if (!event) return (
     <div className="text-center py-20">
-      <p className="font-body text-stone">Evento no encontrado.</p>
-      <Link to="/reservar/eventos" className="text-terracotta font-body font-medium mt-2 inline-block">Ver todos los eventos</Link>
+      <p className="font-body text-island-dark/70">Evento no encontrado.</p>
+      <Link to="/reservar/eventos" className="text-island-blue font-body font-medium mt-2 inline-block">Ver todos los eventos</Link>
     </div>
   );
 
@@ -83,8 +83,8 @@ export function EventDetailPage() {
         <div className="w-20 h-20 rounded-full bg-success-tint flex items-center justify-center mx-auto mb-5">
           <Check size={40} className="text-success" />
         </div>
-        <h2 className="font-body text-2xl font-bold text-espresso mb-3">¡Cupo reservado!</h2>
-        <p className="font-body text-stone mb-6">Tu lugar para <strong>{event.title}</strong> está asegurado. Recibirás más información pronto.</p>
+        <h2 className="font-body text-2xl font-bold text-island-dark mb-3">¡Cupo reservado!</h2>
+        <p className="font-body text-island-dark/70 mb-6">Tu lugar para <strong>{event.title}</strong> está asegurado. Recibirás más información pronto.</p>
         <Link to="/reservar/eventos" className="btn-primary inline-flex">Ver más eventos</Link>
       </div>
     );
@@ -92,7 +92,7 @@ export function EventDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <Link to="/reservar/eventos" className="text-sm font-body text-stone hover:text-espresso flex items-center gap-1 mb-6">
+      <Link to="/reservar/eventos" className="text-sm font-body text-island-dark/70 hover:text-island-dark flex items-center gap-1 mb-6">
         <ArrowLeft size={16} />
         Todos los eventos
       </Link>
@@ -100,40 +100,40 @@ export function EventDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Event Info */}
         <div className="lg:col-span-3 space-y-5">
-          <div className="h-56 bg-espresso rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="h-56 bg-island-dark rounded-lg flex items-center justify-center overflow-hidden">
             {event.imageUrl ? (
               <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover rounded-lg" />
             ) : (
-              <PartyPopper size={64} className="text-cream opacity-50" />
+              <PartyPopper size={64} className="text-white opacity-50" />
             )}
           </div>
           <div>
-            <p className="text-xs text-terracotta font-body uppercase tracking-widest font-medium mb-2">
+            <p className="text-xs text-island-blue font-body uppercase tracking-widest font-medium mb-2">
               {formatDate(event.date)} · {formatTime(event.time)}
             </p>
-            <h1 className="font-body text-3xl font-bold text-espresso mb-3">{event.title}</h1>
-            <p className="font-body text-stone leading-relaxed">{event.description}</p>
+            <h1 className="font-body text-3xl font-bold text-island-dark mb-3">{event.title}</h1>
+            <p className="font-body text-island-dark/70 leading-relaxed">{event.description}</p>
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm font-body">
-            <div className="bg-surface-tint rounded-xl p-4">
-              <p className="text-stone text-xs mb-1">Precio por persona</p>
-              <p className="font-bold text-espresso text-lg">{formatCOP(event.pricePerPerson)}</p>
+            <div className="bg-sand rounded-xl p-4">
+              <p className="text-island-dark/70 text-xs mb-1">Precio por persona</p>
+              <p className="font-bold text-island-dark text-lg">{formatCOP(event.pricePerPerson)}</p>
             </div>
-            <div className="bg-surface-tint rounded-xl p-4">
-              <p className="text-stone text-xs mb-1">Cupos disponibles</p>
-              <p className="font-bold text-espresso text-lg">{spotsLeft} de {event.maxCapacity}</p>
+            <div className="bg-sand rounded-xl p-4">
+              <p className="text-island-dark/70 text-xs mb-1">Cupos disponibles</p>
+              <p className="font-bold text-island-dark text-lg">{spotsLeft} de {event.maxCapacity}</p>
             </div>
           </div>
         </div>
 
         {/* Booking Form */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg border border-rule shadow-sm p-6 sticky top-6">
-            <h2 className="font-body text-xl font-semibold text-espresso mb-4">Reservar mi cupo</h2>
+          <div className="bg-white rounded-lg border border-island-blue/20 shadow-sm p-6 sticky top-6">
+            <h2 className="font-body text-xl font-semibold text-island-dark mb-4">Reservar mi cupo</h2>
             {spotsLeft <= 0 ? (
               <div className="text-center py-8">
                 <p className="font-body text-error-ink font-medium">Este evento está agotado.</p>
-                <Link to="/reservar/eventos" className="text-sm font-body text-terracotta mt-2 inline-block">Ver otros eventos</Link>
+                <Link to="/reservar/eventos" className="text-sm font-body text-island-blue mt-2 inline-block">Ver otros eventos</Link>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -141,7 +141,7 @@ export function EventDetailPage() {
                 <Input label="Email" type="email" error={errors.email?.message} {...register('email')} />
                 <Input label="Teléfono" error={errors.phone?.message} {...register('phone')} />
                 <div>
-                  <label className="text-sm font-medium text-ink font-body block mb-1">
+                  <label className="text-sm font-medium text-island-dark font-body block mb-1">
                     Número de entradas (máx. {Math.min(6, spotsLeft)})
                   </label>
                   <input
@@ -153,13 +153,13 @@ export function EventDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-ink font-body block mb-1">Notas (opcional)</label>
+                  <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas (opcional)</label>
                   <textarea className="input-base h-16 resize-none" {...register('notes')} />
                 </div>
-                <div className="border-t border-rule pt-4">
+                <div className="border-t border-island-blue/20 pt-4">
                   <div className="flex justify-between text-sm font-body mb-4">
-                    <span className="text-stone">Total ({tickets} entrada{Number(tickets) > 1 ? 's' : ''})</span>
-                    <span className="font-bold text-espresso">{formatCOP(event.pricePerPerson * (Number(tickets) || 1))}</span>
+                    <span className="text-island-dark/70">Total ({tickets} entrada{Number(tickets) > 1 ? 's' : ''})</span>
+                    <span className="font-bold text-island-dark">{formatCOP(event.pricePerPerson * (Number(tickets) || 1))}</span>
                   </div>
                   <Button type="submit" className="w-full" loading={isSubmitting} size="lg">Confirmar reserva</Button>
                 </div>

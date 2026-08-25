@@ -32,14 +32,14 @@ const statusLabels = Object.fromEntries(statusOptions.map((item) => [item.value,
 const priorityLabels = Object.fromEntries(priorityOptions.map((item) => [item.value, item.label])) as Record<TaskPriority, string>;
 
 const priorityClass: Record<TaskPriority, string> = {
-  urgent: 'border-l-terracotta',
-  high: 'border-l-maize',
-  medium: 'border-l-lagoon',
+  urgent: 'border-l-island-blue',
+  high: 'border-l-sun-yellow',
+  medium: 'border-l-[#F9CA7B]',
   low: 'border-l-stone',
 };
 
 const statusClass: Record<ProjectTaskStatus, string> = {
-  pending: 'bg-surface-tint text-stone',
+  pending: 'bg-sand text-island-dark/70',
   'in-progress': 'bg-info-tint text-info-ink',
   review: 'bg-warning-tint text-warning-ink',
   done: 'bg-success-tint text-success-ink',
@@ -220,15 +220,15 @@ export function ProyectoDetailPage() {
   };
 
   const renderTask = (task: ProjectTask) => (
-    <div key={task._id} className={`bg-white border border-rule border-l-4 ${priorityClass[task.priority]} rounded-lg p-4 hover:border-rule-strong transition-colors`}>
+    <div key={task._id} className={`bg-white border border-island-blue/20 border-l-4 ${priorityClass[task.priority]} rounded-lg p-4 hover:border-island-blue/40 transition-colors`}>
       <div className="flex items-start justify-between gap-4">
         <button type="button" onClick={() => openEdit(task)} className="text-left min-w-0">
-          <h3 className="font-semibold text-espresso truncate">{task.title}</h3>
+          <h3 className="font-semibold text-island-dark truncate">{task.title}</h3>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
             <span className={`badge ${statusClass[task.status]}`}>{statusLabels[task.status]}</span>
-            <span className="badge bg-surface-tint text-stone">{priorityLabels[task.priority]}</span>
+            <span className="badge bg-sand text-island-dark/70">{priorityLabels[task.priority]}</span>
             {task.dueDate && (
-              <span className={`badge ${isOverdue(task) ? 'bg-error-tint text-error-ink' : dueSoon(task) ? 'bg-warning-tint text-warning-ink' : 'bg-surface-tint text-stone'}`}>
+              <span className={`badge ${isOverdue(task) ? 'bg-error-tint text-error-ink' : dueSoon(task) ? 'bg-warning-tint text-warning-ink' : 'bg-sand text-island-dark/70'}`}>
                 {formatShortDate(task.dueDate)}
               </span>
             )}
@@ -237,12 +237,12 @@ export function ProyectoDetailPage() {
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex -space-x-2">
             {task.assignedTo.slice(0, 3).map((user) => (
-              <span key={userId(user)} className="h-8 w-8 rounded-full bg-espresso text-cream text-xs font-semibold flex items-center justify-center border-2 border-white">
+              <span key={userId(user)} className="h-8 w-8 rounded-full bg-island-dark text-white text-xs font-semibold flex items-center justify-center border-2 border-white">
                 {user.avatarInitials || user.name.slice(0, 1)}
               </span>
             ))}
             {task.assignedTo.length > 3 && (
-              <span className="h-8 w-8 rounded-full bg-surface-tint text-stone text-xs font-semibold flex items-center justify-center border-2 border-white">
+              <span className="h-8 w-8 rounded-full bg-sand text-island-dark/70 text-xs font-semibold flex items-center justify-center border-2 border-white">
                 +{task.assignedTo.length - 3}
               </span>
             )}
@@ -255,7 +255,7 @@ export function ProyectoDetailPage() {
   );
 
   if (loading) return <PageLoader />;
-  if (!project) return <div className="card text-stone">Proyecto no encontrado.</div>;
+  if (!project) return <div className="card text-island-dark/70">Proyecto no encontrado.</div>;
 
   const groupedTasks = statusOptions.map((status) => ({
     status: status.value as ProjectTaskStatus,
@@ -265,7 +265,7 @@ export function ProyectoDetailPage() {
 
   return (
     <div className="space-y-6">
-      <Link to="/admin/proyectos" className="inline-flex items-center gap-2 text-sm text-stone hover:text-espresso">
+      <Link to="/admin/proyectos" className="inline-flex items-center gap-2 text-sm text-island-dark/70 hover:text-island-dark">
         <ArrowLeft size={16} /> Volver a proyectos
       </Link>
 
@@ -273,9 +273,9 @@ export function ProyectoDetailPage() {
         <div>
           <div className="flex items-center gap-3">
             <span className="h-4 w-4 rounded-full" style={{ backgroundColor: project.color }} />
-            <h1 className="font-body text-2xl font-bold text-espresso">{project.name}</h1>
+            <h1 className="font-body text-2xl font-bold text-island-dark">{project.name}</h1>
           </div>
-          <p className="text-stone font-body text-sm mt-1">{project.description || 'Sin descripción'}</p>
+          <p className="text-island-dark/70 font-body text-sm mt-1">{project.description || 'Sin descripción'}</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nueva tarea</Button>
       </div>
@@ -305,18 +305,18 @@ export function ProyectoDetailPage() {
       <div className="space-y-4">
         {grouped ? groupedTasks.map((group) => (
           <section key={group.status} className="space-y-3">
-            <h2 className="font-body text-lg font-semibold text-espresso">{group.label} ({group.tasks.length})</h2>
+            <h2 className="font-body text-lg font-semibold text-island-dark">{group.label} ({group.tasks.length})</h2>
             {group.tasks.map(renderTask)}
           </section>
         )) : filtered.map(renderTask)}
-        {filtered.length === 0 && <div className="card text-center text-stone">No hay tareas con esos filtros.</div>}
+        {filtered.length === 0 && <div className="card text-center text-island-dark/70">No hay tareas con esos filtros.</div>}
       </div>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Editar tarea' : 'Nueva tarea'} size="xl">
         <div className="space-y-4">
           <Input label="Título" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">Descripción</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">Descripción</label>
             <textarea className="input-base h-24 resize-none" value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -326,15 +326,15 @@ export function ProyectoDetailPage() {
             <Input label="Orden" type="number" value={draft.order} onChange={(e) => setDraft({ ...draft, order: Number(e.target.value) })} />
           </div>
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-2">Asignados</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-2">Asignados</label>
             <div className="grid gap-2 sm:grid-cols-2">
               {users.map((user) => {
                 const selected = draft.assignedTo.includes(userId(user));
                 return (
-                  <label key={userId(user)} className={`flex items-center gap-3 border rounded-lg px-3 py-2 ${selected ? 'border-terracotta bg-surface-tint' : 'border-rule bg-white'}`}>
+                  <label key={userId(user)} className={`flex items-center gap-3 border rounded-lg px-3 py-2 ${selected ? 'border-island-blue bg-sand' : 'border-island-blue/20 bg-white'}`}>
                     <input
                       type="checkbox"
-                      className="h-4 w-4 accent-terracotta"
+                      className="h-4 w-4 accent-island-blue"
                       checked={selected}
                       onChange={(e) => setDraft({
                         ...draft,
@@ -343,7 +343,7 @@ export function ProyectoDetailPage() {
                           : draft.assignedTo.filter((id) => id !== userId(user)),
                       })}
                     />
-                    <span className="text-sm text-ink">{user.name}</span>
+                    <span className="text-sm text-island-dark">{user.name}</span>
                   </label>
                 );
               })}
@@ -351,17 +351,17 @@ export function ProyectoDetailPage() {
           </div>
           <Input label="Tags" hint="Separados por coma" value={draft.tagsText} onChange={(e) => setDraft({ ...draft, tagsText: e.target.value })} />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">Notas</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas</label>
             <textarea className="input-base h-20 resize-none" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
           </div>
 
           {editing && (
-            <div className="border-t border-rule pt-4 space-y-3">
-              <h3 className="font-semibold text-espresso">Adjuntos</h3>
+            <div className="border-t border-island-blue/20 pt-4 space-y-3">
+              <h3 className="font-semibold text-island-dark">Adjuntos</h3>
               <div className="space-y-2">
                 {(editing.attachments || []).map((item) => (
-                  <div key={item._id} className="flex items-center justify-between gap-3 rounded-lg border border-rule px-3 py-2">
-                    <a href={item.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm text-espresso hover:text-terracotta">
+                  <div key={item._id} className="flex items-center justify-between gap-3 rounded-lg border border-island-blue/20 px-3 py-2">
+                    <a href={item.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm text-island-dark hover:text-island-blue">
                       <ExternalLink size={14} /> {item.filename}
                     </a>
                     <Button variant="danger" size="sm" onClick={() => removeAttachment(item._id)}>Quitar</Button>
@@ -403,8 +403,8 @@ function emptyDraft(): TaskDraft {
 function Stat({ label, value, tone = 'default' }: { label: string; value: number; tone?: 'default' | 'error' }) {
   return (
     <div className="card py-4">
-      <p className="text-xs text-stone font-body">{label}</p>
-      <p className={`text-2xl font-bold ${tone === 'error' ? 'text-error-ink' : 'text-espresso'}`}>{value}</p>
+      <p className="text-xs text-island-dark/70 font-body">{label}</p>
+      <p className={`text-2xl font-bold ${tone === 'error' ? 'text-error-ink' : 'text-island-dark'}`}>{value}</p>
     </div>
   );
 }

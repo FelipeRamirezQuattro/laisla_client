@@ -5,23 +5,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ═══ BRAND — 5 colors. These are La Isla. ═══
-        lagoon:     '#7CC1E7',  // Cielo    · cool accent
-        maize:      '#F2D17E',  // Arena    · warm highlight
-        olive:      '#ACAD79',  // Palma    · muted accent
-        espresso:   '#43593B',  // Selva    · deep surface / nav
-        terracotta: '#E87A5D',  // Coral    · primary CTA
-
-        // ═══ NEUTRALS — utility, NOT brand ═══
-        cream:  '#FFF9EC',  // app background (alias: paper)
-        paper:  '#FFF9EC',  // same as cream — design-file canonical name
-        ink:    '#1F2A1B',  // body text  · AAA on paper
-        stone:  '#6B7768',  // helper text · AA on paper (alias: muted)
-        muted:  '#6B7768',  // same as stone — design-file canonical name
-        rule: {
-          DEFAULT: '#E7DEC6',
-          strong:  '#C9BC9B',
-        },
+        // ═══ BRAND — La Isla · Café Picnic, 5 colors. ═══
+        'island-blue': '#2B3FBE',  // cup/mascot blue · "La Isla" wordmark · primary CTA
+        'sun-yellow':  '#F5A623',  // palm · "CAFÉ PICNIC" · secondary accent
+        'island-dark': '#1A2480',  // dark text · hover states · deep backgrounds
+        sand:          '#F5E6D3',  // cream/skin illustration tone · section backgrounds
+        // white — use Tailwind's built-in `white` (#FFFFFF)
 
         // ═══ STATUS — NOT brand. Never use red-*/green-*/etc. ═══
         success: { DEFAULT: '#6B8E5A', ink: '#3F5733', tint: '#E5ECDC' },
@@ -29,37 +18,29 @@ const config: Config = {
         error:   { DEFAULT: '#B14A36', ink: '#6E2A1C', tint: '#F2D6CE' },
         info:    { DEFAULT: '#4A88B0', ink: '#21516E', tint: '#D6E4EE' },
 
-        // ═══ SEMANTIC ALIASES — same hexes, addressed by role ═══
-        surface: {
-          base: '#FFF9EC',
-          tint: '#FBF3DE',
-          deep: '#43593B',
-          warm: '#F2D17E',
-        },
-        accent: {
-          primary: '#E87A5D',
-          cool:    '#7CC1E7',
-          muted:   '#ACAD79',
-          warm:    '#F2D17E',
-        },
-        foreground: {
-          DEFAULT: '#1F2A1B',
-          muted:   '#6B7768',
-          onDeep:  '#FFF9EC',
-        },
-
         // ═══ CHART SERIES — Recharts index 1..5 ═══
+        // 3 full-strength brand colors + 2 flattened tints (sand/white are
+        // too light to read as chart segments).
         chart: {
-          '1': '#E87A5D',  // coral  — lead metric
-          '2': '#43593B',  // selva
-          '3': '#ACAD79',  // palma
-          '4': '#7CC1E7',  // cielo
-          '5': '#F2D17E',  // arena
+          '1': '#2B3FBE',  // island-blue
+          '2': '#F5A623',  // sun-yellow
+          '3': '#1A2480',  // island-dark
+          '4': '#8B9BDD',  // island-blue tint
+          '5': '#F9CA7B',  // sun-yellow tint
         },
       },
       fontFamily: {
         display: ['"DM Sans"', 'system-ui', 'sans-serif'],
         body:    ['"DM Sans"', 'system-ui', 'sans-serif'],
+      },
+      animation: {
+        'spin-slow': 'spin-slow 20s linear infinite',
+      },
+      keyframes: {
+        'spin-slow': {
+          from: { transform: 'rotate(0deg)' },
+          to:   { transform: 'rotate(360deg)' },
+        },
       },
     },
   },

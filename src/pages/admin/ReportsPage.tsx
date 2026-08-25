@@ -13,11 +13,11 @@ import { exportToCsv } from '../../utils/exportCsv';
 import { todayLocal } from '../../utils/formatDate';
 
 const COLORS = [
-  'var(--color-terracotta)',
-  'var(--color-espresso)',
-  'var(--color-olive)',
-  'var(--color-lagoon)',
-  'var(--color-maize)',
+  '#2B3FBE', // island-blue
+  '#1A2480', // island-dark
+  '#F5A623', // sun-yellow
+  '#8B9BDD', // island-blue tint
+  '#F9CA7B', // sun-yellow tint
 ];
 
 const categoryLabels: Record<string, string> = {
@@ -79,7 +79,7 @@ export function ReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-body text-2xl font-bold text-espresso">Reportes de Ventas</h1>
+        <h1 className="font-body text-2xl font-bold text-island-dark">Reportes de Ventas</h1>
       </div>
 
       {/* Date Range */}
@@ -106,21 +106,21 @@ export function ReportsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Daily Revenue Line Chart */}
             <div className="card">
-              <h2 className="font-body text-base font-semibold text-espresso mb-4">Ventas por día</h2>
+              <h2 className="font-body text-base font-semibold text-island-dark mb-4">Ventas por día</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={sales.dailyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-rule)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis dataKey="date" tick={{ fontSize: 10, fontFamily: 'DM Sans' }} />
                   <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10, fontFamily: 'DM Sans' }} />
                   <Tooltip formatter={(v: number) => formatCOP(v)} contentStyle={{ borderRadius: 8 }} />
-                  <Line type="monotone" dataKey="revenue" stroke="var(--color-terracotta)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="revenue" stroke="var(--color-island-blue)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
 
             {/* Revenue by Category Pie */}
             <div className="card">
-              <h2 className="font-body text-base font-semibold text-espresso mb-4">Ingresos por categoría</h2>
+              <h2 className="font-body text-base font-semibold text-island-dark mb-4">Ingresos por categoría</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie
@@ -146,14 +146,14 @@ export function ReportsPage() {
 
             {/* Top Products Bar Chart */}
             <div className="card lg:col-span-2">
-              <h2 className="font-body text-base font-semibold text-espresso mb-4">Top 10 productos más vendidos</h2>
+              <h2 className="font-body text-base font-semibold text-island-dark mb-4">Top 10 productos más vendidos</h2>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={products.topProducts} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-rule)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis type="number" tickFormatter={(v) => String(v)} tick={{ fontSize: 10 }} />
                   <YAxis type="category" dataKey="productName" tick={{ fontSize: 10, fontFamily: 'DM Sans' }} width={130} />
                   <Tooltip formatter={(v: number) => [v, 'Unidades']} contentStyle={{ borderRadius: 8 }} />
-                  <Bar dataKey="totalQuantity" fill="var(--color-espresso)" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="totalQuantity" fill="var(--color-island-dark)" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -161,12 +161,12 @@ export function ReportsPage() {
 
           {/* Payment Method Breakdown */}
           <div className="card">
-            <h2 className="font-body text-base font-semibold text-espresso mb-4">Ingresos por método de pago</h2>
+            <h2 className="font-body text-base font-semibold text-island-dark mb-4">Ingresos por método de pago</h2>
             <div className="grid grid-cols-3 gap-4">
               {[
                 { label: 'Efectivo', value: sales.revenueByMethod.cash, color: 'bg-success-tint text-success-ink' },
                 { label: 'Tarjeta', value: sales.revenueByMethod.card, color: 'bg-info-tint text-info-ink' },
-                { label: 'Transferencia', value: sales.revenueByMethod.transfer, color: 'bg-surface-tint text-espresso' },
+                { label: 'Transferencia', value: sales.revenueByMethod.transfer, color: 'bg-sand text-island-dark' },
               ].map((m) => (
                 <div key={m.label} className={`rounded-xl p-4 text-center ${m.color}`}>
                   <p className="text-xs font-body uppercase tracking-wide mb-1">{m.label}</p>
@@ -184,8 +184,8 @@ export function ReportsPage() {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="card text-center">
-      <p className="text-xs text-stone font-body uppercase tracking-wide mb-1">{label}</p>
-      <p className="font-body font-bold text-xl text-espresso">{value}</p>
+      <p className="text-xs text-island-dark/70 font-body uppercase tracking-wide mb-1">{label}</p>
+      <p className="font-body font-bold text-xl text-island-dark">{value}</p>
     </div>
   );
 }

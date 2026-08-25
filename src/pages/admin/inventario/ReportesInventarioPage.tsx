@@ -42,15 +42,15 @@ export function ReportesInventarioPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Reportes de Inventario</h1>
-          <p className="text-stone font-body text-sm mt-1">Análisis del período seleccionado</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Reportes de Inventario</h1>
+          <p className="text-island-dark/70 font-body text-sm mt-1">Análisis del período seleccionado</p>
         </div>
         <div className="flex gap-2">
           {([7, 30, 90] as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${period === p ? 'bg-espresso text-cream' : 'bg-surface-tint text-espresso hover:bg-surface-tint'}`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${period === p ? 'bg-island-dark text-white' : 'bg-sand text-island-dark hover:bg-sand'}`}
             >
               {p} días
             </button>
@@ -63,26 +63,26 @@ export function ReportesInventarioPage() {
           {/* Hora promedio */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="card text-center">
-              <p className="text-xs font-body text-stone uppercase tracking-wide mb-1">Hora promedio Matutino</p>
-              <p className="font-body text-3xl font-bold text-espresso">{horaPromedio?.matutino ?? '—'}</p>
-              <p className="text-xs font-body text-stone mt-1">{horaPromedio?.counts.matutino ?? 0} revisiones</p>
+              <p className="text-xs font-body text-island-dark/70 uppercase tracking-wide mb-1">Hora promedio Matutino</p>
+              <p className="font-body text-3xl font-bold text-island-dark">{horaPromedio?.matutino ?? '—'}</p>
+              <p className="text-xs font-body text-island-dark/70 mt-1">{horaPromedio?.counts.matutino ?? 0} revisiones</p>
             </div>
             <div className="card text-center">
-              <p className="text-xs font-body text-stone uppercase tracking-wide mb-1">Hora promedio Vespertino</p>
-              <p className="font-body text-3xl font-bold text-espresso">{horaPromedio?.vespertino ?? '—'}</p>
-              <p className="text-xs font-body text-stone mt-1">{horaPromedio?.counts.vespertino ?? 0} revisiones</p>
+              <p className="text-xs font-body text-island-dark/70 uppercase tracking-wide mb-1">Hora promedio Vespertino</p>
+              <p className="font-body text-3xl font-bold text-island-dark">{horaPromedio?.vespertino ?? '—'}</p>
+              <p className="text-xs font-body text-island-dark/70 mt-1">{horaPromedio?.counts.vespertino ?? 0} revisiones</p>
             </div>
           </div>
 
           {/* Frecuencia de agotamiento */}
           <div className="card">
-            <h2 className="font-body font-semibold text-espresso mb-4">Frecuencia de agotamiento (top 15)</h2>
+            <h2 className="font-body font-semibold text-island-dark mb-4">Frecuencia de agotamiento (top 15)</h2>
             {frecuencia.length === 0 ? (
-              <p className="text-sm font-body text-stone">Sin datos para este período.</p>
+              <p className="text-sm font-body text-island-dark/70">Sin datos para este período.</p>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={frecuencia} layout="vertical" margin={{ left: 140, right: 16, top: 4, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-rule)" horizontal={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 12, fontFamily: 'DM Sans' }} />
                   <YAxis type="category" dataKey="nombre" tick={{ fontSize: 11, fontFamily: 'DM Sans' }} width={140} />
                   <Tooltip formatter={(v) => [`${v} veces`, 'Agotado']} />
@@ -94,17 +94,17 @@ export function ReportesInventarioPage() {
 
           {/* Insumos críticos */}
           <div className="card">
-            <h2 className="font-body font-semibold text-espresso mb-4">Insumos críticos (top 10)</h2>
+            <h2 className="font-body font-semibold text-island-dark mb-4">Insumos críticos (top 10)</h2>
             {criticos.length === 0 ? (
-              <p className="text-sm font-body text-stone">Sin insumos críticos en este período.</p>
+              <p className="text-sm font-body text-island-dark/70">Sin insumos críticos en este período.</p>
             ) : (
               <div className="space-y-2">
                 {criticos.map((c, i) => (
                   <div key={c.insumoId} className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-stone w-5">{i + 1}</span>
+                    <span className="text-sm font-bold text-island-dark/70 w-5">{i + 1}</span>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-sm font-body font-medium text-espresso">{c.nombre}</span>
+                        <span className="text-sm font-body font-medium text-island-dark">{c.nombre}</span>
                         <span className="text-xs font-body text-error-ink font-semibold">{c.agotadoCount}x</span>
                       </div>
                       <div className="w-full bg-rule rounded-full h-1.5">
@@ -114,7 +114,7 @@ export function ReportesInventarioPage() {
                         />
                       </div>
                     </div>
-                    <span className="text-xs font-body text-stone w-24 text-right truncate">{c.categoria}</span>
+                    <span className="text-xs font-body text-island-dark/70 w-24 text-right truncate">{c.categoria}</span>
                   </div>
                 ))}
               </div>
@@ -123,13 +123,13 @@ export function ReportesInventarioPage() {
 
           {/* Cumplimiento por colaborador */}
           <div className="card">
-            <h2 className="font-body font-semibold text-espresso mb-4">Tasa de cumplimiento por colaborador</h2>
+            <h2 className="font-body font-semibold text-island-dark mb-4">Tasa de cumplimiento por colaborador</h2>
             {cumplimiento.length === 0 ? (
-              <p className="text-sm font-body text-stone">Sin revisiones en este período.</p>
+              <p className="text-sm font-body text-island-dark/70">Sin revisiones en este período.</p>
             ) : (
               <table className="w-full text-sm font-body">
                 <thead>
-                  <tr className="text-stone text-xs uppercase tracking-wide">
+                  <tr className="text-island-dark/70 text-xs uppercase tracking-wide">
                     <th className="py-2 text-left">Colaborador</th>
                     <th className="py-2 text-center">Completadas</th>
                     <th className="py-2 text-center">Esperadas</th>
@@ -140,9 +140,9 @@ export function ReportesInventarioPage() {
                 <tbody className="divide-y divide-rule">
                   {cumplimiento.map((c) => (
                     <tr key={c.colaboradorId}>
-                      <td className="py-2 font-medium text-espresso">{c.nombre}</td>
+                      <td className="py-2 font-medium text-island-dark">{c.nombre}</td>
                       <td className="py-2 text-center">{c.completadas}</td>
-                      <td className="py-2 text-center text-stone">{c.esperadas}</td>
+                      <td className="py-2 text-center text-island-dark/70">{c.esperadas}</td>
                       <td className="py-2 text-center">
                         <span className={`font-semibold ${c.pct >= 80 ? 'text-success-ink' : c.pct >= 50 ? 'text-warning-ink' : 'text-error-ink'}`}>
                           {c.pct}%

@@ -92,8 +92,8 @@ export function ProvidersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Proveedores</h1>
-          <p className="text-stone font-body text-sm">{total} proveedores registrados</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Proveedores</h1>
+          <p className="text-island-dark/70 font-body text-sm">{total} proveedores registrados</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo proveedor</Button>
       </div>
@@ -109,22 +109,22 @@ export function ProvidersPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">Nombre</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Contacto</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Categoría</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Teléfono</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Nombre</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Contacto</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Categoría</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Teléfono</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody className="divide-y divide-island-blue/20">
               {providers.map((p) => (
-                <tr key={p._id} className="hover:bg-surface-tint transition-colors">
-                  <td className="px-4 py-3 font-medium text-espresso">{p.name}</td>
-                  <td className="px-4 py-3 text-stone">{p.contactName || '—'}</td>
-                  <td className="px-4 py-3 text-stone">{p.category}</td>
-                  <td className="px-4 py-3 text-stone">{p.phone || '—'}</td>
+                <tr key={p._id} className="hover:bg-sand transition-colors">
+                  <td className="px-4 py-3 font-medium text-island-dark">{p.name}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{p.contactName || '—'}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{p.category}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{p.phone || '—'}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>Editar</Button>
@@ -134,7 +134,7 @@ export function ProvidersPage() {
                 </tr>
               ))}
               {providers.length === 0 && (
-                <tr><td colSpan={5} className="text-center py-10 text-stone">No se encontraron proveedores.</td></tr>
+                <tr><td colSpan={5} className="text-center py-10 text-island-dark/70">No se encontraron proveedores.</td></tr>
               )}
             </tbody>
           </table>
@@ -154,7 +154,7 @@ export function ProvidersPage() {
           </div>
           <Input label="Categoría de productos" error={errors.category?.message} {...register('category')} />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">Notas</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas</label>
             <textarea className="input-base h-20 resize-none" {...register('notes')} />
           </div>
           <div className="flex justify-end gap-3 pt-2">

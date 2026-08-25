@@ -12,15 +12,15 @@ createRoot(document.getElementById('root')!).render(
       toastOptions={{
         style: {
           fontFamily: 'DM Sans, system-ui, sans-serif',
-          background: 'var(--color-espresso)',
-          color: 'var(--color-paper)',
+          background: 'var(--color-island-dark)',
+          color: '#FFFFFF',
           borderRadius: '10px',
         },
         success: {
-          iconTheme: { primary: 'var(--color-success)', secondary: 'var(--color-paper)' },
+          iconTheme: { primary: 'var(--color-success)', secondary: '#FFFFFF' },
         },
         error: {
-          iconTheme: { primary: 'var(--color-error)', secondary: 'var(--color-paper)' },
+          iconTheme: { primary: 'var(--color-error)', secondary: '#FFFFFF' },
         },
       }}
     />

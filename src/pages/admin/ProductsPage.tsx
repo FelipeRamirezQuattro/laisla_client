@@ -164,7 +164,7 @@ export function ProductsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">
+          <h1 className="font-body text-2xl font-bold text-island-dark">
             Productos
           </h1>
         </div>
@@ -199,9 +199,9 @@ export function ProductsPage() {
           {filtered.map((recipe) => (
             <article
               key={recipe._id}
-              className="bg-white border border-rule rounded-xl overflow-hidden shadow-sm"
+              className="bg-white border border-island-blue/20 rounded-xl overflow-hidden shadow-sm"
             >
-              <div className="aspect-[16/9] bg-surface-tint border-b border-rule overflow-hidden">
+              <div className="aspect-[16/9] bg-sand border-b border-island-blue/20 overflow-hidden">
                 {recipe.imageUrl ? (
                   <img
                     src={recipe.imageUrl}
@@ -209,7 +209,7 @@ export function ProductsPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="h-full w-full flex flex-col items-center justify-center text-stone gap-2">
+                  <div className="h-full w-full flex flex-col items-center justify-center text-island-dark/70 gap-2">
                     <ImageOff size={26} />
                     <span className="text-xs font-body">Sin imagen</span>
                   </div>
@@ -218,10 +218,10 @@ export function ProductsPage() {
               <div className="p-4 space-y-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="font-body text-xl font-semibold text-espresso">
+                    <h2 className="font-body text-xl font-semibold text-island-dark">
                       {recipe.name}
                     </h2>
-                    <p className="text-sm text-stone font-body">
+                    <p className="text-sm text-island-dark/70 font-body">
                       {categoryLabel(recipe.category)}
                     </p>
                   </div>
@@ -231,22 +231,22 @@ export function ProductsPage() {
                   />
                 </div>
 
-                <p className="text-sm text-stone font-body min-h-[2.75rem]">
+                <p className="text-sm text-island-dark/70 font-body min-h-[2.75rem]">
                   {recipe.description || "Sin descripción pública."}
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 text-sm font-body">
-                  <div className="rounded-lg bg-surface-tint px-3 py-2">
-                    <span className="block text-xs text-stone">Precio</span>
-                    <strong className="text-espresso">
+                  <div className="rounded-lg bg-sand px-3 py-2">
+                    <span className="block text-xs text-island-dark/70">Precio</span>
+                    <strong className="text-island-dark">
                       {priceLabel(recipe)}
                     </strong>
                   </div>
-                  <div className="rounded-lg bg-surface-tint px-3 py-2">
-                    <span className="block text-xs text-stone">
+                  <div className="rounded-lg bg-sand px-3 py-2">
+                    <span className="block text-xs text-island-dark/70">
                       Variantes
                     </span>
-                    <strong className="text-espresso">
+                    <strong className="text-island-dark">
                       {recipe.variants.length}
                     </strong>
                   </div>
@@ -282,7 +282,7 @@ export function ProductsPage() {
             </article>
           ))}
           {filtered.length === 0 && (
-            <div className="card lg:col-span-2 xl:col-span-3 text-center text-stone">
+            <div className="card lg:col-span-2 xl:col-span-3 text-center text-island-dark/70">
               No se encontraron recetas/productos.
             </div>
           )}
@@ -301,7 +301,7 @@ export function ProductsPage() {
         {editing && form && (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-ink font-body block mb-1">
+              <label className="text-sm font-medium text-island-dark font-body block mb-1">
                 Descripción pública
               </label>
               <textarea
@@ -338,8 +338,8 @@ export function ProductsPage() {
               }
             />
 
-            <div className="rounded-xl bg-surface-tint p-4 space-y-3">
-              <p className="text-sm font-medium text-ink font-body">
+            <div className="rounded-xl bg-sand p-4 space-y-3">
+              <p className="text-sm font-medium text-island-dark font-body">
                 Precios por variante
               </p>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -360,8 +360,8 @@ export function ProductsPage() {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-3 rounded-xl border border-rule p-4">
-              <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+            <div className="grid sm:grid-cols-2 gap-3 rounded-xl border border-island-blue/20 p-4">
+              <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.isProduct}
@@ -372,7 +372,7 @@ export function ProductsPage() {
                 />
                 Visible en menú y pedidos
               </label>
-              <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+              <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.active}

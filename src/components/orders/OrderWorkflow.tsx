@@ -90,14 +90,14 @@ export function OrderDetailDrawer({
 
   return (
     <div className="fixed inset-0 z-50">
-      <button className="absolute inset-0 bg-ink/30" onClick={onClose} aria-label="Cerrar detalle" />
-      <aside className="absolute right-0 top-0 h-full w-full max-w-2xl overflow-y-auto bg-paper shadow-2xl border-l border-rule">
-        <div className="sticky top-0 z-10 bg-paper border-b border-rule px-5 py-4 flex items-start justify-between gap-4">
+      <button className="absolute inset-0 bg-island-dark/30" onClick={onClose} aria-label="Cerrar detalle" />
+      <aside className="absolute right-0 top-0 h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl border-l border-island-blue/20">
+        <div className="sticky top-0 z-10 bg-white border-b border-island-blue/20 px-5 py-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-body text-xl font-bold text-espresso">Pedido</h2>
-            <p className="text-sm text-stone font-body">{formatShortDate(order.createdAt)} · {order.items.length} ítem(s)</p>
+            <h2 className="font-body text-xl font-bold text-island-dark">Pedido</h2>
+            <p className="text-sm text-island-dark/70 font-body">{formatShortDate(order.createdAt)} · {order.items.length} ítem(s)</p>
           </div>
-          <button onClick={onClose} className="h-9 w-9 rounded-lg bg-white text-stone inline-flex items-center justify-center">
+          <button onClick={onClose} className="h-9 w-9 rounded-lg bg-white text-island-dark/70 inline-flex items-center justify-center">
             <X size={18} />
           </button>
         </div>
@@ -105,12 +105,12 @@ export function OrderDetailDrawer({
         <div className="p-5 space-y-5">
           <section className="card flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs text-stone font-body">Estado actual</p>
+              <p className="text-xs text-island-dark/70 font-body">Estado actual</p>
               <div className="mt-1"><OrderStatusBadge status={order.status} /></div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-stone font-body">Tiempo en estado</p>
-              <p className="font-body text-2xl font-bold text-espresso tabular-nums">
+              <p className="text-xs text-island-dark/70 font-body">Tiempo en estado</p>
+              <p className="font-body text-2xl font-bold text-island-dark tabular-nums">
                 {elapsedInCurrentStatus(order, now)}
               </p>
             </div>
@@ -118,34 +118,34 @@ export function OrderDetailDrawer({
 
           <section className="grid sm:grid-cols-3 gap-3">
             <div className="card">
-              <p className="text-xs text-stone font-body">Total</p>
-              <p className="font-body font-bold text-espresso">{formatCOP(order.total)}</p>
+              <p className="text-xs text-island-dark/70 font-body">Total</p>
+              <p className="font-body font-bold text-island-dark">{formatCOP(order.total)}</p>
             </div>
             <div className="card">
-              <p className="text-xs text-stone font-body">Entrega</p>
-              <p className="font-body font-bold text-espresso">{delivery === null ? 'En curso' : `${delivery} min`}</p>
+              <p className="text-xs text-island-dark/70 font-body">Entrega</p>
+              <p className="font-body font-bold text-island-dark">{delivery === null ? 'En curso' : `${delivery} min`}</p>
             </div>
             <div className="card">
-              <p className="text-xs text-stone font-body">Permanencia</p>
-              <p className="font-body font-bold text-espresso">{stay === null ? 'En curso' : `${stay} min`}</p>
+              <p className="text-xs text-island-dark/70 font-body">Permanencia</p>
+              <p className="font-body font-bold text-island-dark">{stay === null ? 'En curso' : `${stay} min`}</p>
             </div>
           </section>
 
           <section className="card">
-            <h3 className="font-body font-semibold text-espresso mb-4">Línea de tiempo</h3>
+            <h3 className="font-body font-semibold text-island-dark mb-4">Línea de tiempo</h3>
             <div className="space-y-3">
               {timeline.map((entry, index) => (
                 <div key={`${entry.status}-${entry.at}-${index}`} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="h-8 w-8 rounded-full bg-surface-tint border border-rule inline-flex items-center justify-center text-terracotta">
+                    <span className="h-8 w-8 rounded-full bg-sand border border-island-blue/20 inline-flex items-center justify-center text-island-blue">
                       <Clock size={15} />
                     </span>
-                    {index < timeline.length - 1 && <span className="w-px flex-1 bg-rule" />}
+                    {index < timeline.length - 1 && <span className="w-px flex-1 bg-island-blue/20" />}
                   </div>
                   <div className="pb-3">
-                    <p className="font-body font-semibold text-ink">{statusLabel[entry.status] ?? entry.status}</p>
-                    <p className="text-xs text-stone font-body">{new Date(entry.at).toLocaleString('es-CO')}</p>
-                    {entry.notes && <p className="text-xs text-stone mt-1">{entry.notes}</p>}
+                    <p className="font-body font-semibold text-island-dark">{statusLabel[entry.status] ?? entry.status}</p>
+                    <p className="text-xs text-island-dark/70 font-body">{new Date(entry.at).toLocaleString('es-CO')}</p>
+                    {entry.notes && <p className="text-xs text-island-dark/70 mt-1">{entry.notes}</p>}
                   </div>
                 </div>
               ))}
@@ -153,10 +153,10 @@ export function OrderDetailDrawer({
           </section>
 
           <section className="card p-0 overflow-hidden">
-            <div className="px-4 py-3 border-b border-rule bg-surface-tint">
-              <h3 className="font-body font-semibold text-espresso">Ítems</h3>
+            <div className="px-4 py-3 border-b border-island-blue/20 bg-sand">
+              <h3 className="font-body font-semibold text-island-dark">Ítems</h3>
             </div>
-            <div className="divide-y divide-rule">
+            <div className="divide-y divide-island-blue/20">
               {order.items.map((item, index) => (
                 <div key={`${item.productId}-${item.variantSize}-${index}`} className="px-4 py-3 flex justify-between gap-3 text-sm font-body">
                   <span>{item.productName} x {item.quantity}</span>
@@ -169,8 +169,8 @@ export function OrderDetailDrawer({
           {order.status === 'cancelled' && (
             <section className="card border-error bg-error-tint">
               <p className="font-body font-semibold text-error-ink">Pedido eliminado</p>
-              <p className="text-sm text-stone mt-1">{order.cancelReason}</p>
-              {order.cancelReasonDetail && <p className="text-sm text-stone mt-1">{order.cancelReasonDetail}</p>}
+              <p className="text-sm text-island-dark/70 mt-1">{order.cancelReason}</p>
+              {order.cancelReasonDetail && <p className="text-sm text-island-dark/70 mt-1">{order.cancelReasonDetail}</p>}
             </section>
           )}
         </div>
@@ -218,12 +218,12 @@ export function CancelOrderModal({
   return (
     <Modal isOpen={!!order} onClose={onCancel} title="Eliminar pedido">
       <div className="space-y-4">
-        <p className="text-sm text-stone font-body">
+        <p className="text-sm text-island-dark/70 font-body">
           Selecciona la razón para eliminar el pedido. Esta información quedará en la línea de tiempo y en caja.
         </p>
 
         <div>
-          <span className="block text-sm font-medium text-ink font-body mb-2">Razón</span>
+          <span className="block text-sm font-medium text-island-dark font-body mb-2">Razón</span>
           <div className="grid gap-2 sm:grid-cols-2">
             {reasonOptions.map((item) => (
               <button
@@ -232,8 +232,8 @@ export function CancelOrderModal({
                 onClick={() => setReason(item)}
                 className={`rounded-lg border px-3 py-2 text-left font-body text-sm transition-colors ${
                   reason === item
-                    ? 'border-espresso bg-espresso text-cream'
-                    : 'border-rule bg-white text-espresso hover:bg-surface-tint'
+                    ? 'border-island-dark bg-island-dark text-white'
+                    : 'border-island-blue/20 bg-white text-island-dark hover:bg-sand'
                 }`}
               >
                 {item}
@@ -242,8 +242,8 @@ export function CancelOrderModal({
           </div>
         </div>
 
-        <div className="rounded-lg border border-rule bg-surface-tint p-3">
-          <label className="block text-sm font-medium text-ink font-body mb-2">Agregar otra opción</label>
+        <div className="rounded-lg border border-island-blue/20 bg-sand p-3">
+          <label className="block text-sm font-medium text-island-dark font-body mb-2">Agregar otra opción</label>
           <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
             <input
               className="input-base"
@@ -264,7 +264,7 @@ export function CancelOrderModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink font-body mb-1">Detalle opcional</label>
+          <label className="block text-sm font-medium text-island-dark font-body mb-1">Detalle opcional</label>
           <textarea
             className="input-base h-20 resize-none"
             value={detail}

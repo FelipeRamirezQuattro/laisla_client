@@ -212,8 +212,8 @@ export function ReservationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-body text-2xl font-bold text-espresso">Reservaciones</h1>
-        <p className="text-stone font-body text-sm">{filteredReservations.length} reservaciones en esta página · {total} total</p>
+        <h1 className="font-body text-2xl font-bold text-island-dark">Reservaciones</h1>
+        <p className="text-island-dark/70 font-body text-sm">{filteredReservations.length} reservaciones en esta página · {total} total</p>
       </div>
 
       <div className="card">
@@ -255,7 +255,7 @@ export function ReservationsPage() {
           />
           <Button type="submit" loading={reserving}>Reservar</Button>
           <div className="lg:col-span-6">
-            <label className="text-sm font-medium text-ink font-body" htmlFor="reservation-detail">Detalle de la reserva</label>
+            <label className="text-sm font-medium text-island-dark font-body" htmlFor="reservation-detail">Detalle de la reserva</label>
             <textarea
               id="reservation-detail"
               className="input-base h-20 resize-none mt-1"
@@ -290,32 +290,32 @@ export function ReservationsPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">Código</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Cliente</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Fecha</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Mesa</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Zona</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Personas</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Estado</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Código</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Cliente</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Fecha</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mesa</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Zona</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Personas</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody className="divide-y divide-island-blue/20">
               {filteredReservations.map((r) => (
-                <tr key={r._id} className="hover:bg-surface-tint transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs text-espresso font-bold">{r.confirmationCode}</td>
+                <tr key={r._id} className="hover:bg-sand transition-colors">
+                  <td className="px-4 py-3 font-mono text-xs text-island-dark font-bold">{r.confirmationCode}</td>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-espresso">{r.clientName}</p>
-                    <p className="text-xs text-stone">{r.email}</p>
+                    <p className="font-medium text-island-dark">{r.clientName}</p>
+                    <p className="text-xs text-island-dark/70">{r.email}</p>
                   </td>
-                  <td className="px-4 py-3 text-stone">
+                  <td className="px-4 py-3 text-island-dark/70">
                     {formatDate(r.date)} · {formatTime(r.timeSlot)}
                   </td>
-                  <td className="px-4 py-3 text-stone">{tableName(r.tableId)}</td>
-                  <td className="px-4 py-3 text-stone">{zoneLabels[r.zone]}</td>
-                  <td className="px-4 py-3 text-center text-stone">{r.partySize}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{tableName(r.tableId)}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{zoneLabels[r.zone]}</td>
+                  <td className="px-4 py-3 text-center text-island-dark/70">{r.partySize}</td>
                   <td className="px-4 py-3 text-center"><ReservationStatusBadge status={r.status} /></td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -325,7 +325,7 @@ export function ReservationsPage() {
                 </tr>
               ))}
               {filteredReservations.length === 0 && (
-                <tr><td colSpan={8} className="text-center py-10 text-stone">No hay reservaciones.</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-island-dark/70">No hay reservaciones.</td></tr>
               )}
             </tbody>
           </table>
@@ -351,18 +351,18 @@ export function ReservationsPage() {
               <InfoRow label="Zona" value={zoneLabels[viewReservation.zone]} />
             </div>
             {viewReservation.detail && (
-              <div className="bg-surface-tint rounded-lg p-4">
-                <p className="text-sm font-medium text-espresso font-body mb-1">Detalle</p>
-                <p className="text-sm text-stone font-body whitespace-pre-wrap">{viewReservation.detail}</p>
+              <div className="bg-sand rounded-lg p-4">
+                <p className="text-sm font-medium text-island-dark font-body mb-1">Detalle</p>
+                <p className="text-sm text-island-dark/70 font-body whitespace-pre-wrap">{viewReservation.detail}</p>
               </div>
             )}
 
             {viewReservation.specialOccasion?.hasOccasion && (
-              <div className="bg-surface-tint rounded-lg p-4">
-                <p className="text-sm font-medium text-espresso font-body mb-1">Ocasión especial</p>
-                <p className="text-sm text-stone font-body">{occasionLabels[viewReservation.specialOccasion.type || ''] || viewReservation.specialOccasion.type}</p>
+              <div className="bg-sand rounded-lg p-4">
+                <p className="text-sm font-medium text-island-dark font-body mb-1">Ocasión especial</p>
+                <p className="text-sm text-island-dark/70 font-body">{occasionLabels[viewReservation.specialOccasion.type || ''] || viewReservation.specialOccasion.type}</p>
                 {viewReservation.specialOccasion.notes && (
-                  <p className="text-sm text-stone font-body mt-1 italic">"{viewReservation.specialOccasion.notes}"</p>
+                  <p className="text-sm text-island-dark/70 font-body mt-1 italic">"{viewReservation.specialOccasion.notes}"</p>
                 )}
               </div>
             )}
@@ -377,7 +377,7 @@ export function ReservationsPage() {
                   onChange={(e) => setDetailTableId(e.target.value)}
                 />
                 <div>
-                  <label className="text-sm font-medium text-ink font-body" htmlFor="reservation-detail-edit">Detalle de la reserva</label>
+                  <label className="text-sm font-medium text-island-dark font-body" htmlFor="reservation-detail-edit">Detalle de la reserva</label>
                   <textarea
                     id="reservation-detail-edit"
                     className="input-base h-20 resize-none mt-1"
@@ -386,7 +386,7 @@ export function ReservationsPage() {
                   />
                 </div>
               </div>
-              <p className="text-sm font-medium text-espresso font-body mb-2">Cambiar estado</p>
+              <p className="text-sm font-medium text-island-dark font-body mb-2">Cambiar estado</p>
               <div className="flex flex-wrap gap-2">
                 {(['pending', 'confirmed', 'cancelled', 'completed', 'no-show'] as ReservationStatus[]).map((s) => (
                   <Button
@@ -410,8 +410,8 @@ export function ReservationsPage() {
 function InfoRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div>
-      <p className="text-stone text-xs uppercase tracking-wide mb-0.5">{label}</p>
-      <div className="font-medium text-ink">{value}</div>
+      <p className="text-island-dark/70 text-xs uppercase tracking-wide mb-0.5">{label}</p>
+      <div className="font-medium text-island-dark">{value}</div>
     </div>
   );
 }

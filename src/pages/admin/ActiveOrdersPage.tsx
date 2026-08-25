@@ -123,25 +123,25 @@ export function ActiveOrdersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Pedidos activos</h1>
-          <p className="text-stone font-body text-sm">Pedidos creados que todavía no han sido entregados para la fecha seleccionada.</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Pedidos activos</h1>
+          <p className="text-island-dark/70 font-body text-sm">Pedidos creados que todavía no han sido entregados para la fecha seleccionada.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
           <label className="card px-4 py-3 flex items-center gap-3">
-            <CalendarDays size={18} className="text-terracotta" />
+            <CalendarDays size={18} className="text-island-blue" />
             <span>
-              <span className="block text-xs text-stone font-body">Fecha</span>
+              <span className="block text-xs text-island-dark/70 font-body">Fecha</span>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(event) => setSelectedDate(event.target.value || todayInput())}
-                className="bg-transparent font-body font-semibold text-espresso outline-none"
+                className="bg-transparent font-body font-semibold text-island-dark outline-none"
               />
             </span>
           </label>
           <div className="card px-4 py-3">
-            <p className="text-xs text-stone font-body">En espera</p>
-            <p className="font-body font-semibold text-espresso">{filteredOrders.length} pedido(s)</p>
+            <p className="text-xs text-island-dark/70 font-body">En espera</p>
+            <p className="font-body font-semibold text-island-dark">{filteredOrders.length} pedido(s)</p>
           </div>
         </div>
       </div>
@@ -152,40 +152,40 @@ export function ActiveOrdersPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredOrders.length} de {orders.length} pedidos
         </div>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_22rem] gap-4">
         <section className="card p-0 overflow-hidden">
-          <div className="px-4 py-3 bg-surface-tint border-b border-rule">
-            <h2 className="font-body font-semibold text-espresso">Lista de espera</h2>
+          <div className="px-4 py-3 bg-sand border-b border-island-blue/20">
+            <h2 className="font-body font-semibold text-island-dark">Lista de espera</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm font-body">
-              <thead className="border-b border-rule">
+              <thead className="border-b border-island-blue/20">
                 <tr>
-                  <th className="text-left px-4 py-3 text-stone font-medium">Mesa</th>
-                  <th className="text-left px-4 py-3 text-stone font-medium">Pedido</th>
-                  <th className="text-left px-4 py-3 text-stone font-medium">Espera</th>
-                  <th className="text-right px-4 py-3 text-stone font-medium">Total</th>
-                  <th className="text-center px-4 py-3 text-stone font-medium">Estado</th>
-                  <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                  <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mesa</th>
+                  <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Pedido</th>
+                  <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Espera</th>
+                  <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Total</th>
+                  <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                  <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule">
                 {filteredOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-surface-tint">
-                    <td className="px-4 py-3 font-medium text-espresso">
+                  <tr key={order._id} className="hover:bg-sand">
+                    <td className="px-4 py-3 font-medium text-island-dark">
                       {!order.tableId ? 'Sin mesa / Mostrador' : typeof order.tableId === 'object' ? order.tableId.name : order.tableId}
                     </td>
-                    <td className="px-4 py-3 text-stone">
+                    <td className="px-4 py-3 text-island-dark/70">
                       <p>{order.items.length} ítem(s)</p>
                       <p className="text-xs">{formatShortDate(order.createdAt)}</p>
                     </td>
-                    <td className="px-4 py-3 font-semibold text-ink tabular-nums">{elapsedInCurrentStatus(order, now)}</td>
-                    <td className="px-4 py-3 text-right font-medium text-ink">{formatCOP(order.total)}</td>
+                    <td className="px-4 py-3 font-semibold text-island-dark tabular-nums">{elapsedInCurrentStatus(order, now)}</td>
+                    <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(order.total)}</td>
                     <td className="px-4 py-3 text-center"><OrderStatusBadge status={order.status} /></td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
@@ -204,7 +204,7 @@ export function ActiveOrdersPage() {
                 ))}
                 {filteredOrders.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-center py-10 text-stone">No hay pedidos pendientes de entrega.</td>
+                    <td colSpan={6} className="text-center py-10 text-island-dark/70">No hay pedidos pendientes de entrega.</td>
                   </tr>
                 )}
               </tbody>
@@ -214,23 +214,23 @@ export function ActiveOrdersPage() {
 
         <aside className="space-y-4">
           <div className="card">
-            <p className="text-xs text-stone font-body">Promedio entrega</p>
-            <p className="text-2xl font-body font-bold text-espresso">{Math.round(stats?.avgDeliveryMinutes ?? 0)} min</p>
+            <p className="text-xs text-island-dark/70 font-body">Promedio entrega</p>
+            <p className="text-2xl font-body font-bold text-island-dark">{Math.round(stats?.avgDeliveryMinutes ?? 0)} min</p>
           </div>
           <div className="card">
-            <p className="text-xs text-stone font-body">Promedio permanencia</p>
-            <p className="text-2xl font-body font-bold text-espresso">{Math.round(stats?.avgStayMinutes ?? 0)} min</p>
+            <p className="text-xs text-island-dark/70 font-body">Promedio permanencia</p>
+            <p className="text-2xl font-body font-bold text-island-dark">{Math.round(stats?.avgStayMinutes ?? 0)} min</p>
           </div>
           <div className="card">
-            <h2 className="font-body font-semibold text-espresso mb-3">Tiempos recientes</h2>
+            <h2 className="font-body font-semibold text-island-dark mb-3">Tiempos recientes</h2>
             <div className="h-60">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-rule)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
-                  <Bar dataKey="entrega" fill="var(--color-terracotta)" />
+                  <Bar dataKey="entrega" fill="var(--color-island-blue)" />
                   <Bar dataKey="permanencia" fill="var(--color-info)" />
                 </BarChart>
               </ResponsiveContainer>

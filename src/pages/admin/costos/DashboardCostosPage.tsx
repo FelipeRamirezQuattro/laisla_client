@@ -62,8 +62,8 @@ export function DashboardCostosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-body text-2xl font-bold text-espresso">Dashboard de Costos</h1>
-        <p className="text-stone font-body text-sm">Resumen del módulo de costos y finanzas</p>
+        <h1 className="font-body text-2xl font-bold text-island-dark">Dashboard de Costos</h1>
+        <p className="text-island-dark/70 font-body text-sm">Resumen del módulo de costos y finanzas</p>
       </div>
 
       {/* KPI grid */}
@@ -98,29 +98,29 @@ export function DashboardCostosPage() {
       {/* Last month result */}
       {summary.lastMonthResult && (
         <div className="card">
-          <h2 className="font-body text-base font-semibold text-espresso mb-4">
+          <h2 className="font-body text-base font-semibold text-island-dark mb-4">
             Resultado más reciente — {MONTHS[summary.lastMonthResult.month - 1]} {currentYear}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
             <div>
-              <p className="text-xs text-stone font-body">Ventas</p>
-              <p className="text-xl font-body font-bold text-espresso">{formatCOP(summary.lastMonthResult.sales)}</p>
+              <p className="text-xs text-island-dark/70 font-body">Ventas</p>
+              <p className="text-xl font-body font-bold text-island-dark">{formatCOP(summary.lastMonthResult.sales)}</p>
             </div>
             <div>
-              <p className="text-xs text-stone font-body">Utilidad neta</p>
+              <p className="text-xs text-island-dark/70 font-body">Utilidad neta</p>
               <p className={`text-xl font-body font-bold ${summary.lastMonthResult.netProfit >= 0 ? 'text-success' : 'text-error-ink'}`}>
                 {formatCOP(summary.lastMonthResult.netProfit)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-stone font-body">Margen neto</p>
+              <p className="text-xs text-island-dark/70 font-body">Margen neto</p>
               <p className={`text-xl font-body font-bold ${summary.lastMonthResult.netProfitPct >= 0 ? 'text-success' : 'text-error-ink'}`}>
                 {formatPct(summary.lastMonthResult.netProfitPct)}
               </p>
             </div>
           </div>
           <div className="mt-4">
-            <Link to={`/admin/costos/resultados/${currentYear}`} className="text-sm text-terracotta hover:underline font-body">
+            <Link to={`/admin/costos/resultados/${currentYear}`} className="text-sm text-island-blue hover:underline font-body">
               Ver resultados completos
             </Link>
           </div>
@@ -147,10 +147,10 @@ function KpiCard({ label, value, href, Icon, highlight }: {
     <Link to={href} className="card hover:shadow-md transition-shadow block">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-stone font-body">{label}</p>
-          <p className={`text-2xl font-body font-bold mt-1 ${highlight ? 'text-error-ink' : 'text-espresso'}`}>{value}</p>
+          <p className="text-xs text-island-dark/70 font-body">{label}</p>
+          <p className={`text-2xl font-body font-bold mt-1 ${highlight ? 'text-error-ink' : 'text-island-dark'}`}>{value}</p>
         </div>
-        <Icon size={22} strokeWidth={1.5} className={highlight ? 'text-error-ink' : 'text-stone'} />
+        <Icon size={22} strokeWidth={1.5} className={highlight ? 'text-error-ink' : 'text-island-dark/70'} />
       </div>
     </Link>
   );
@@ -159,10 +159,10 @@ function KpiCard({ label, value, href, Icon, highlight }: {
 function QuickLink({ href, Icon, title, desc }: { href: string; Icon: LucideIcon; title: string; desc: string }) {
   return (
     <Link to={href} className="card hover:shadow-md transition-shadow flex items-center gap-4">
-      <Icon size={26} strokeWidth={1.5} className="text-terracotta shrink-0" />
+      <Icon size={26} strokeWidth={1.5} className="text-island-blue shrink-0" />
       <div>
-        <p className="font-medium text-ink font-body">{title}</p>
-        <p className="text-xs text-stone font-body">{desc}</p>
+        <p className="font-medium text-island-dark font-body">{title}</p>
+        <p className="text-xs text-island-dark/70 font-body">{desc}</p>
       </div>
     </Link>
   );

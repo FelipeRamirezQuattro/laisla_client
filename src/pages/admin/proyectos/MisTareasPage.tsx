@@ -23,7 +23,7 @@ function projectName(task: ProjectTask) {
 }
 
 function projectColor(task: ProjectTask) {
-  return typeof task.projectId === 'string' ? '#43593B' : task.projectId.color;
+  return typeof task.projectId === 'string' ? '#1A2480' : task.projectId.color;
 }
 
 export function MisTareasPage() {
@@ -82,8 +82,8 @@ export function MisTareasPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-body text-2xl font-bold text-espresso">Mis tareas</h1>
-        <p className="text-stone font-body text-sm">{filteredTasks.length} tareas asignadas</p>
+        <h1 className="font-body text-2xl font-bold text-island-dark">Mis tareas</h1>
+        <p className="text-island-dark/70 font-body text-sm">{filteredTasks.length} tareas asignadas</p>
       </div>
 
       <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
@@ -92,7 +92,7 @@ export function MisTareasPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredTasks.length} de {tasks.length} tareas
         </div>
       </div>
@@ -101,20 +101,20 @@ export function MisTareasPage() {
         <section key={name} className="space-y-3">
           <div className="flex items-center gap-3">
             <span className="h-3 w-3 rounded-full" style={{ backgroundColor: projectColor(items[0]) }} />
-            <h2 className="font-body text-lg font-semibold text-espresso">{name}</h2>
+            <h2 className="font-body text-lg font-semibold text-island-dark">{name}</h2>
           </div>
           <div className="space-y-3">
             {items.map((task) => (
               <div key={task._id} className="card py-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <h3 className="font-semibold text-espresso">{task.title}</h3>
+                    <h3 className="font-semibold text-island-dark">{task.title}</h3>
                     <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                      <span className="badge bg-surface-tint text-stone">{statusLabels[task.status]}</span>
-                      <span className="badge bg-surface-tint text-stone">{task.priority}</span>
+                      <span className="badge bg-sand text-island-dark/70">{statusLabels[task.status]}</span>
+                      <span className="badge bg-sand text-island-dark/70">{task.priority}</span>
                       {task.dueDate && <span className="badge bg-warning-tint text-warning-ink">{formatShortDate(task.dueDate)}</span>}
                     </div>
-                    {task.description && <p className="mt-2 text-sm text-stone">{task.description}</p>}
+                    {task.description && <p className="mt-2 text-sm text-island-dark/70">{task.description}</p>}
                   </div>
                   <div className="flex items-center gap-2">
                     <Select
@@ -132,7 +132,7 @@ export function MisTareasPage() {
       ))}
 
       {filteredTasks.length === 0 && (
-        <div className="card text-center text-stone">No tienes tareas asignadas por ahora.</div>
+        <div className="card text-center text-island-dark/70">No tienes tareas asignadas por ahora.</div>
       )}
     </div>
   );

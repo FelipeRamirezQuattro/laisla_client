@@ -137,13 +137,13 @@ function SortableHeader({
     <button
       type="button"
       onClick={() => onSort(sortKey)}
-      className="group inline-flex items-center gap-1.5 text-left uppercase tracking-wide transition-colors hover:text-espresso"
+      className="group inline-flex items-center gap-1.5 text-left uppercase tracking-wide transition-colors hover:text-island-dark"
       aria-label={`Ordenar por ${label}`}
     >
       <span>{children ?? label}</span>
       <Icon
         size={13}
-        className={active ? "text-espresso" : "text-stone/60 group-hover:text-espresso"}
+        className={active ? "text-island-dark" : "text-island-dark/60 group-hover:text-island-dark"}
       />
     </button>
   );
@@ -195,8 +195,8 @@ function InlineCell({
       <span
         onClick={() => !disabled && setEditing(true)}
         className={`block px-2 py-1 rounded text-sm font-body min-w-[60px] ${
-          disabled ? "" : "hover:bg-surface-tint cursor-pointer"
-        } ${val ? "text-ink" : "text-stone italic"}`}
+          disabled ? "" : "hover:bg-sand cursor-pointer"
+        } ${val ? "text-island-dark" : "text-island-dark/70 italic"}`}
       >
         {displayValue || "—"}
       </span>
@@ -653,10 +653,10 @@ export function CatalogoInsumosPage() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">
+          <h1 className="font-body text-2xl font-bold text-island-dark">
             Catálogo de Insumos
           </h1>
-          <p className="text-stone font-body text-sm mt-1">
+          <p className="text-island-dark/70 font-body text-sm mt-1">
             {grupos.flatMap((g) => g.insumos).length} insumos en total
           </p>
         </div>
@@ -731,22 +731,22 @@ export function CatalogoInsumosPage() {
         )}
       </div>
 
-      <div className="inline-flex rounded-lg border border-rule bg-white p-1 shadow-sm">
+      <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
         <button
           onClick={() => setView("insumos")}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "insumos" ? "bg-espresso text-cream" : "text-espresso hover:bg-surface-tint"}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "insumos" ? "bg-island-dark text-white" : "text-island-dark hover:bg-sand"}`}
         >
           Insumos
         </button>
         <button
           onClick={() => setView("categorias")}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "categorias" ? "bg-espresso text-cream" : "text-espresso hover:bg-surface-tint"}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "categorias" ? "bg-island-dark text-white" : "text-island-dark hover:bg-sand"}`}
         >
           Categorías
         </button>
         <button
           onClick={() => setView("costos")}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "costos" ? "bg-espresso text-cream" : "text-espresso hover:bg-surface-tint"}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "costos" ? "bg-island-dark text-white" : "text-island-dark hover:bg-sand"}`}
         >
           Costos
         </button>
@@ -760,7 +760,7 @@ export function CatalogoInsumosPage() {
               value={insumoSearch}
               onChange={(e) => setInsumoSearch(e.target.value)}
             />
-            <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+            <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
               {visibleGrupos.reduce((sum, grupo) => sum + grupo.insumos.length, 0)} resultados
             </div>
           </div>
@@ -769,7 +769,7 @@ export function CatalogoInsumosPage() {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setActiveCat("all")}
-              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === "all" ? "bg-espresso text-cream" : "bg-surface-tint text-espresso hover:bg-surface-tint"}`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === "all" ? "bg-island-dark text-white" : "bg-sand text-island-dark hover:bg-sand"}`}
             >
               Todos
             </button>
@@ -777,7 +777,7 @@ export function CatalogoInsumosPage() {
               <button
                 key={cat._id}
                 onClick={() => setActiveCat(cat._id)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === cat._id ? "bg-espresso text-cream" : "bg-surface-tint text-espresso hover:bg-surface-tint"}`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === cat._id ? "bg-island-dark text-white" : "bg-sand text-island-dark hover:bg-sand"}`}
               >
                 {cat.nombre}
               </button>
@@ -785,7 +785,7 @@ export function CatalogoInsumosPage() {
             {isAdmin && (
               <button
                 onClick={openCreateCategory}
-                className="px-3 py-1.5 rounded-lg text-sm font-body text-espresso border border-dashed border-espresso/30 hover:bg-surface-tint"
+                className="px-3 py-1.5 rounded-lg text-sm font-body text-island-dark border border-dashed border-island-dark/30 hover:bg-sand"
               >
                 <Plus size={14} className="inline mr-1" /> Categoría
               </button>
@@ -793,11 +793,11 @@ export function CatalogoInsumosPage() {
           </div>
 
           {categorias.length === 0 && (
-            <div className="rounded-xl border border-dashed border-rule bg-white p-6 text-center">
-              <p className="font-body text-lg font-semibold text-espresso">
+            <div className="rounded-xl border border-dashed border-island-blue/20 bg-white p-6 text-center">
+              <p className="font-body text-lg font-semibold text-island-dark">
                 No hay categorías todavía
               </p>
-              <p className="font-body text-sm text-stone mt-1">
+              <p className="font-body text-sm text-island-dark/70 mt-1">
                 Crea una categoría antes de agregar insumos al catálogo.
               </p>
               {isAdmin && (
@@ -814,15 +814,15 @@ export function CatalogoInsumosPage() {
           {visibleGrupos.map((grupo) => (
             <div
               key={grupo.categoria._id}
-              className="rounded-xl overflow-hidden shadow-sm border border-rule"
+              className="rounded-xl overflow-hidden shadow-sm border border-island-blue/20"
             >
-              <div className="px-4 py-3 font-body font-bold text-espresso text-sm tracking-wide bg-surface-tint border-b border-rule">
+              <div className="px-4 py-3 font-body font-bold text-island-dark text-sm tracking-wide bg-sand border-b border-island-blue/20">
                 {grupo.categoria.nombre}
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm font-body">
                   <thead>
-                    <tr className="bg-surface-tint text-stone text-xs uppercase tracking-wide">
+                    <tr className="bg-sand text-island-dark/70 text-xs uppercase tracking-wide">
                       {isAdmin && <th className="px-3 py-2 w-8"></th>}
                       <th className="px-3 py-2 text-left">
                         <SortableHeader
@@ -883,7 +883,7 @@ export function CatalogoInsumosPage() {
                         >
                           <span>
                             <span className="block">Costo por unidad</span>
-                            <span className="block text-[11px] font-normal normal-case text-stone">
+                            <span className="block text-[11px] font-normal normal-case text-island-dark/70">
                               COP / unidad
                             </span>
                           </span>
@@ -958,7 +958,7 @@ export function CatalogoInsumosPage() {
                         </td>
                         <td
                           colSpan={4}
-                          className="px-3 py-2 text-xs text-stone italic"
+                          className="px-3 py-2 text-xs text-island-dark/70 italic"
                         >
                           Guarda y edita los niveles después
                         </td>
@@ -984,7 +984,7 @@ export function CatalogoInsumosPage() {
                     {grupo.insumos.map((insumo) => (
                       <tr
                         key={insumo._id}
-                        className={`${!insumo.activo ? "opacity-40" : ""} hover:bg-surface-tint`}
+                        className={`${!insumo.activo ? "opacity-40" : ""} hover:bg-sand`}
                       >
                         {isAdmin && (
                           <td className="px-3 py-2">
@@ -1003,7 +1003,7 @@ export function CatalogoInsumosPage() {
                             />
                           </td>
                         )}
-                        <td className="px-3 py-2 font-medium text-espresso">
+                        <td className="px-3 py-2 font-medium text-island-dark">
                           <InlineCell
                             value={insumo.nombre}
                             onSave={(v) => save(insumo._id, "nombre", v)}
@@ -1078,7 +1078,7 @@ export function CatalogoInsumosPage() {
                           )}
                           {!isAdmin && (
                             <span
-                              className={`text-xs px-2 py-1 rounded-full ${insumo.activo ? "bg-success-tint text-success-ink" : "bg-rule text-stone"}`}
+                              className={`text-xs px-2 py-1 rounded-full ${insumo.activo ? "bg-success-tint text-success-ink" : "bg-island-blue/20 text-island-dark/70"}`}
                             >
                               {insumo.activo ? "Activo" : "Inactivo"}
                             </span>
@@ -1092,7 +1092,7 @@ export function CatalogoInsumosPage() {
             </div>
           ))}
           {visibleGrupos.length === 0 && (
-            <div className="card text-center text-stone">
+            <div className="card text-center text-island-dark/70">
               No se encontraron insumos.
             </div>
           )}
@@ -1102,16 +1102,16 @@ export function CatalogoInsumosPage() {
       {view === "categorias" && (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
                   Categoría
                 </th>
-                <th className="text-right px-4 py-3 text-stone font-medium">
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
                   Insumos
                 </th>
                 {isAdmin && (
-                  <th className="text-right px-4 py-3 text-stone font-medium">
+                  <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
                     Acciones
                   </th>
                 )}
@@ -1123,12 +1123,12 @@ export function CatalogoInsumosPage() {
                 return (
                   <tr
                     key={cat._id}
-                    className="hover:bg-surface-tint transition-colors"
+                    className="hover:bg-sand transition-colors"
                   >
-                    <td className="px-4 py-3 font-medium text-espresso">
+                    <td className="px-4 py-3 font-medium text-island-dark">
                       {cat.nombre}
                     </td>
-                    <td className="px-4 py-3 text-right text-stone">{count}</td>
+                    <td className="px-4 py-3 text-right text-island-dark/70">{count}</td>
                     {isAdmin && (
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
@@ -1160,7 +1160,7 @@ export function CatalogoInsumosPage() {
                 <tr>
                   <td
                     colSpan={isAdmin ? 3 : 2}
-                    className="text-center py-10 text-stone"
+                    className="text-center py-10 text-island-dark/70"
                   >
                     No hay categorías.
                   </td>
@@ -1194,28 +1194,28 @@ export function CatalogoInsumosPage() {
           ) : (
             <div className="card overflow-x-auto p-0">
               <table className="w-full text-sm font-body">
-                <thead className="bg-surface-tint border-b border-rule">
+                <thead className="bg-sand border-b border-island-blue/20">
                   <tr>
-                    <th className="text-left px-4 py-3 text-stone font-medium">
+                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
                       Nombre
                     </th>
-                    <th className="text-left px-4 py-3 text-stone font-medium">
+                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
                       Categoría
                     </th>
-                    <th className="text-left px-4 py-3 text-stone font-medium">
+                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
                       Presentación
                     </th>
-                    <th className="text-right px-4 py-3 text-stone font-medium">
+                    <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
                       Precio total
                     </th>
-                    <th className="text-right px-4 py-3 text-stone font-medium">
+                    <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
                       Precio/unidad
                     </th>
-                    <th className="text-left px-4 py-3 text-stone font-medium">
+                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
                       Proveedor
                     </th>
                     {isAdmin && (
-                      <th className="text-right px-4 py-3 text-stone font-medium">
+                      <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
                         Acciones
                       </th>
                     )}
@@ -1225,26 +1225,26 @@ export function CatalogoInsumosPage() {
                   {costItems.map((item) => (
                     <tr
                       key={item._id}
-                      className="hover:bg-surface-tint transition-colors"
+                      className="hover:bg-sand transition-colors"
                     >
-                      <td className="px-4 py-3 font-medium text-ink">
+                      <td className="px-4 py-3 font-medium text-island-dark">
                         {item.name}
                       </td>
-                      <td className="px-4 py-3 text-stone">
+                      <td className="px-4 py-3 text-island-dark/70">
                         {costCategoryLabel(item.category)}
                       </td>
-                      <td className="px-4 py-3 text-stone">
+                      <td className="px-4 py-3 text-island-dark/70">
                         {item.quantityPerPresentation}{" "}
                         {formatMeasurementUnit(item.purchaseUnit)} -{" "}
                         {item.presentation}
                       </td>
-                      <td className="px-4 py-3 text-right text-ink">
+                      <td className="px-4 py-3 text-right text-island-dark">
                         {formatCOPDecimal(item.totalPrice)}
                       </td>
-                      <td className="px-4 py-3 text-right text-espresso font-medium">
+                      <td className="px-4 py-3 text-right text-island-dark font-medium">
                         {formatCOPDecimal(item.pricePerUnit)}
                       </td>
-                      <td className="px-4 py-3 text-stone">{item.supplier}</td>
+                      <td className="px-4 py-3 text-island-dark/70">{item.supplier}</td>
                       {isAdmin && (
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -1271,7 +1271,7 @@ export function CatalogoInsumosPage() {
                     <tr>
                       <td
                         colSpan={isAdmin ? 7 : 6}
-                        className="text-center py-10 text-stone"
+                        className="text-center py-10 text-island-dark/70"
                       >
                         No se encontraron datos de costo.
                       </td>
@@ -1291,7 +1291,7 @@ export function CatalogoInsumosPage() {
       >
         <form onSubmit={saveCategory} className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">
               Nombre
             </label>
             <input
@@ -1387,7 +1387,7 @@ export function CatalogoInsumosPage() {
             {...registerCost("minStock", { valueAsNumber: true })}
           />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">
               Notas
             </label>
             <textarea

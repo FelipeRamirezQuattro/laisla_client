@@ -126,10 +126,10 @@ export function BoletinesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">
+          <h1 className="font-body text-2xl font-bold text-island-dark">
             Boletines
           </h1>
-          <p className="text-stone font-body text-sm">
+          <p className="text-island-dark/70 font-body text-sm">
             Crea y envia correos mensuales a los suscriptores de La Isla.
           </p>
         </div>
@@ -156,21 +156,21 @@ export function BoletinesPage() {
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)] gap-6">
         <section className="card space-y-4">
           <div>
-            <h2 className="font-body text-lg font-semibold text-espresso">
+            <h2 className="font-body text-lg font-semibold text-island-dark">
               Nuevo boletin
             </h2>
-            <p className="text-stone font-body text-sm mt-1">
+            <p className="text-island-dark/70 font-body text-sm mt-1">
               El contenido acepta saltos de linea; se renderiza dentro de la
               plantilla de marca.
             </p>
           </div>
 
           <label className="block">
-            <span className="block text-sm font-body font-medium text-espresso mb-1">
+            <span className="block text-sm font-body font-medium text-island-dark mb-1">
               Asunto
             </span>
             <input
-              className="w-full rounded-lg border border-rule bg-white px-3 py-2 font-body text-sm text-ink outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+              className="w-full rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
               value={form.subject}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, subject: event.target.value }))
@@ -180,11 +180,11 @@ export function BoletinesPage() {
           </label>
 
           <label className="block">
-            <span className="block text-sm font-body font-medium text-espresso mb-1">
+            <span className="block text-sm font-body font-medium text-island-dark mb-1">
               Preheader
             </span>
             <input
-              className="w-full rounded-lg border border-rule bg-white px-3 py-2 font-body text-sm text-ink outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+              className="w-full rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
               value={form.preheader}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, preheader: event.target.value }))
@@ -194,11 +194,11 @@ export function BoletinesPage() {
           </label>
 
           <label className="block">
-            <span className="block text-sm font-body font-medium text-espresso mb-1">
+            <span className="block text-sm font-body font-medium text-island-dark mb-1">
               Contenido
             </span>
             <textarea
-              className="min-h-[260px] w-full resize-y rounded-lg border border-rule bg-white px-3 py-2 font-body text-sm text-ink outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+              className="min-h-[260px] w-full resize-y rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
               value={form.body}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, body: event.target.value }))
@@ -233,23 +233,23 @@ export function BoletinesPage() {
           <section className="card space-y-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-body text-lg font-semibold text-espresso">
+                <h2 className="font-body text-lg font-semibold text-island-dark">
                   Cuenta remitente
                 </h2>
-                <p className="text-stone font-body text-sm mt-1">
+                <p className="text-island-dark/70 font-body text-sm mt-1">
                   Conecta Gmail para enviar boletines desde tu cuenta
                   autorizada.
                 </p>
               </div>
               <div
-                className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${gmailStatus?.connected ? "bg-success-tint text-success" : "bg-surface-tint text-stone"}`}
+                className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${gmailStatus?.connected ? "bg-success-tint text-success" : "bg-sand text-island-dark/70"}`}
               >
                 {gmailStatus?.connected ? "Conectado" : "Sin conectar"}
               </div>
             </div>
 
-            <div className="rounded-lg border border-rule bg-surface-tint p-4">
-              <p className="font-body text-sm font-semibold text-espresso">
+            <div className="rounded-lg border border-island-blue/20 bg-sand p-4">
+              <p className="font-body text-sm font-semibold text-island-dark">
                 {gmailStatus?.connected
                   ? gmailStatus.gmailEmail
                   : "No hay Gmail conectado"}
@@ -279,34 +279,34 @@ export function BoletinesPage() {
           </section>
 
           <section className="card">
-            <h2 className="font-body text-lg font-semibold text-espresso mb-4">
+            <h2 className="font-body text-lg font-semibold text-island-dark mb-4">
               Campanas recientes
             </h2>
             <div className="space-y-3">
               {campaigns.map((campaign) => (
                 <div
                   key={campaign._id}
-                  className="rounded-lg border border-rule bg-white p-4"
+                  className="rounded-lg border border-island-blue/20 bg-white p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="font-body text-sm font-semibold text-espresso">
+                      <h3 className="font-body text-sm font-semibold text-island-dark">
                         {campaign.subject}
                       </h3>
-                      <p className="mt-1 text-xs text-stone">
+                      <p className="mt-1 text-xs text-island-dark/70">
                         {campaign.status === "sent"
                           ? `Enviado ${campaign.sentAt ? formatDateTime(campaign.sentAt) : ""}`
                           : `Borrador · ${formatDateTime(campaign.createdAt)}`}
                       </p>
                     </div>
                     <span
-                      className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${campaign.status === "sent" ? "bg-success-tint text-success" : "bg-surface-tint text-stone"}`}
+                      className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${campaign.status === "sent" ? "bg-success-tint text-success" : "bg-sand text-island-dark/70"}`}
                     >
                       {campaign.status === "sent" ? "Enviado" : "Borrador"}
                     </span>
                   </div>
                   {campaign.status === "sent" ? (
-                    <p className="mt-3 text-xs text-stone">
+                    <p className="mt-3 text-xs text-island-dark/70">
                       {campaign.sentCount} enviados · {campaign.failedCount}{" "}
                       fallidos
                     </p>
@@ -324,28 +324,28 @@ export function BoletinesPage() {
                 </div>
               ))}
               {campaigns.length === 0 && (
-                <p className="text-sm text-stone">Aun no hay boletines.</p>
+                <p className="text-sm text-island-dark/70">Aun no hay boletines.</p>
               )}
             </div>
           </section>
 
           <section className="card">
-            <h2 className="font-body text-lg font-semibold text-espresso mb-4">
+            <h2 className="font-body text-lg font-semibold text-island-dark mb-4">
               Ultimos suscriptores
             </h2>
-            <div className="divide-y divide-rule">
+            <div className="divide-y divide-island-blue/20">
               {subscribers.map((subscriber) => (
                 <div key={subscriber._id} className="py-3">
-                  <p className="font-body text-sm font-medium text-espresso">
+                  <p className="font-body text-sm font-medium text-island-dark">
                     {subscriber.email}
                   </p>
-                  <p className="text-xs text-stone">
+                  <p className="text-xs text-island-dark/70">
                     {formatDateTime(subscriber.createdAt)}
                   </p>
                 </div>
               ))}
               {subscribers.length === 0 && (
-                <p className="text-sm text-stone">
+                <p className="text-sm text-island-dark/70">
                   No hay suscriptores todavia.
                 </p>
               )}
@@ -368,14 +368,14 @@ function Metric({
 }) {
   return (
     <div className="card flex items-center gap-4">
-      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-surface-tint text-espresso">
+      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-sand text-island-dark">
         {icon}
       </div>
       <div>
-        <p className="text-xs text-stone font-body uppercase tracking-wide">
+        <p className="text-xs text-island-dark/70 font-body uppercase tracking-wide">
           {label}
         </p>
-        <p className="text-xl font-body font-bold text-espresso">{value}</p>
+        <p className="text-xl font-body font-bold text-island-dark">{value}</p>
       </div>
     </div>
   );

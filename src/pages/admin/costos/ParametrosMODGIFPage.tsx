@@ -92,8 +92,8 @@ export function ParametrosMODGIFPage() {
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Parámetros MOD / GIF</h1>
-          <p className="text-stone font-body text-sm">Mano de obra directa y gastos indirectos de fabricación</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Parámetros MOD / GIF</h1>
+          <p className="text-island-dark/70 font-body text-sm">Mano de obra directa y gastos indirectos de fabricación</p>
         </div>
         <Button onClick={handleSaveClick}>Guardar y recalcular</Button>
       </div>
@@ -101,7 +101,7 @@ export function ParametrosMODGIFPage() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* MOD */}
         <div className="card space-y-4">
-          <h2 className="font-body text-lg font-semibold text-espresso border-b border-rule pb-2">
+          <h2 className="font-body text-lg font-semibold text-island-dark border-b border-island-blue/20 pb-2">
             MOD — Mano de Obra Directa
           </h2>
           <div className="grid grid-cols-2 gap-3">
@@ -112,30 +112,30 @@ export function ParametrosMODGIFPage() {
             <Input label="Clientes/mes" type="number" value={monthlyCustomers} onChange={(e) => setMonthlyCustomers(+e.target.value)} />
             <Input label="Productos/cliente" type="number" step="0.1" value={productsPerCustomer} onChange={(e) => setProductsPerCustomer(+e.target.value)} />
           </div>
-          <div className="bg-surface-tint rounded-lg p-3 space-y-1 text-sm font-body">
-            <div className="flex justify-between text-stone">
+          <div className="bg-sand rounded-lg p-3 space-y-1 text-sm font-body">
+            <div className="flex justify-between text-island-dark/70">
               <span>Costo hora total</span>
-              <span className="font-medium text-ink">{formatCOP(mod.totalHourlyWage)}</span>
+              <span className="font-medium text-island-dark">{formatCOP(mod.totalHourlyWage)}</span>
             </div>
-            <div className="flex justify-between text-stone">
+            <div className="flex justify-between text-island-dark/70">
               <span>Mano de obra diaria</span>
-              <span className="font-medium text-ink">{formatCOP(mod.dailyLabor)}</span>
+              <span className="font-medium text-island-dark">{formatCOP(mod.dailyLabor)}</span>
             </div>
-            <div className="flex justify-between text-stone">
+            <div className="flex justify-between text-island-dark/70">
               <span>Mano de obra mensual</span>
-              <span className="font-medium text-ink">{formatCOP(mod.monthlyLabor)}</span>
+              <span className="font-medium text-island-dark">{formatCOP(mod.monthlyLabor)}</span>
             </div>
-            <div className="flex justify-between border-t border-rule pt-1 mt-1">
-              <span className="font-semibold text-espresso">MOD por ítem</span>
-              <span className="font-bold text-espresso">{formatCOPDecimal(mod.laborPerItem)}</span>
+            <div className="flex justify-between border-t border-island-blue/20 pt-1 mt-1">
+              <span className="font-semibold text-island-dark">MOD por ítem</span>
+              <span className="font-bold text-island-dark">{formatCOPDecimal(mod.laborPerItem)}</span>
             </div>
           </div>
         </div>
 
         {/* GIF */}
         <div className="card space-y-4">
-          <div className="flex items-center justify-between border-b border-rule pb-2">
-            <h2 className="font-body text-lg font-semibold text-espresso">GIF — Gastos Indirectos</h2>
+          <div className="flex items-center justify-between border-b border-island-blue/20 pb-2">
+            <h2 className="font-body text-lg font-semibold text-island-dark">GIF — Gastos Indirectos</h2>
             <Button variant="ghost" size="sm" onClick={addOverhead}>+ Agregar</Button>
           </div>
           <div className="space-y-2 max-h-56 overflow-y-auto">
@@ -165,18 +165,18 @@ export function ParametrosMODGIFPage() {
               </div>
             ))}
           </div>
-          <div className="bg-surface-tint rounded-lg p-3 space-y-1 text-sm font-body">
-            <div className="flex justify-between text-stone">
+          <div className="bg-sand rounded-lg p-3 space-y-1 text-sm font-body">
+            <div className="flex justify-between text-island-dark/70">
               <span>Total mensual GIF</span>
-              <span className="font-medium text-ink">{formatCOP(gif.totalMonthlyOverhead)}</span>
+              <span className="font-medium text-island-dark">{formatCOP(gif.totalMonthlyOverhead)}</span>
             </div>
-            <div className="flex justify-between text-stone">
+            <div className="flex justify-between text-island-dark/70">
               <span>GIF diario</span>
-              <span className="font-medium text-ink">{formatCOPDecimal(gif.dailyOverhead)}</span>
+              <span className="font-medium text-island-dark">{formatCOPDecimal(gif.dailyOverhead)}</span>
             </div>
-            <div className="flex justify-between border-t border-rule pt-1 mt-1">
-              <span className="font-semibold text-espresso">GIF por ítem</span>
-              <span className="font-bold text-espresso">{formatCOPDecimal(gif.overheadPerItem)}</span>
+            <div className="flex justify-between border-t border-island-blue/20 pt-1 mt-1">
+              <span className="font-semibold text-island-dark">GIF por ítem</span>
+              <span className="font-bold text-island-dark">{formatCOPDecimal(gif.overheadPerItem)}</span>
             </div>
           </div>
         </div>
@@ -184,7 +184,7 @@ export function ParametrosMODGIFPage() {
 
       {/* IVA */}
       <div className="card max-w-xs">
-        <h2 className="font-body text-base font-semibold text-espresso mb-3">Configuración IVA</h2>
+        <h2 className="font-body text-base font-semibold text-island-dark mb-3">Configuración IVA</h2>
         <div className="flex items-center gap-3">
           <Input
             label="Tasa IVA"
@@ -196,12 +196,12 @@ export function ParametrosMODGIFPage() {
             onChange={(e) => setIvaRate(+e.target.value)}
             className="w-32"
           />
-          <span className="text-stone font-body text-sm mt-5">{(ivaRate * 100).toFixed(0)}%</span>
+          <span className="text-island-dark/70 font-body text-sm mt-5">{(ivaRate * 100).toFixed(0)}%</span>
         </div>
       </div>
 
       {params && (
-        <div className="text-xs text-stone font-body">
+        <div className="text-xs text-island-dark/70 font-body">
           Última actualización: {new Date(params.updatedAt).toLocaleString('es-CO')}
         </div>
       )}

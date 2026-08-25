@@ -361,8 +361,8 @@ export function InventoryPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Inventario</h1>
-          <p className="text-stone font-body text-sm">
+          <h1 className="font-body text-2xl font-bold text-island-dark">Inventario</h1>
+          <p className="text-island-dark/70 font-body text-sm">
             {inventory.length} insumos sincronizados · {pendingCount > 0
               ? <span className="text-warning-ink">{pendingCount} movimientos por aprobar</span>
             : 'sin movimientos pendientes'}
@@ -375,19 +375,19 @@ export function InventoryPage() {
         )}
       </div>
 
-      <div className="inline-flex rounded-lg border border-rule bg-white p-1 shadow-sm">
+      <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
         <button
           onClick={() => setView('stock')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'stock' ? 'bg-espresso text-cream' : 'text-espresso hover:bg-surface-tint'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'stock' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
         >
           Stock
         </button>
         <button
           onClick={() => setView('alertas')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'alertas' ? 'bg-espresso text-cream' : 'text-espresso hover:bg-surface-tint'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'alertas' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
         >
           Alertas de compra
-          {alertas.length > 0 && <span className="ml-2 rounded-full bg-error text-cream px-1.5 py-0.5 text-xs font-bold">{alertas.length}</span>}
+          {alertas.length > 0 && <span className="ml-2 rounded-full bg-error text-white px-1.5 py-0.5 text-xs font-bold">{alertas.length}</span>}
         </button>
       </div>
 
@@ -399,7 +399,7 @@ export function InventoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <label className="flex items-center gap-2 rounded-lg border border-rule bg-surface-tint px-4 py-2 text-sm font-body text-ink cursor-pointer whitespace-nowrap">
+            <label className="flex items-center gap-2 rounded-lg border border-island-blue/20 bg-sand px-4 py-2 text-sm font-body text-island-dark cursor-pointer whitespace-nowrap">
               <input
                 type="checkbox"
                 checked={showPendingOnly}
@@ -413,38 +413,38 @@ export function InventoryPage() {
           {loading ? <PageLoader /> : (
             <div className="card overflow-x-auto p-0">
               <table className="w-full text-sm font-body">
-                <thead className="bg-surface-tint border-b border-rule">
+                <thead className="bg-sand border-b border-island-blue/20">
                   <tr>
-                    <th className="text-left px-4 py-3 text-stone font-medium">Insumo</th>
-                    <th className="text-right px-4 py-3 text-stone font-medium">Stock aprobado</th>
-                    <th className="text-right px-4 py-3 text-stone font-medium">Pendiente venta</th>
-                    <th className="text-left px-4 py-3 text-stone font-medium">Proveedor</th>
-                    <th className="text-left px-4 py-3 text-stone font-medium">Último movimiento</th>
-                    <th className="text-center px-4 py-3 text-stone font-medium">Estado</th>
-                    <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Insumo</th>
+                    <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Stock aprobado</th>
+                    <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Pendiente venta</th>
+                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Proveedor</th>
+                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Último movimiento</th>
+                    <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                    <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-rule">
                   {filtered.map((item) => (
-                    <tr key={item.insumo._id} className={`hover:bg-surface-tint transition-colors ${item.pendingCount > 0 ? 'bg-warning-tint' : ''}`}>
+                    <tr key={item.insumo._id} className={`hover:bg-sand transition-colors ${item.pendingCount > 0 ? 'bg-warning-tint' : ''}`}>
                       <td className="px-4 py-3">
                         <button onClick={() => openDrawer(item)} className="text-left">
-                          <p className="font-medium text-ink hover:text-terracotta">{item.insumo.nombre}</p>
-                          <p className="text-xs text-stone">
+                          <p className="font-medium text-island-dark hover:text-island-blue">{item.insumo.nombre}</p>
+                          <p className="text-xs text-island-dark/70">
                             {typeof item.insumo.categoriaId === 'object' ? item.insumo.categoriaId.nombre : 'Sin categoría'}
                           </p>
                         </button>
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-ink">
+                      <td className="px-4 py-3 text-right font-medium text-island-dark">
                         {item.stock.toFixed(2)} {formatMeasurementUnit(item.unit)}
                       </td>
                       <td className="px-4 py-3 text-right text-warning-ink">
                         {item.pendingOut > 0 ? `${item.pendingOut.toFixed(2)} ${formatMeasurementUnit(item.unit)}` : '—'}
                       </td>
-                      <td className="px-4 py-3 text-stone">
+                      <td className="px-4 py-3 text-island-dark/70">
                         {providerName(item.insumo.proveedorPrincipalId)}
                       </td>
-                      <td className="px-4 py-3 text-stone text-xs">
+                      <td className="px-4 py-3 text-island-dark/70 text-xs">
                         {item.lastMovementAt ? new Date(item.lastMovementAt).toLocaleDateString('es-CO') : 'Sin movimientos'}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -467,7 +467,7 @@ export function InventoryPage() {
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="text-center py-10 text-stone">
+                      <td colSpan={7} className="text-center py-10 text-island-dark/70">
                         {showPendingOnly ? 'No hay movimientos pendientes.' : 'No se encontraron insumos.'}
                       </td>
                     </tr>
@@ -487,7 +487,7 @@ export function InventoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+            <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
               {filteredAlertas.length} de {alertas.length} alertas
             </div>
           </div>
@@ -495,8 +495,8 @@ export function InventoryPage() {
           {alertsLoading ? <PageLoader /> : filteredAlertas.length === 0 ? (
             <div className="card flex flex-col items-center py-16 gap-4">
               <CheckCircle size={48} className="text-success" />
-              <p className="font-body text-xl text-espresso">{search ? 'Sin resultados' : 'Todo en orden por hoy'}</p>
-              <p className="text-sm font-body text-stone">
+              <p className="font-body text-xl text-island-dark">{search ? 'Sin resultados' : 'Todo en orden por hoy'}</p>
+              <p className="text-sm font-body text-island-dark/70">
                 {search ? 'No hay alertas que coincidan con la búsqueda.' : 'No hay insumos agotados o en nivel regular.'}
               </p>
             </div>
@@ -516,7 +516,7 @@ export function InventoryPage() {
               {[agotados, regulares].map((group) =>
                 group.length === 0 ? null : (
                   <div key={group[0].detalle.nivel} className="space-y-2">
-                    <h2 className="font-body font-semibold text-espresso text-base">
+                    <h2 className="font-body font-semibold text-island-dark text-base">
                       {group[0].detalle.nivel === 'AGOTADO' ? 'Agotados' : 'En nivel regular'}
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -527,8 +527,8 @@ export function InventoryPage() {
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <p className="font-body font-semibold text-espresso text-sm">{alerta.insumo.nombre}</p>
-                              <p className="text-xs text-stone font-body mt-0.5">{alerta.categoria.nombre}</p>
+                              <p className="font-body font-semibold text-island-dark text-sm">{alerta.insumo.nombre}</p>
+                              <p className="text-xs text-island-dark/70 font-body mt-0.5">{alerta.categoria.nombre}</p>
                             </div>
                             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${NIVEL_BADGE[alerta.detalle.nivel]}`}>
                               {alerta.detalle.nivel}
@@ -536,12 +536,12 @@ export function InventoryPage() {
                           </div>
 
                           {alerta.insumo.nivelAgotado && (
-                            <p className="text-xs font-body text-stone bg-surface-tint rounded px-2 py-1">
+                            <p className="text-xs font-body text-island-dark/70 bg-sand rounded px-2 py-1">
                               Nivel reorden: <strong>{alerta.insumo.nivelAgotado}</strong>
                             </p>
                           )}
 
-                          <p className="text-xs font-body text-stone opacity-60">
+                          <p className="text-xs font-body text-island-dark/70 opacity-60">
                             Última revisión: {alerta.ultimaRevision
                               ? new Date(alerta.ultimaRevision).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
                               : '-'}
@@ -550,7 +550,7 @@ export function InventoryPage() {
                           <button
                             onClick={() => marcarComprado(alerta.insumo._id)}
                             disabled={marking[alerta.insumo._id]}
-                            className="w-full text-sm font-body font-medium bg-success text-cream rounded-lg py-2 hover:bg-success-ink transition-all disabled:opacity-50"
+                            className="w-full text-sm font-body font-medium bg-success text-white rounded-lg py-2 hover:bg-success-ink transition-all disabled:opacity-50"
                           >
                             {marking[alerta.insumo._id] ? 'Guardando...' : 'Marcar como comprado'}
                           </button>
@@ -567,16 +567,16 @@ export function InventoryPage() {
 
       {selected && (
         <div className="fixed inset-0 z-50">
-          <button className="absolute inset-0 bg-ink/30" onClick={() => setSelected(null)} aria-label="Cerrar historial" />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-3xl overflow-y-auto bg-paper shadow-2xl border-l border-rule">
-            <div className="sticky top-0 z-10 bg-paper border-b border-rule px-5 py-4 flex items-start justify-between gap-4">
+          <button className="absolute inset-0 bg-island-dark/30" onClick={() => setSelected(null)} aria-label="Cerrar historial" />
+          <aside className="absolute right-0 top-0 h-full w-full max-w-3xl overflow-y-auto bg-white shadow-2xl border-l border-island-blue/20">
+            <div className="sticky top-0 z-10 bg-white border-b border-island-blue/20 px-5 py-4 flex items-start justify-between gap-4">
               <div>
-                <h2 className="font-body text-xl font-bold text-espresso">{selected.insumo.nombre}</h2>
-                <p className="text-sm text-stone font-body">
+                <h2 className="font-body text-xl font-bold text-island-dark">{selected.insumo.nombre}</h2>
+                <p className="text-sm text-island-dark/70 font-body">
                   Stock aprobado: {selected.stock.toFixed(2)} {formatMeasurementUnit(selected.unit)}
                 </p>
               </div>
-              <button onClick={() => setSelected(null)} className="h-9 w-9 rounded-lg bg-white text-stone inline-flex items-center justify-center">
+              <button onClick={() => setSelected(null)} className="h-9 w-9 rounded-lg bg-white text-island-dark/70 inline-flex items-center justify-center">
                 <X size={18} />
               </button>
             </div>
@@ -590,17 +590,17 @@ export function InventoryPage() {
 
               <section ref={purchaseSectionRef} className="card scroll-mt-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-body font-semibold text-espresso">Histórico de stock</h3>
-                  {historyLoading && <span className="text-xs text-stone">Cargando...</span>}
+                  <h3 className="font-body font-semibold text-island-dark">Histórico de stock</h3>
+                  {historyLoading && <span className="text-xs text-island-dark/70">Cargando...</span>}
                 </div>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-rule)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                       <XAxis dataKey="label" tick={{ fontSize: 12 }} />
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip />
-                      <Line type="monotone" dataKey="stock" stroke="var(--color-terracotta)" strokeWidth={2.5} dot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="stock" stroke="var(--color-island-blue)" strokeWidth={2.5} dot={{ r: 3 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -608,13 +608,13 @@ export function InventoryPage() {
 
               {pendingMovements.length > 0 && (
                 <section className="card">
-                  <h3 className="font-body font-semibold text-espresso mb-3">Movimientos pendientes por aprobar</h3>
+                  <h3 className="font-body font-semibold text-island-dark mb-3">Movimientos pendientes por aprobar</h3>
                   <div className="space-y-2">
                     {pendingMovements.map((movement) => (
                       <div key={movement._id} className="rounded-lg border border-warning bg-warning-tint px-3 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
-                          <p className="font-body text-sm font-semibold text-ink">{movementLabel[movement.tipo] ?? movement.tipo}</p>
-                          <p className="text-xs text-stone">
+                          <p className="font-body text-sm font-semibold text-island-dark">{movementLabel[movement.tipo] ?? movement.tipo}</p>
+                          <p className="text-xs text-island-dark/70">
                             {movement.cantidad.toFixed(2)} {formatMeasurementUnit(movement.unidad)} · {new Date(movement.fecha).toLocaleDateString('es-CO')}
                           </p>
                         </div>
@@ -634,13 +634,13 @@ export function InventoryPage() {
 
               <section className="card">
                 <div className="flex items-center gap-2 mb-4">
-                  <ShoppingBag size={18} className="text-terracotta" />
-                  <h3 className="font-body font-semibold text-espresso">Registrar compra</h3>
+                  <ShoppingBag size={18} className="text-island-blue" />
+                  <h3 className="font-body font-semibold text-island-dark">Registrar compra</h3>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Input label="Cantidad" type="number" step="0.001" value={purchaseQty} onChange={(event) => setPurchaseQty(event.target.value)} />
                   <label className="block">
-                    <span className="block text-sm font-medium text-ink font-body mb-1">Unidad</span>
+                    <span className="block text-sm font-medium text-island-dark font-body mb-1">Unidad</span>
                     <select className="input-base" value={purchaseUnit} onChange={(event) => setPurchaseUnit(event.target.value as MeasurementUnit)}>
                       {MEASUREMENT_UNITS.map((unit) => (
                         <option key={unit.value} value={unit.value}>{unit.label}</option>
@@ -649,7 +649,7 @@ export function InventoryPage() {
                   </label>
                   <Input label="Fecha" type="date" value={purchaseDate} onChange={(event) => setPurchaseDate(event.target.value)} />
                   <label className="block">
-                    <span className="block text-sm font-medium text-ink font-body mb-1">Proveedor</span>
+                    <span className="block text-sm font-medium text-island-dark font-body mb-1">Proveedor</span>
                     <select className="input-base" value={purchaseProvider} onChange={(event) => setPurchaseProvider(event.target.value)}>
                       <option value="">Sin proveedor</option>
                       {providers.map((provider) => (
@@ -657,7 +657,7 @@ export function InventoryPage() {
                       ))}
                     </select>
                   </label>
-                  <div className="sm:col-span-2 rounded-lg border border-rule bg-surface-tint p-3">
+                  <div className="sm:col-span-2 rounded-lg border border-island-blue/20 bg-sand p-3">
                     <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
                       <Input
                         label="Nuevo proveedor"
@@ -679,7 +679,7 @@ export function InventoryPage() {
                     </div>
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-ink font-body mb-1">Notas</label>
+                    <label className="block text-sm font-medium text-island-dark font-body mb-1">Notas</label>
                     <textarea className="input-base h-20 resize-none" value={purchaseNotes} onChange={(event) => setPurchaseNotes(event.target.value)} />
                   </div>
                 </div>
@@ -689,15 +689,15 @@ export function InventoryPage() {
               </section>
 
               <section className="card p-0 overflow-hidden">
-                <div className="px-4 py-3 border-b border-rule bg-surface-tint">
-                  <h3 className="font-body font-semibold text-espresso">Movimientos</h3>
+                <div className="px-4 py-3 border-b border-island-blue/20 bg-sand">
+                  <h3 className="font-body font-semibold text-island-dark">Movimientos</h3>
                 </div>
                 <div className="divide-y divide-rule">
                   {(history?.movements ?? []).slice().reverse().map((movement) => (
                     <div key={movement._id} className="px-4 py-3 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-body text-sm font-medium text-ink">{movementLabel[movement.tipo] ?? movement.tipo}</p>
-                        <p className="text-xs text-stone">
+                        <p className="font-body text-sm font-medium text-island-dark">{movementLabel[movement.tipo] ?? movement.tipo}</p>
+                        <p className="text-xs text-island-dark/70">
                           {new Date(movement.fecha).toLocaleDateString('es-CO')} · {providerName(movement.providerId)}
                         </p>
                       </div>
@@ -705,12 +705,12 @@ export function InventoryPage() {
                         <p className={movement.cantidadBase < 0 ? 'text-error-ink' : 'text-success-ink'}>
                           {movement.cantidadBase < 0 ? '-' : '+'}{movement.cantidad.toFixed(2)} {formatMeasurementUnit(movement.unidad)}
                         </p>
-                        <p className="text-xs text-stone">{movement.estado}</p>
+                        <p className="text-xs text-island-dark/70">{movement.estado}</p>
                       </div>
                     </div>
                   ))}
                   {(history?.movements ?? []).length === 0 && (
-                    <p className="px-4 py-10 text-center text-stone">Sin movimientos en el rango seleccionado.</p>
+                    <p className="px-4 py-10 text-center text-island-dark/70">Sin movimientos en el rango seleccionado.</p>
                   )}
                 </div>
               </section>
@@ -725,9 +725,9 @@ export function InventoryPage() {
         title="Nuevo insumo"
       >
         <div className="space-y-4">
-          <div className="rounded-lg border border-rule bg-surface-tint p-3 space-y-3">
+          <div className="rounded-lg border border-island-blue/20 bg-sand p-3 space-y-3">
             <label className="block">
-              <span className="block text-sm font-medium text-ink font-body mb-1">Categoría</span>
+              <span className="block text-sm font-medium text-island-dark font-body mb-1">Categoría</span>
               <select
                 value={newInsumoCategory}
                 onChange={(event) => setNewInsumoCategory(event.target.value)}
@@ -775,7 +775,7 @@ export function InventoryPage() {
               onChange={(event) => setNewInsumoQty(event.target.value)}
             />
             <label className="block">
-              <span className="block text-sm font-medium text-ink font-body mb-1">Unidad</span>
+              <span className="block text-sm font-medium text-island-dark font-body mb-1">Unidad</span>
               <select
                 value={newInsumoUnit}
                 onChange={(event) => setNewInsumoUnit(event.target.value as MeasurementUnit)}

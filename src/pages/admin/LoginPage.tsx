@@ -35,17 +35,21 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface-tint flex items-center justify-center p-4">
+    <div className="min-h-screen bg-sand flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="font-body text-3xl font-bold text-espresso">La Isla Café</h1>
-          <p className="text-stone font-body mt-1">Panel de Administración</p>
+          <img
+            src="/images/brand/logo-principal-color.png"
+            alt="La Isla Café Picnic"
+            className="h-24 w-auto mx-auto mb-2"
+          />
+          <p className="text-island-dark/70 font-body mt-1">Panel de Administración</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-rule p-8">
-          <h2 className="font-body text-xl font-semibold text-espresso mb-6">Iniciar sesión</h2>
+        <div className="bg-white rounded-lg shadow-sm border border-island-blue/20 p-8">
+          <h2 className="font-body text-xl font-semibold text-island-dark mb-6">Iniciar sesión</h2>
 
           {googleClientId && (
             <>
@@ -68,9 +72,9 @@ export function LoginPage() {
                 />
               </div>
               <div className="my-5 flex items-center gap-3">
-                <span className="h-px flex-1 bg-rule" />
-                <span className="text-xs font-body text-stone">o ingresa con correo</span>
-                <span className="h-px flex-1 bg-rule" />
+                <span className="h-px flex-1 bg-island-blue/20" />
+                <span className="text-xs font-body text-island-dark/70">o ingresa con correo</span>
+                <span className="h-px flex-1 bg-island-blue/20" />
               </div>
             </>
           )}
@@ -101,7 +105,7 @@ export function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-stone font-body mt-6">
+        <p className="text-center text-xs text-island-dark/70 font-body mt-6">
           La Isla Café · Ibagué, Colombia
         </p>
       </div>

@@ -10,7 +10,7 @@ const NIVEL_BADGE: Record<string, string> = {
   BUENO: 'bg-success-tint text-success-ink',
   REGULAR: 'bg-warning-tint text-warning-ink',
   AGOTADO: 'bg-error-tint text-error-ink',
-  NO_REVISADO: 'bg-rule text-stone',
+  NO_REVISADO: 'bg-island-blue/20 text-island-dark/70',
 };
 
 export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: boolean }) {
@@ -64,26 +64,26 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
     <div className="space-y-4">
       {!hideHeader && (
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Historial de Revisiones</h1>
-          <p className="text-stone font-body text-sm mt-1">{total} revisiones encontradas</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Historial de Revisiones</h1>
+          <p className="text-island-dark/70 font-body text-sm mt-1">{total} revisiones encontradas</p>
         </div>
       )}
       {hideHeader && (
-        <p className="text-stone font-body text-sm">{total} revisiones encontradas</p>
+        <p className="text-island-dark/70 font-body text-sm">{total} revisiones encontradas</p>
       )}
 
       {/* Filters */}
       <form onSubmit={applyFilters} className="card flex flex-wrap gap-3 items-end">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-body text-stone">Desde</label>
+          <label className="text-xs font-body text-island-dark/70">Desde</label>
           <input type="date" value={filters.desde} onChange={(e) => setFilters((f) => ({ ...f, desde: e.target.value }))} className="input-base w-36 text-sm" />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-body text-stone">Hasta</label>
+          <label className="text-xs font-body text-island-dark/70">Hasta</label>
           <input type="date" value={filters.hasta} onChange={(e) => setFilters((f) => ({ ...f, hasta: e.target.value }))} className="input-base w-36 text-sm" />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-body text-stone">Turno</label>
+          <label className="text-xs font-body text-island-dark/70">Turno</label>
           <select value={filters.turno} onChange={(e) => setFilters((f) => ({ ...f, turno: e.target.value }))} className="input-base w-36 text-sm">
             <option value="">Todos</option>
             <option value="MATUTINO">Mañana</option>
@@ -100,7 +100,7 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
         <div className="card p-0 overflow-hidden">
           <table className="w-full text-sm font-body">
             <thead>
-              <tr className="bg-surface-tint text-stone text-xs uppercase tracking-wide">
+              <tr className="bg-sand text-island-dark/70 text-xs uppercase tracking-wide">
                 <th className="px-4 py-3 text-left">Fecha</th>
                 <th className="px-4 py-3 text-left">Turno</th>
                 <th className="px-4 py-3 text-left">Colaborador</th>
@@ -121,8 +121,8 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
             <tbody className="divide-y divide-rule">
               {items.map((item) => (
                 <>
-                  <tr key={item._id} className="hover:bg-surface-tint cursor-pointer" onClick={() => toggleDetalle(item._id)}>
-                    <td className="px-4 py-3 text-espresso">
+                  <tr key={item._id} className="hover:bg-sand cursor-pointer" onClick={() => toggleDetalle(item._id)}>
+                    <td className="px-4 py-3 text-island-dark">
                       {new Date(item.fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-4 py-3">
@@ -134,30 +134,30 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
                         )}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-espresso">{item.colaborador?.name ?? '—'}</td>
+                    <td className="px-4 py-3 text-island-dark">{item.colaborador?.name ?? '—'}</td>
                     <td className="px-4 py-3 text-center font-medium text-success-ink">{item.counts.bueno}</td>
                     <td className="px-4 py-3 text-center font-medium text-warning-ink">{item.counts.regular}</td>
                     <td className="px-4 py-3 text-center font-medium text-error-ink">{item.counts.agotado}</td>
-                    <td className="px-4 py-3 text-center text-stone">{item.counts.noRevisado}</td>
+                    <td className="px-4 py-3 text-center text-island-dark/70">{item.counts.noRevisado}</td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${item.cerradaEn ? 'bg-success-tint text-success-ink' : 'bg-warning-tint text-warning-ink'}`}>
                         {item.cerradaEn ? 'Cerrada' : 'Abierta'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-stone">
+                    <td className="px-4 py-3 text-island-dark/70">
                       {expanded === item._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </td>
                   </tr>
                   {expanded === item._id && (
                     <tr key={`${item._id}-detail`}>
-                      <td colSpan={9} className="px-4 pb-4 bg-surface-tint">
+                      <td colSpan={9} className="px-4 pb-4 bg-sand">
                         {loadingDetalle ? (
-                          <p className="text-sm text-stone py-2">Cargando detalle...</p>
+                          <p className="text-sm text-island-dark/70 py-2">Cargando detalle...</p>
                         ) : detalleData && (
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 pt-2">
                             {detalleData.detalles.map((d) => (
                               <div key={d._id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 shadow-sm">
-                                <span className="text-xs font-body text-espresso truncate">{d.nombreSnapshot}</span>
+                                <span className="text-xs font-body text-island-dark truncate">{d.nombreSnapshot}</span>
                                 <span className={`text-xs font-semibold ml-2 px-1.5 py-0.5 rounded-full ${NIVEL_BADGE[d.nivel]}`}>
                                   {d.nivel === 'BUENO' ? <Check size={12} /> : d.nivel === 'REGULAR' ? <Minus size={12} /> : d.nivel === 'AGOTADO' ? <X size={12} /> : '?'}
                                 </span>
@@ -171,7 +171,7 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
                 </>
               ))}
               {items.length === 0 && (
-                <tr><td colSpan={9} className="px-4 py-8 text-center text-stone text-sm">No hay revisiones para este período</td></tr>
+                <tr><td colSpan={9} className="px-4 py-8 text-center text-island-dark/70 text-sm">No hay revisiones para este período</td></tr>
               )}
             </tbody>
           </table>

@@ -482,7 +482,7 @@ export function RecipeEditorPage() {
     <div className="w-full max-w-none space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">
+          <h1 className="font-body text-2xl font-bold text-island-dark">
             {isNew ? 'Nueva receta' : `Editar: ${name}`}
           </h1>
         </div>
@@ -499,7 +499,7 @@ export function RecipeEditorPage() {
             <div className="min-w-0 space-y-5">
               <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)]">
                 <div>
-                  <label className="text-sm font-medium text-ink font-body block mb-1">Nombre de la receta</label>
+                  <label className="text-sm font-medium text-island-dark font-body block mb-1">Nombre de la receta</label>
                   <input
                     className="input-base"
                     value={name}
@@ -517,7 +517,7 @@ export function RecipeEditorPage() {
                   <button
                     type="button"
                     onClick={() => setCategoryModalOpen(true)}
-                    className="text-xs font-body text-terracotta hover:underline"
+                    className="text-xs font-body text-island-blue hover:underline"
                   >
                     + Crear categoría de producto
                   </button>
@@ -534,7 +534,7 @@ export function RecipeEditorPage() {
                       hint="Tiempo base de esta receta, sin contar sub-recetas."
                     />
                   </div>
-                  <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isSubRecipe}
@@ -546,7 +546,7 @@ export function RecipeEditorPage() {
                     />
                     Es sub-receta (puede usarse como ingrediente)
                   </label>
-                  <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isProduct}
@@ -556,22 +556,22 @@ export function RecipeEditorPage() {
                     />
                     Disponible para pedidos
                   </label>
-                  <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                     <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} className="rounded" />
                     Receta activa
                   </label>
                 </div>
               </div>
 
-              <div className="flex items-center border-b border-rule gap-1 flex-wrap">
+              <div className="flex items-center border-b border-island-blue/20 gap-1 flex-wrap">
                 {variants.map((vt, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveTab(idx)}
                     className={`px-4 py-2 text-sm font-body rounded-t-lg transition-colors ${
                       activeTab === idx
-                        ? 'bg-white border border-b-white border-rule text-espresso font-medium -mb-px'
-                        : 'text-stone hover:text-espresso'
+                        ? 'bg-white border border-b-white border-island-blue/20 text-island-dark font-medium -mb-px'
+                        : 'text-island-dark/70 hover:text-island-dark'
                     }`}
                   >
                     {vt.size}
@@ -579,13 +579,13 @@ export function RecipeEditorPage() {
                 ))}
                 <button
                   onClick={addVariant}
-                  className="px-3 py-2 text-sm font-body text-terracotta hover:opacity-80"
+                  className="px-3 py-2 text-sm font-body text-island-blue hover:opacity-80"
                 >+ Variante</button>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-ink font-body block mb-1">Tamaño</label>
+                  <label className="text-sm font-medium text-island-dark font-body block mb-1">Tamaño</label>
                   <select
                     className="input-base"
                     value={v.size}
@@ -595,7 +595,7 @@ export function RecipeEditorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-ink font-body block mb-1">Pack desechable</label>
+                  <label className="text-sm font-medium text-island-dark font-body block mb-1">Pack desechable</label>
                   <select
                     className="input-base"
                     value={v.disposablePackId}
@@ -606,7 +606,7 @@ export function RecipeEditorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-ink font-body block mb-1">Método de costeo</label>
+                  <label className="text-sm font-medium text-island-dark font-body block mb-1">Método de costeo</label>
                   <select
                     className="input-base"
                     value={v.costingMethod}
@@ -627,7 +627,7 @@ export function RecipeEditorPage() {
                   onChange={(e) => updateVariant(activeTab, { salePrice: +e.target.value })}
                 />
                 <div>
-                  <label className="text-sm font-medium text-ink font-body block mb-1">Impuesto</label>
+                  <label className="text-sm font-medium text-island-dark font-body block mb-1">Impuesto</label>
                   <select
                     className="input-base"
                     value={v.taxType}
@@ -642,7 +642,7 @@ export function RecipeEditorPage() {
                   </select>
                 </div>
 	                <div className="flex items-end pb-3">
-	                  <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+	                  <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                     <input
                       type="checkbox"
                       checked={!v.taxIncluded}
@@ -682,8 +682,8 @@ export function RecipeEditorPage() {
             </div>
 
             {/* Right: cost preview */}
-            <div className="bg-surface-tint rounded-xl p-4 text-sm font-body h-fit">
-              <p className="font-body font-semibold text-espresso mb-4">Vista previa de costos</p>
+            <div className="bg-sand rounded-xl p-4 text-sm font-body h-fit">
+              <p className="font-body font-semibold text-island-dark mb-4">Vista previa de costos</p>
               {preview && params ? (
                 <div className="space-y-4">
                   <CostPreviewSection
@@ -728,7 +728,7 @@ export function RecipeEditorPage() {
                         />
                       </>
                     )}
-                    <div className="border-t border-rule pt-2 mt-2">
+                    <div className="border-t border-island-blue/20 pt-2 mt-2">
                       <Row
                         label={isFoodCostMethod ? 'Costo base' : 'Costo total'}
                         value={formatCOPDecimal(preview.totalCost)}
@@ -850,17 +850,17 @@ export function RecipeEditorPage() {
                   )}
                 </div>
               ) : (
-                <p className="text-stone text-center py-4">Agrega ingredientes y precio de venta para ver el análisis.</p>
+                <p className="text-island-dark/70 text-center py-4">Agrega ingredientes y precio de venta para ver el análisis.</p>
               )}
             </div>
 
             {/* Ingredients */}
             <div className="min-w-0 xl:col-span-2">
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-medium text-ink font-body">Ingredientes</span>
+                <span className="text-sm font-medium text-island-dark font-body">Ingredientes</span>
                 <Button variant="ghost" size="sm" onClick={() => addIngredient(activeTab)}>+ Agregar</Button>
               </div>
-              <div className="hidden grid-cols-[7rem_10rem_minmax(16rem,1fr)_5rem_6rem_7rem_6rem_5rem_6rem] gap-2 px-1 text-xs font-body font-medium uppercase tracking-wide text-stone xl:grid">
+              <div className="hidden grid-cols-[7rem_10rem_minmax(16rem,1fr)_5rem_6rem_7rem_6rem_5rem_6rem] gap-2 px-1 text-xs font-body font-medium uppercase tracking-wide text-island-dark/70 xl:grid">
                 <span>Tipo</span>
                 <span>Categoría</span>
                 <span>Ingrediente</span>
@@ -940,7 +940,7 @@ export function RecipeEditorPage() {
                         {UNIT_OPTIONS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
                       </select>
                       <label className={`flex h-9 items-center gap-2 rounded-lg px-2 text-xs font-body ${
-                        ing.ingredientType === 'recipe' ? 'text-ink' : 'text-stone opacity-60'
+                        ing.ingredientType === 'recipe' ? 'text-island-dark' : 'text-island-dark/70 opacity-60'
                       }`}>
                         <input
                           type="checkbox"
@@ -951,7 +951,7 @@ export function RecipeEditorPage() {
                         />
                         Sumar
                       </label>
-                      <span className="text-xs text-stone text-right">
+                      <span className="text-xs text-island-dark/70 text-right">
                         {formatCOPDecimal(
                           ing.ingredientType === 'raw'
                             ? ingredientCost(ing)
@@ -962,7 +962,7 @@ export function RecipeEditorPage() {
                         type="button"
                         onClick={() => openIngredientDrawer(ing)}
                         disabled={!ing.ingredientRefId}
-                        className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2 text-xs font-body text-stone hover:bg-surface-tint hover:text-terracotta disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-stone"
+                        className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2 text-xs font-body text-island-dark/70 hover:bg-sand hover:text-island-dark disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-island-dark/70"
                         aria-label={ing.ingredientType === 'raw' ? 'Editar insumo' : 'Editar sub-receta'}
                         title={ing.ingredientType === 'raw' ? 'Editar insumo' : 'Editar sub-receta'}
                       >
@@ -981,14 +981,14 @@ export function RecipeEditorPage() {
                       </button>
                     </div>
                     {ingredientUnitHint(ing) && (
-                      <p className="text-xs font-body text-stone xl:ml-[calc(17rem+1rem)]">
+                      <p className="text-xs font-body text-island-dark/70 xl:ml-[calc(17rem+1rem)]">
                         {ingredientUnitHint(ing)}
                       </p>
                     )}
                   </div>
                 ))}
                 {v.ingredients.length === 0 && (
-                  <p className="text-sm text-stone text-center py-4">Sin ingredientes. Agrega el primero.</p>
+                  <p className="text-sm text-island-dark/70 text-center py-4">Sin ingredientes. Agrega el primero.</p>
                 )}
               </div>
             </div>
@@ -1005,7 +1005,7 @@ export function RecipeEditorPage() {
             placeholder="Ej: Postres, Sanduches, Bebidas frías"
             autoFocus
           />
-          <p className="text-xs font-body text-stone">
+          <p className="text-xs font-body text-island-dark/70">
             Estas categorías clasifican recetas/productos. Son independientes de las categorías de insumos.
           </p>
           <div className="flex justify-end gap-3 pt-2">
@@ -1018,16 +1018,16 @@ export function RecipeEditorPage() {
       {drawerTarget && (
         <div className="fixed inset-0 z-50">
           <div
-            className="absolute inset-0 bg-espresso bg-opacity-50 backdrop-blur-sm"
+            className="absolute inset-0 bg-island-dark bg-opacity-50 backdrop-blur-sm"
             onClick={() => setDrawerTarget(null)}
           />
           <aside className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-rule bg-white px-6 py-4">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-island-blue/20 bg-white px-6 py-4">
               <div>
-                <p className="text-xs font-body uppercase tracking-wide text-stone">
+                <p className="text-xs font-body uppercase tracking-wide text-island-dark/70">
                   {drawerTarget.type === 'raw' ? 'Insumo' : 'Sub-receta'}
                 </p>
-                <h2 className="font-body text-xl font-semibold text-espresso">
+                <h2 className="font-body text-xl font-semibold text-island-dark">
                   {drawerTarget.type === 'raw'
                     ? rawForm?.nombre || 'Editar insumo'
                     : recipeForm?.name || 'Editar sub-receta'}
@@ -1036,7 +1036,7 @@ export function RecipeEditorPage() {
               <button
                 type="button"
                 onClick={() => setDrawerTarget(null)}
-                className="rounded-lg p-1 text-stone transition-colors hover:bg-surface-tint hover:text-espresso"
+                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-sand hover:text-island-dark"
                 aria-label="Cerrar"
               >
                 <X size={20} />
@@ -1078,12 +1078,12 @@ export function RecipeEditorPage() {
 	                    hint="Este valor alimenta la vista previa de costos de la receta."
 	                  />
                     {rawForm.unidad === 'PAQ' && (
-                      <p className="text-xs font-body text-stone">
+                      <p className="text-xs font-body text-island-dark/70">
                         Para paquetes, escribe cuántas unidades trae el paquete. En la receta usa UND para costear unidades sueltas.
                       </p>
                     )}
-                  <div className="rounded-xl bg-surface-tint p-4">
-                    <p className="mb-3 text-sm font-medium text-ink font-body">Niveles de inventario</p>
+                  <div className="rounded-xl bg-sand p-4">
+                    <p className="mb-3 text-sm font-medium text-island-dark font-body">Niveles de inventario</p>
                     <div className="space-y-3">
                       <Input
                         label="Bueno"
@@ -1105,7 +1105,7 @@ export function RecipeEditorPage() {
                       />
                     </div>
                   </div>
-                  <div className="rounded-xl border border-rule bg-white p-4 text-sm font-body">
+                  <div className="rounded-xl border border-island-blue/20 bg-white p-4 text-sm font-body">
                     <Row
                       label="Costo por unidad de presentación"
                       value={formatCOPDecimal(calcConvertedCost({
@@ -1143,8 +1143,8 @@ export function RecipeEditorPage() {
                     onChange={(e) => setRecipeForm({ ...recipeForm, preparationTimeMinutes: +e.target.value })}
                     hint="Tiempo base de esta sub-receta. Las recetas que la usen decidirán si lo suman."
                   />
-                  <div className="space-y-3 rounded-xl bg-surface-tint p-4">
-                    <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+                  <div className="space-y-3 rounded-xl bg-sand p-4">
+                    <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                       <input
                         type="checkbox"
                         checked={recipeForm.isSubRecipe}
@@ -1157,7 +1157,7 @@ export function RecipeEditorPage() {
                       />
                       Disponible como sub-receta
                     </label>
-                    <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                       <input
                         type="checkbox"
                         checked={recipeForm.isProduct}
@@ -1167,7 +1167,7 @@ export function RecipeEditorPage() {
                       />
                       Disponible para pedidos
                     </label>
-                    <label className="flex items-center gap-2 text-sm font-body text-ink cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                       <input
                         type="checkbox"
                         checked={recipeForm.active}
@@ -1178,9 +1178,9 @@ export function RecipeEditorPage() {
                     </label>
                   </div>
                   <div className="space-y-3">
-                    <p className="text-sm font-medium text-ink font-body">Variantes</p>
+                    <p className="text-sm font-medium text-island-dark font-body">Variantes</p>
                     {recipeForm.variants.map((variant, idx) => (
-                      <div key={`${variant.size}-${idx}`} className="rounded-xl border border-rule p-4">
+                      <div key={`${variant.size}-${idx}`} className="rounded-xl border border-island-blue/20 p-4">
                         <div className="grid grid-cols-2 gap-3">
                           <Select
                             label="Tamaño"
@@ -1223,7 +1223,7 @@ export function RecipeEditorPage() {
               )}
             </div>
 
-            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-rule bg-white px-6 py-4">
+            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-island-blue/20 bg-white px-6 py-4">
               <Button variant="secondary" type="button" onClick={() => setDrawerTarget(null)}>
                 Cancelar
               </Button>
@@ -1249,8 +1249,8 @@ function CostPreviewSection({
 }) {
   return (
     <section className="space-y-2">
-      <div className="flex items-center gap-1.5 border-b border-rule pb-1.5">
-        <p className="text-xs font-body font-semibold uppercase tracking-wide text-espresso">
+      <div className="flex items-center gap-1.5 border-b border-island-blue/20 pb-1.5">
+        <p className="text-xs font-body font-semibold uppercase tracking-wide text-island-dark">
           {title}
         </p>
         <HelpTooltip text={tooltip} />
@@ -1303,14 +1303,14 @@ function SearchableSelect({
         aria-label={placeholder}
       />
       {open && (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.25rem)] z-30 max-h-56 overflow-y-auto rounded-lg border border-rule bg-white py-1 shadow-lg">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.25rem)] z-30 max-h-56 overflow-y-auto rounded-lg border border-island-blue/20 bg-white py-1 shadow-lg">
           {filteredOptions.length > 0 ? (
             filteredOptions.slice(0, 60).map((option) => (
               <button
                 key={option.value}
                 type="button"
-                className={`block w-full px-3 py-2 text-left text-sm font-body hover:bg-surface-tint ${
-                  option.value === value ? 'text-terracotta font-medium' : 'text-ink'
+                className={`block w-full px-3 py-2 text-left text-sm font-body hover:bg-sand ${
+                  option.value === value ? 'text-island-blue font-medium' : 'text-island-dark'
                 }`}
                 onMouseDown={(e) => {
                   e.preventDefault();
@@ -1322,10 +1322,10 @@ function SearchableSelect({
               </button>
             ))
           ) : (
-            <p className="px-3 py-2 text-sm font-body text-stone">{emptyLabel}</p>
+            <p className="px-3 py-2 text-sm font-body text-island-dark/70">{emptyLabel}</p>
           )}
           {filteredOptions.length > 60 && (
-            <p className="border-t border-rule px-3 py-2 text-xs font-body text-stone">
+            <p className="border-t border-island-blue/20 px-3 py-2 text-xs font-body text-island-dark/70">
               Hay mas resultados. Escribe para afinar la busqueda.
             </p>
           )}
@@ -1347,12 +1347,12 @@ function Row({
   bold?: boolean;
 }) {
   return (
-    <div className={`flex items-start justify-between gap-3 ${bold ? 'font-semibold text-espresso' : 'text-stone'}`}>
+    <div className={`flex items-start justify-between gap-3 ${bold ? 'font-semibold text-island-dark' : 'text-island-dark/70'}`}>
       <span className="flex min-w-0 items-center gap-1.5">
         <span>{label}</span>
         {tooltip && <HelpTooltip text={tooltip} />}
       </span>
-      <span className={`shrink-0 text-right ${bold ? '' : 'text-ink'}`}>{value}</span>
+      <span className={`shrink-0 text-right ${bold ? '' : 'text-island-dark'}`}>{value}</span>
     </div>
   );
 }
@@ -1362,10 +1362,10 @@ function HelpTooltip({ text }: { text: string }) {
     <span className="group relative inline-flex h-4 w-4 shrink-0 items-center justify-center">
       <Info
         size={14}
-        className="text-stone transition-colors group-hover:text-terracotta"
+        className="text-island-dark/70 transition-colors group-hover:text-island-dark"
         aria-hidden="true"
       />
-      <span className="pointer-events-none absolute left-1/2 top-5 z-20 hidden w-64 -translate-x-1/2 rounded-lg border border-rule bg-white px-3 py-2 text-left text-xs font-normal leading-snug text-ink shadow-lg group-hover:block">
+      <span className="pointer-events-none absolute left-1/2 top-5 z-20 hidden w-64 -translate-x-1/2 rounded-lg border border-island-blue/20 bg-white px-3 py-2 text-left text-xs font-normal leading-snug text-island-dark shadow-lg group-hover:block">
         {text}
       </span>
     </span>

@@ -122,14 +122,14 @@ export function MenuPage() {
 
 const menuStyles = `
 .public-menu-page {
-  --menu-ink: #1F2A1B;
-  --menu-muted: #6B7768;
-  --menu-paper: #FFF9EC;
-  --menu-rule: #E7DEC6;
-  --menu-espresso: #43593B;
-  --menu-terracotta: #E87A5D;
-  background: var(--menu-paper);
-  color: var(--menu-ink);
+  --menu-text: #1A2480;
+  --menu-muted: rgba(26,36,128,.7);
+  --menu-bg: #FFFFFF;
+  --menu-rule: rgba(26,36,128,.2);
+  --menu-dark: #1A2480;
+  --menu-accent: #2B3FBE;
+  background: var(--menu-bg);
+  color: var(--menu-text);
 }
 .menu-hero {
   display: grid;
@@ -139,7 +139,7 @@ const menuStyles = `
   border-bottom: 1px solid var(--menu-rule);
 }
 .menu-eyebrow {
-  color: var(--menu-terracotta);
+  color: var(--menu-accent);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -150,7 +150,7 @@ const menuStyles = `
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: clamp(42px, 7vw, 92px);
   line-height: .92;
-  color: var(--menu-espresso);
+  color: var(--menu-dark);
   margin: 0 0 18px;
 }
 .menu-hero p:last-child {
@@ -172,14 +172,14 @@ const menuStyles = `
   padding-top: 26px;
 }
 .menu-category header span {
-  color: var(--menu-terracotta);
+  color: var(--menu-accent);
   font: 12px ui-monospace, monospace;
 }
 .menu-category h2 {
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: clamp(30px, 4vw, 54px);
   line-height: 1;
-  color: var(--menu-espresso);
+  color: var(--menu-dark);
   margin: 8px 0 0;
 }
 .menu-product-grid {
@@ -213,7 +213,7 @@ const menuStyles = `
   object-fit: cover;
 }
 .menu-product h3 {
-  color: var(--menu-ink);
+  color: var(--menu-text);
   font-size: 18px;
   font-weight: 900;
   margin: 0 0 5px;
@@ -225,7 +225,7 @@ const menuStyles = `
   margin: 0;
 }
 .menu-product strong {
-  color: var(--menu-espresso);
+  color: var(--menu-dark);
   white-space: nowrap;
 }
 .variant-list {
@@ -237,7 +237,7 @@ const menuStyles = `
 .variant-list span {
   border: 1px solid var(--menu-rule);
   border-radius: 999px;
-  color: var(--menu-espresso);
+  color: var(--menu-dark);
   font-size: 11px;
   font-weight: 800;
   padding: 5px 8px;
@@ -254,12 +254,12 @@ const menuStyles = `
 }
 .menu-empty h2 {
   font-family: "DM Sans", system-ui, sans-serif;
-  color: var(--menu-espresso);
+  color: var(--menu-dark);
   font-size: 34px;
   margin: 0;
 }
 .menu-empty a {
-  color: var(--menu-terracotta);
+  color: var(--menu-accent);
   font-weight: 900;
 }
 @media (max-width: 1080px) {

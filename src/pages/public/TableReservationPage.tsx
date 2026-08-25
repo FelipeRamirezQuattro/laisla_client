@@ -99,13 +99,13 @@ export function TableReservationPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
-        <h1 className="font-body text-3xl font-bold text-espresso">Reservar una mesa</h1>
-        <p className="font-body text-stone mt-2">Completa los siguientes pasos para reservar tu espacio en La Isla Café.</p>
+        <h1 className="font-body text-3xl font-bold text-island-dark">Reservar una mesa</h1>
+        <p className="font-body text-island-dark/70 mt-2">Completa los siguientes pasos para reservar tu espacio en La Isla Café.</p>
       </div>
 
       <StepIndicator steps={steps} currentStep={step} />
 
-      <div className="bg-white rounded-lg shadow-sm border border-rule p-8">
+      <div className="bg-white rounded-lg shadow-sm border border-island-blue/20 p-8">
         {/* Step 1 */}
         {step === 1 && (
           <Step1 form={form} update={update} onNext={() => setStep(2)} />
@@ -145,7 +145,7 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
 
   return (
     <div className="space-y-5">
-      <h2 className="font-body text-xl font-semibold text-espresso">Selecciona fecha y hora</h2>
+      <h2 className="font-body text-xl font-semibold text-island-dark">Selecciona fecha y hora</h2>
       <Input
         label="Fecha"
         type="date"
@@ -154,7 +154,7 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
         onChange={(e) => update({ date: e.target.value })}
       />
       <div>
-        <label className="text-sm font-medium text-ink font-body block mb-2">Horario</label>
+        <label className="text-sm font-medium text-island-dark font-body block mb-2">Horario</label>
         <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
           {timeSlots.map((t) => (
             <button
@@ -162,8 +162,8 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
               onClick={() => update({ timeSlot: t })}
               className={`py-2 rounded-lg text-sm font-body font-medium transition-all ${
                 form.timeSlot === t
-                  ? 'bg-terracotta text-cream'
-                  : 'bg-surface-tint text-espresso hover:bg-surface-tint hover:text-espresso'
+                  ? 'bg-island-blue text-white'
+                  : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
               }`}
             >
               {t}
@@ -172,7 +172,7 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium text-ink font-body block mb-2">Número de personas</label>
+        <label className="text-sm font-medium text-island-dark font-body block mb-2">Número de personas</label>
         <div className="flex gap-2 flex-wrap">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
             <button
@@ -180,8 +180,8 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
               onClick={() => update({ partySize: n })}
               className={`w-12 h-12 rounded-xl text-sm font-body font-medium transition-all ${
                 form.partySize === n
-                  ? 'bg-espresso text-cream'
-                  : 'bg-surface-tint text-espresso hover:bg-surface-tint hover:text-espresso'
+                  ? 'bg-island-dark text-white'
+                  : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
               }`}
             >
               {n}
@@ -208,7 +208,7 @@ function Step2({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
 
   return (
     <div className="space-y-5">
-      <h2 className="font-body text-xl font-semibold text-espresso">¿Qué zona prefieres?</h2>
+      <h2 className="font-body text-xl font-semibold text-island-dark">¿Qué zona prefieres?</h2>
       <div className="space-y-3">
         {zoneInfo.map((z) => {
           const ZoneIcon = z.Icon;
@@ -218,16 +218,16 @@ function Step2({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
             onClick={() => update({ zone: z.value })}
             className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all ${
               form.zone === z.value
-                ? 'border-terracotta bg-terracotta bg-opacity-5'
-                : 'border-rule hover:border-rule-strong'
+                ? 'border-island-blue bg-island-blue bg-opacity-5'
+                : 'border-island-blue/20 hover:border-island-blue/40'
             }`}
           >
-            <span className="mt-0.5 text-terracotta">
+            <span className="mt-0.5 text-island-blue">
               <ZoneIcon size={28} />
             </span>
             <div>
-              <p className="font-body font-semibold text-espresso">{z.label}</p>
-              <p className="font-body text-stone text-sm">{z.description}</p>
+              <p className="font-body font-semibold text-island-dark">{z.label}</p>
+              <p className="font-body text-island-dark/70 text-sm">{z.description}</p>
             </div>
           </button>
         )})}
@@ -260,7 +260,7 @@ function Step3({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
 
   return (
     <form onSubmit={handleSubmit(onValid)} className="space-y-5">
-      <h2 className="font-body text-xl font-semibold text-espresso">Tus datos de contacto</h2>
+      <h2 className="font-body text-xl font-semibold text-island-dark">Tus datos de contacto</h2>
       <Input label="Nombre completo" error={errors.clientName?.message} {...register('clientName')} />
       <Input label="Correo electrónico" type="email" error={errors.email?.message} {...register('email')} />
       <Input label="Teléfono" type="tel" error={errors.phone?.message} {...register('phone')} />
@@ -275,12 +275,12 @@ function Step3({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
 function Step4({ form, update, onNext, onBack }: { form: Partial<FormState>; update: (f: Partial<FormState>) => void; onNext: () => void; onBack: () => void }) {
   return (
     <div className="space-y-5">
-      <h2 className="font-body text-xl font-semibold text-espresso">¿Es una ocasión especial?</h2>
+      <h2 className="font-body text-xl font-semibold text-island-dark">¿Es una ocasión especial?</h2>
       <div className="flex gap-3">
         <button
           onClick={() => update({ hasOccasion: false })}
           className={`flex-1 py-3 rounded-xl font-body font-medium border-2 transition-all ${
-            form.hasOccasion === false ? 'border-espresso bg-espresso text-cream' : 'border-rule hover:border-rule'
+            form.hasOccasion === false ? 'border-island-dark bg-island-dark text-white' : 'border-island-blue/20 hover:border-island-blue/20'
           }`}
         >
           No, es una visita normal
@@ -288,7 +288,7 @@ function Step4({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
         <button
           onClick={() => update({ hasOccasion: true })}
           className={`flex-1 py-3 rounded-xl font-body font-medium border-2 transition-all ${
-            form.hasOccasion === true ? 'border-terracotta bg-terracotta text-cream' : 'border-rule hover:border-terracotta'
+            form.hasOccasion === true ? 'border-island-blue bg-island-blue text-white' : 'border-island-blue/20 hover:border-island-blue'
           }`}
         >
           <span className="inline-flex items-center justify-center gap-2">
@@ -299,7 +299,7 @@ function Step4({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
       </div>
 
       {form.hasOccasion && (
-        <div className="space-y-4 border-t border-rule pt-4">
+        <div className="space-y-4 border-t border-island-blue/20 pt-4">
           <Select
             label="Tipo de ocasión"
             options={occasionOptions}
@@ -308,7 +308,7 @@ function Step4({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
             onChange={(e) => update({ occasionType: e.target.value })}
           />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">Notas adicionales (opcional)</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas adicionales (opcional)</label>
             <textarea
               className="input-base h-20 resize-none"
               placeholder="¿Algo que debamos saber para hacer tu visita especial?"
@@ -336,8 +336,8 @@ const occasionLabels: Record<string, string> = {
 function Step5({ form, onBack, onSubmit, loading, error }: { form: Partial<FormState>; onBack: () => void; onSubmit: () => void; loading: boolean; error: string }) {
   return (
     <div className="space-y-6">
-      <h2 className="font-body text-xl font-semibold text-espresso">Confirma tu reservación</h2>
-      <div className="bg-surface-tint rounded-xl p-5 space-y-3 text-sm font-body">
+      <h2 className="font-body text-xl font-semibold text-island-dark">Confirma tu reservación</h2>
+      <div className="bg-sand rounded-xl p-5 space-y-3 text-sm font-body">
         <Row label="Fecha" value={form.date ? formatDate(form.date) : ''} />
         <Row label="Horario" value={form.timeSlot || ''} />
         <Row label="Personas" value={`${form.partySize} persona(s)`} />
@@ -350,7 +350,7 @@ function Step5({ form, onBack, onSubmit, loading, error }: { form: Partial<FormS
         )}
       </div>
       {error && <p className="text-error-ink text-sm font-body">{error}</p>}
-      <p className="text-xs text-stone font-body">
+      <p className="text-xs text-island-dark/70 font-body">
         Al confirmar, aceptas que tu reservación está sujeta a disponibilidad. Te contactaremos por email para confirmar.
       </p>
       <div className="flex justify-between pt-2">
@@ -364,8 +364,8 @@ function Step5({ form, onBack, onSubmit, loading, error }: { form: Partial<FormS
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
-      <span className="text-stone">{label}</span>
-      <span className="font-medium text-espresso">{value}</span>
+      <span className="text-island-dark/70">{label}</span>
+      <span className="font-medium text-island-dark">{value}</span>
     </div>
   );
 }

@@ -104,14 +104,14 @@ export function DinnerWithStrangersPage() {
   if (success) {
     return (
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
-        <div className="w-24 h-24 rounded-full bg-espresso flex items-center justify-center mx-auto mb-6 text-4xl">
-          <Sparkles size={38} className="text-cream" />
+        <div className="w-24 h-24 rounded-full bg-island-dark flex items-center justify-center mx-auto mb-6 text-4xl">
+          <Sparkles size={38} className="text-white" />
         </div>
-        <h1 className="font-body text-3xl font-bold text-espresso mb-4">¡Ya eres parte de la experiencia!</h1>
-        <p className="font-body text-stone text-lg leading-relaxed mb-6">
+        <h1 className="font-body text-3xl font-bold text-island-dark mb-4">¡Ya eres parte de la experiencia!</h1>
+        <p className="font-body text-island-dark/70 text-lg leading-relaxed mb-6">
           Tu perfil de compatibilidad ha sido registrado. Pronto recibirás un correo con los detalles de tu grupo y mesa asignada.
         </p>
-        <p className="font-body text-stone text-sm mb-8">
+        <p className="font-body text-island-dark/70 text-sm mb-8">
           <strong>{form.name}</strong>, nos vemos en la cena. Algo nos dice que vas a amar a las personas de tu mesa.
         </p>
         <Button size="lg" onClick={() => window.location.href = '/'}>Volver al inicio</Button>
@@ -122,13 +122,13 @@ export function DinnerWithStrangersPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="text-center mb-8">
-        <p className="text-terracotta font-body text-sm uppercase tracking-widest font-medium mb-2">Experiencia estrella</p>
-        <h1 className="font-body text-3xl font-bold text-espresso">Cena con Desconocidos</h1>
+        <p className="text-island-blue font-body text-sm uppercase tracking-widest font-medium mb-2">Experiencia estrella</p>
+        <h1 className="font-body text-3xl font-bold text-island-dark">Cena con Desconocidos</h1>
       </div>
 
       <StepIndicator steps={steps} currentStep={step} />
 
-      <div className="bg-white rounded-lg shadow-sm border border-rule p-8">
+      <div className="bg-white rounded-lg shadow-sm border border-island-blue/20 p-8">
         {step === 1 && <WelcomeStep events={events} onNext={() => setStep(2)} />}
         {step === 2 && <PersonalInfoStep form={form} update={update} events={events} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
         {step === 3 && (
@@ -159,9 +159,9 @@ function WelcomeStep({ events, onNext }: { events: Event[]; onNext: () => void }
   return (
     <div className="space-y-6">
       <div className="text-center py-4">
-        <Sparkles size={48} className="mx-auto mb-4 text-terracotta" />
-        <h2 className="font-body text-2xl font-bold text-espresso mb-4">Una cena que cambia perspectivas</h2>
-        <p className="font-body text-stone text-lg leading-relaxed">
+        <Sparkles size={48} className="mx-auto mb-4 text-island-blue" />
+        <h2 className="font-body text-2xl font-bold text-island-dark mb-4">Una cena que cambia perspectivas</h2>
+        <p className="font-body text-island-dark/70 text-lg leading-relaxed">
           Llegarás a cenar con <strong>5 personas que no conoces</strong> pero con quienes tienes más en común de lo que crees.
         </p>
       </div>
@@ -171,13 +171,13 @@ function WelcomeStep({ events, onNext }: { events: Event[]; onNext: () => void }
         <FeatureBox Icon={MessageCircle} title="Conversaciones" desc="Preguntas detonadores incluidas en la mesa" />
       </div>
       {events.length > 0 && (
-        <div className="bg-surface-tint rounded-xl p-4">
-          <p className="text-sm font-body font-semibold text-espresso mb-2">Próximas fechas disponibles:</p>
+        <div className="bg-sand rounded-xl p-4">
+          <p className="text-sm font-body font-semibold text-island-dark mb-2">Próximas fechas disponibles:</p>
           {events.map((e) => (
             <div key={e._id} className="flex justify-between text-sm font-body">
               <span>{formatDate(e.date)}</span>
-              <span className="text-stone">{e.maxCapacity - e.currentRegistrations} cupos</span>
-              <span className="font-medium text-espresso">{formatCOP(e.pricePerPerson)}</span>
+              <span className="text-island-dark/70">{e.maxCapacity - e.currentRegistrations} cupos</span>
+              <span className="font-medium text-island-dark">{formatCOP(e.pricePerPerson)}</span>
             </div>
           ))}
         </div>
@@ -191,10 +191,10 @@ function WelcomeStep({ events, onNext }: { events: Event[]; onNext: () => void }
 
 function FeatureBox({ Icon, title, desc }: { Icon: LucideIcon; title: string; desc: string }) {
   return (
-    <div className="bg-surface-tint rounded-xl p-4">
-      <Icon size={28} className="mx-auto mb-2 text-terracotta" />
-      <p className="font-body font-semibold text-espresso text-sm">{title}</p>
-      <p className="font-body text-stone text-xs mt-1">{desc}</p>
+    <div className="bg-sand rounded-xl p-4">
+      <Icon size={28} className="mx-auto mb-2 text-island-blue" />
+      <p className="font-body font-semibold text-island-dark text-sm">{title}</p>
+      <p className="font-body text-island-dark/70 text-xs mt-1">{desc}</p>
     </div>
   );
 }
@@ -227,20 +227,20 @@ function PersonalInfoStep({ form, update, events, onNext, onBack }: {
 
   return (
     <div className="space-y-5">
-      <h2 className="font-body text-xl font-semibold text-espresso">Cuéntanos sobre ti</h2>
+      <h2 className="font-body text-xl font-semibold text-island-dark">Cuéntanos sobre ti</h2>
       <Input label="Nombre completo" value={form.name || ''} onChange={(e) => update({ name: e.target.value })} />
       <Input label="Email" type="email" value={form.email || ''} onChange={(e) => update({ email: e.target.value })} />
       <Input label="Teléfono" value={form.phone || ''} onChange={(e) => update({ phone: e.target.value })} />
 
       <div>
-        <label className="text-sm font-medium text-ink font-body block mb-2">Rango de edad</label>
+        <label className="text-sm font-medium text-island-dark font-body block mb-2">Rango de edad</label>
         <div className="flex gap-2 flex-wrap">
           {ageRanges.map((r) => (
             <button
               key={r.value}
               onClick={() => update({ ageRange: r.value })}
               className={`px-4 py-2 rounded-xl font-body font-medium text-sm transition-all ${
-                form.ageRange === r.value ? 'bg-espresso text-cream' : 'bg-surface-tint text-espresso hover:bg-surface-tint hover:text-espresso'
+                form.ageRange === r.value ? 'bg-island-dark text-white' : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
               }`}
             >
               {r.label}
@@ -250,9 +250,9 @@ function PersonalInfoStep({ form, update, events, onNext, onBack }: {
       </div>
 
       <div>
-        <label className="text-sm font-medium text-ink font-body block mb-2">Selecciona la fecha de la cena</label>
+        <label className="text-sm font-medium text-island-dark font-body block mb-2">Selecciona la fecha de la cena</label>
         {events.length === 0 ? (
-          <p className="text-stone font-body text-sm">No hay fechas disponibles en este momento.</p>
+          <p className="text-island-dark/70 font-body text-sm">No hay fechas disponibles en este momento.</p>
         ) : (
           <div className="space-y-2">
             {events.map((e) => (
@@ -260,13 +260,13 @@ function PersonalInfoStep({ form, update, events, onNext, onBack }: {
                 key={e._id}
                 onClick={() => update({ eventId: e._id })}
                 className={`w-full flex justify-between items-center p-3 rounded-xl border-2 text-left transition-all ${
-                  form.eventId === e._id ? 'border-terracotta bg-terracotta bg-opacity-5' : 'border-rule hover:border-rule'
+                  form.eventId === e._id ? 'border-island-blue bg-island-blue bg-opacity-5' : 'border-island-blue/20 hover:border-island-blue/20'
                 }`}
               >
-                <span className="font-body font-medium text-espresso">{formatDate(e.date)}</span>
+                <span className="font-body font-medium text-island-dark">{formatDate(e.date)}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-stone font-body">{e.maxCapacity - e.currentRegistrations} cupos</span>
-                  <span className="font-bold font-body text-espresso">{formatCOP(e.pricePerPerson)}</span>
+                  <span className="text-sm text-island-dark/70 font-body">{e.maxCapacity - e.currentRegistrations} cupos</span>
+                  <span className="font-bold font-body text-island-dark">{formatCOP(e.pricePerPerson)}</span>
                 </div>
               </button>
             ))}
@@ -304,8 +304,8 @@ function QuestionnaireStep({ form, update, hobbies, toggleHobby, onNext, onBack 
 
   return (
     <div className="space-y-7">
-      <h2 className="font-body text-xl font-semibold text-espresso">Cuestionario de compatibilidad</h2>
-      <p className="text-sm text-stone font-body -mt-3">Tus respuestas nos ayudan a encontrar a las personas más afines a ti.</p>
+      <h2 className="font-body text-xl font-semibold text-island-dark">Cuestionario de compatibilidad</h2>
+      <p className="text-sm text-island-dark/70 font-body -mt-3">Tus respuestas nos ayudan a encontrar a las personas más afines a ti.</p>
 
       {/* Q1: Social Energy */}
       <Question label="¿Cómo describirías tu energía social?">
@@ -352,8 +352,8 @@ function QuestionnaireStep({ form, update, hobbies, toggleHobby, onNext, onBack 
               disabled={!hobbies.includes(h.value) && hobbies.length >= 3}
               className={`px-3 py-1.5 rounded-full text-sm font-body font-medium transition-all ${
                 hobbies.includes(h.value)
-                  ? 'bg-espresso text-cream'
-                  : 'bg-surface-tint text-espresso hover:bg-surface-tint hover:text-espresso disabled:opacity-40 disabled:cursor-not-allowed'
+                  ? 'bg-island-dark text-white'
+                  : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark disabled:opacity-40 disabled:cursor-not-allowed'
               }`}
             >
               {h.label}
@@ -411,7 +411,7 @@ function QuestionnaireStep({ form, update, hobbies, toggleHobby, onNext, onBack 
 function Question({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <p className="font-body font-medium text-espresso">{label}</p>
+      <p className="font-body font-medium text-island-dark">{label}</p>
       {children}
     </div>
   );
@@ -431,14 +431,14 @@ function ScaleSelector({ options, value, onChange, showLabelsOnly }: {
             key={i}
             onClick={() => onChange(i + 1)}
             className={`flex-1 py-3 rounded-xl font-body font-bold text-sm transition-all ${
-              value === i + 1 ? 'bg-terracotta text-cream' : 'bg-surface-tint text-espresso hover:bg-surface-tint hover:text-espresso'
+              value === i + 1 ? 'bg-island-blue text-white' : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
             }`}
           >
             {i + 1}
           </button>
         ))}
       </div>
-      <div className="flex justify-between text-xs text-stone font-body px-1">
+      <div className="flex justify-between text-xs text-island-dark/70 font-body px-1">
         <span>{options[0]}</span>
         <span>{options[options.length - 1]}</span>
       </div>
@@ -459,8 +459,8 @@ function OptionGrid({ options, value, onChange }: {
           onClick={() => onChange(opt.value)}
           className={`px-4 py-3 rounded-xl font-body text-sm text-left transition-all ${
             value === opt.value
-              ? 'bg-espresso text-cream'
-              : 'bg-surface-tint text-espresso hover:bg-surface-tint hover:text-espresso'
+              ? 'bg-island-dark text-white'
+              : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
           }`}
         >
           {opt.label}
@@ -511,9 +511,9 @@ function ConfirmationStep({ form, events, onBack, onSubmit, loading }: {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-body text-xl font-semibold text-espresso">Confirma tu registro</h2>
+      <h2 className="font-body text-xl font-semibold text-island-dark">Confirma tu registro</h2>
 
-      <div className="bg-surface-tint rounded-xl p-5 space-y-3 text-sm font-body">
+      <div className="bg-sand rounded-xl p-5 space-y-3 text-sm font-body">
         <SummaryRow label="Nombre" value={form.name || ''} />
         <SummaryRow label="Email" value={form.email || ''} />
         <SummaryRow label="Fecha de la cena" value={selectedEvent ? formatDate(selectedEvent.date) : ''} />
@@ -525,8 +525,8 @@ function ConfirmationStep({ form, events, onBack, onSubmit, loading }: {
         <SummaryRow label="Personalidad" value={personalityLabels[form.personalityTag || ''] || ''} />
       </div>
 
-      <div className="bg-surface-tint rounded-xl p-4 text-sm font-body text-stone">
-        <p className="font-medium text-espresso mb-1">¿Cómo funciona la asignación de grupos?</p>
+      <div className="bg-sand rounded-xl p-4 text-sm font-body text-island-dark/70">
+        <p className="font-medium text-island-dark mb-1">¿Cómo funciona la asignación de grupos?</p>
         <p>Usamos un algoritmo de compatibilidad que analiza tus respuestas y te asigna automáticamente al grupo con el que tienes más afinidad. Recibirás los detalles de tu mesa por correo antes de la cena.</p>
       </div>
 
@@ -546,8 +546,8 @@ function ConfirmationStep({ form, events, onBack, onSubmit, loading }: {
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
-      <span className="text-stone shrink-0">{label}</span>
-      <span className="font-medium text-espresso text-right">{value}</span>
+      <span className="text-island-dark/70 shrink-0">{label}</span>
+      <span className="font-medium text-island-dark text-right">{value}</span>
     </div>
   );
 }

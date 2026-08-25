@@ -164,8 +164,8 @@ export function DisposablePacksPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Packs Desechables</h1>
-          <p className="text-stone font-body text-sm">{filteredPacks.length} packs configurados</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Packs Desechables</h1>
+          <p className="text-island-dark/70 font-body text-sm">{filteredPacks.length} packs configurados</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo pack</Button>
       </div>
@@ -176,7 +176,7 @@ export function DisposablePacksPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredPacks.length} de {packs.length} packs
         </div>
       </div>
@@ -186,31 +186,31 @@ export function DisposablePacksPage() {
           {filteredPacks.map((p) => (
             <div key={p._id} className="card">
               <div className="flex items-start justify-between mb-3">
-                <h3 className="font-body text-base font-semibold text-espresso">{p.name}</h3>
+                <h3 className="font-body text-base font-semibold text-island-dark">{p.name}</h3>
                 <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>Editar</Button>
               </div>
               <ul className="space-y-1 mb-3">
                 {p.items.map((item, i) => (
-                  <li key={i} className="text-sm text-stone">
+                  <li key={i} className="text-sm text-island-dark/70">
                     <div className="flex justify-between gap-3">
                       <span>{rmName(item.rawMaterialId)}</span>
                       <span>{item.quantity} {formatMeasurementUnit(item.unit)}</span>
                     </div>
-                    <div className="mt-0.5 flex justify-between gap-3 text-xs text-stone">
+                    <div className="mt-0.5 flex justify-between gap-3 text-xs text-island-dark/70">
                       <span>{formatCOPDecimal(item.cost)} línea</span>
                       <span>{formatCOPDecimal(item.quantity > 0 ? item.cost / item.quantity : 0)} c/u usada</span>
                     </div>
                   </li>
                 ))}
               </ul>
-              <div className="border-t border-rule pt-2 flex justify-between items-center">
-                <span className="text-xs text-stone font-body">Costo total</span>
-                <span className="font-medium text-espresso">{formatCOPDecimal(p.totalCost)}</span>
+              <div className="border-t border-island-blue/20 pt-2 flex justify-between items-center">
+                <span className="text-xs text-island-dark/70 font-body">Costo total</span>
+                <span className="font-medium text-island-dark">{formatCOPDecimal(p.totalCost)}</span>
               </div>
             </div>
           ))}
           {filteredPacks.length === 0 && (
-            <div className="col-span-3 text-center py-12 text-stone font-body">
+            <div className="col-span-3 text-center py-12 text-island-dark/70 font-body">
               No hay packs configurados. Crea el primero.
             </div>
           )}
@@ -221,22 +221,22 @@ export function DisposablePacksPage() {
         <div className="fixed inset-0 z-50">
           <button
             type="button"
-            className="absolute inset-0 bg-espresso bg-opacity-50"
+            className="absolute inset-0 bg-island-dark bg-opacity-50"
             onClick={closeDrawer}
             aria-label="Cerrar editor de pack"
           />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-white shadow-2xl">
-            <div className="flex items-start justify-between border-b border-rule px-6 py-5">
+            <div className="flex items-start justify-between border-b border-island-blue/20 px-6 py-5">
               <div>
-                <p className="text-xs font-body uppercase tracking-wide text-stone">Packs desechables</p>
-                <h2 className="font-body text-xl font-semibold text-espresso">
+                <p className="text-xs font-body uppercase tracking-wide text-island-dark/70">Packs desechables</p>
+                <h2 className="font-body text-xl font-semibold text-island-dark">
                   {editing ? 'Editar pack' : 'Nuevo pack'}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={closeDrawer}
-                className="rounded-lg p-1 text-stone transition-colors hover:bg-surface-tint hover:text-espresso"
+                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-sand hover:text-island-dark"
                 aria-label="Cerrar"
               >
                 <X size={20} />
@@ -247,7 +247,7 @@ export function DisposablePacksPage() {
               <div className="space-y-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <label className="text-sm font-medium text-ink font-body block mb-1">Nombre del pack</label>
+                    <label className="text-sm font-medium text-island-dark font-body block mb-1">Nombre del pack</label>
                     <input
                       className="input-base"
                       value={packName}
@@ -266,20 +266,20 @@ export function DisposablePacksPage() {
                     onChange={(e) => updateCategoryFilter(e.target.value)}
                   />
 
-                  <div className="rounded-lg border border-rule bg-surface-tint px-4 py-3 flex items-center justify-between">
-                    <span className="text-sm font-body text-stone">Costo estimado</span>
-                    <span className="font-body text-lg font-semibold text-espresso">{formatCOPDecimal(packPreviewCost)}</span>
+                  <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-3 flex items-center justify-between">
+                    <span className="text-sm font-body text-island-dark/70">Costo estimado</span>
+                    <span className="font-body text-lg font-semibold text-island-dark">{formatCOPDecimal(packPreviewCost)}</span>
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-ink font-body">Ítems del pack</label>
+                    <label className="text-sm font-medium text-island-dark font-body">Ítems del pack</label>
                     <Button variant="ghost" size="sm" onClick={addItem}>+ Agregar ítem</Button>
                   </div>
                   <div className="space-y-3">
                     {items.map((item, idx) => (
-                      <div key={idx} className="rounded-lg border border-rule bg-white p-4">
+                      <div key={idx} className="rounded-lg border border-island-blue/20 bg-white p-4">
                         <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_6rem_7rem_2rem] sm:items-center">
                           <select
                             className="input-base text-sm"
@@ -314,18 +314,18 @@ export function DisposablePacksPage() {
                             <X size={16} />
                           </button>
                         </div>
-                        <div className="mt-3 grid gap-2 text-xs font-body text-stone sm:grid-cols-3">
+                        <div className="mt-3 grid gap-2 text-xs font-body text-island-dark/70 sm:grid-cols-3">
                           <span>Categoría: {rm(item.rawMaterialId) ? categoryName(categoryIdOf(rm(item.rawMaterialId)!)) : '-'}</span>
                           <span>{formatCOPDecimal(itemUnitCost(item))} c/u usada</span>
-                          <span className="font-medium text-espresso sm:text-right">{formatCOPDecimal(itemCost(item))} línea</span>
+                          <span className="font-medium text-island-dark sm:text-right">{formatCOPDecimal(itemCost(item))} línea</span>
                         </div>
                         {packageHint(item) && (
-                          <p className="mt-2 text-xs font-body text-stone">{packageHint(item)}</p>
+                          <p className="mt-2 text-xs font-body text-island-dark/70">{packageHint(item)}</p>
                         )}
                       </div>
                     ))}
                     {filteredInsumos.length === 0 && (
-                      <p className="rounded-lg border border-dashed border-rule p-4 text-center text-sm font-body text-stone">
+                      <p className="rounded-lg border border-dashed border-island-blue/20 p-4 text-center text-sm font-body text-island-dark/70">
                         No hay insumos activos en esta categoría.
                       </p>
                     )}
@@ -334,10 +334,10 @@ export function DisposablePacksPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3 border-t border-rule bg-white px-6 py-4">
+            <div className="flex items-center justify-between gap-3 border-t border-island-blue/20 bg-white px-6 py-4">
               <div>
-                <p className="text-xs font-body text-stone">Costo estimado del pack</p>
-                <p className="font-body text-lg font-semibold text-espresso">{formatCOPDecimal(packPreviewCost)}</p>
+                <p className="text-xs font-body text-island-dark/70">Costo estimado del pack</p>
+                <p className="font-body text-lg font-semibold text-island-dark">{formatCOPDecimal(packPreviewCost)}</p>
               </div>
               <div className="flex gap-3">
                 <Button variant="secondary" onClick={closeDrawer}>Cancelar</Button>

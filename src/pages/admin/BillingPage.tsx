@@ -130,14 +130,14 @@ export function BillingPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Facturación</h1>
-          <p className="text-stone font-body text-sm">Pedidos creados y factura básica por mesa.</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Facturación</h1>
+          <p className="text-island-dark/70 font-body text-sm">Pedidos creados y factura básica por mesa.</p>
         </div>
         <div className="card px-4 py-3 flex items-center gap-3">
-          <ReceiptText size={20} className="text-terracotta" />
+          <ReceiptText size={20} className="text-island-blue" />
           <div>
-            <p className="text-xs font-body text-stone">Pedidos visibles</p>
-            <p className="font-body font-semibold text-espresso">{orders.length}</p>
+            <p className="text-xs font-body text-island-dark/70">Pedidos visibles</p>
+            <p className="font-body font-semibold text-island-dark">{orders.length}</p>
           </div>
         </div>
       </div>
@@ -180,28 +180,28 @@ export function BillingPage() {
       <div className="card overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">Mesa</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Productos</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Base</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Impuesto</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Total</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Estado</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Fecha</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mesa</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Productos</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Base</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Impuesto</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Total</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Fecha</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody className="divide-y divide-island-blue/20">
               {orders.map((order) => (
-                <tr key={order._id} className="hover:bg-surface-tint transition-colors">
-                  <td className="px-4 py-3 font-medium text-espresso">{tableName(order.tableId)}</td>
-                  <td className="px-4 py-3 text-stone">{order.items.length} producto(s)</td>
-                  <td className="px-4 py-3 text-right text-stone">{formatCOPDecimal(invoiceNet(order))}</td>
-                  <td className="px-4 py-3 text-right text-stone">{formatCOPDecimal(invoiceTax(order))}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-ink">{formatCOP(order.total)}</td>
+                <tr key={order._id} className="hover:bg-sand transition-colors">
+                  <td className="px-4 py-3 font-medium text-island-dark">{tableName(order.tableId)}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{order.items.length} producto(s)</td>
+                  <td className="px-4 py-3 text-right text-island-dark/70">{formatCOPDecimal(invoiceNet(order))}</td>
+                  <td className="px-4 py-3 text-right text-island-dark/70">{formatCOPDecimal(invoiceTax(order))}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-island-dark">{formatCOP(order.total)}</td>
                   <td className="px-4 py-3 text-center"><OrderStatusBadge status={order.status} /></td>
-                  <td className="px-4 py-3 text-stone">{formatShortDate(order.createdAt)}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{formatShortDate(order.createdAt)}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="sm" onClick={() => setSelectedOrder(order)}>Factura</Button>
@@ -222,7 +222,7 @@ export function BillingPage() {
               ))}
               {orders.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="text-center py-10 text-stone">No hay pedidos para facturar.</td>
+                  <td colSpan={8} className="text-center py-10 text-island-dark/70">No hay pedidos para facturar.</td>
                 </tr>
               )}
             </tbody>
@@ -233,7 +233,7 @@ export function BillingPage() {
       {selectedOrder && (
         <Modal isOpen={!!selectedOrder} onClose={() => setSelectedOrder(null)} title="Factura básica" size="lg">
           <div className="space-y-4">
-            <div className="rounded-xl bg-espresso text-cream px-5 py-4 flex items-start justify-between gap-4">
+            <div className="rounded-xl bg-island-dark text-white px-5 py-4 flex items-start justify-between gap-4">
               <div>
                 <p className="font-body text-xl font-semibold">La Isla Café Picnic</p>
                 <p className="text-sm opacity-75 font-body">Factura de pedido</p>
@@ -244,38 +244,38 @@ export function BillingPage() {
               </div>
             </div>
 
-            <div className="border border-rule rounded-xl overflow-hidden">
+            <div className="border border-island-blue/20 rounded-xl overflow-hidden">
               <table className="w-full text-sm font-body">
-                <thead className="bg-surface-tint border-b border-rule">
+                <thead className="bg-sand border-b border-island-blue/20">
                   <tr>
-                    <th className="text-left px-4 py-2 text-stone font-medium">Producto</th>
-                    <th className="text-center px-4 py-2 text-stone font-medium">Cant.</th>
-                    <th className="text-right px-4 py-2 text-stone font-medium">Precio</th>
-                    <th className="text-right px-4 py-2 text-stone font-medium">Impuesto</th>
-                    <th className="text-right px-4 py-2 text-stone font-medium">Total</th>
+                    <th className="text-left px-4 py-2 text-island-dark/70 font-medium">Producto</th>
+                    <th className="text-center px-4 py-2 text-island-dark/70 font-medium">Cant.</th>
+                    <th className="text-right px-4 py-2 text-island-dark/70 font-medium">Precio</th>
+                    <th className="text-right px-4 py-2 text-island-dark/70 font-medium">Impuesto</th>
+                    <th className="text-right px-4 py-2 text-island-dark/70 font-medium">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-rule">
+                <tbody className="divide-y divide-island-blue/20">
                   {selectedOrder.items.map((item, idx) => (
                     <tr key={`${item.productId}-${item.variantSize ?? ''}-${idx}`}>
                       <td className="px-4 py-3">
-                        <p className="font-medium text-ink">{item.productName}</p>
-                        <p className="text-xs text-stone">{taxLabel(item)}</p>
+                        <p className="font-medium text-island-dark">{item.productName}</p>
+                        <p className="text-xs text-island-dark/70">{taxLabel(item)}</p>
                       </td>
-                      <td className="px-4 py-3 text-center text-stone">{item.quantity}</td>
-                      <td className="px-4 py-3 text-right text-stone">{formatCOP(item.unitPrice)}</td>
-                      <td className="px-4 py-3 text-right text-stone">{formatCOPDecimal(lineTax(item))}</td>
-                      <td className="px-4 py-3 text-right font-medium text-ink">{formatCOP(item.quantity * item.unitPrice)}</td>
+                      <td className="px-4 py-3 text-center text-island-dark/70">{item.quantity}</td>
+                      <td className="px-4 py-3 text-right text-island-dark/70">{formatCOP(item.unitPrice)}</td>
+                      <td className="px-4 py-3 text-right text-island-dark/70">{formatCOPDecimal(lineTax(item))}</td>
+                      <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(item.quantity * item.unitPrice)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <div className="ml-auto w-full sm:w-80 rounded-xl bg-surface-tint p-4 space-y-2 font-body text-sm">
-              <div className="flex justify-between text-stone"><span>Base sin impuesto</span><span>{formatCOPDecimal(invoiceNet(selectedOrder))}</span></div>
-              <div className="flex justify-between text-stone"><span>Impuesto incluido</span><span>{formatCOPDecimal(invoiceTax(selectedOrder))}</span></div>
-              <div className="flex justify-between text-lg font-semibold text-espresso border-t border-rule pt-2"><span>Total</span><span>{formatCOP(selectedOrder.total)}</span></div>
+            <div className="ml-auto w-full sm:w-80 rounded-xl bg-sand p-4 space-y-2 font-body text-sm">
+              <div className="flex justify-between text-island-dark/70"><span>Base sin impuesto</span><span>{formatCOPDecimal(invoiceNet(selectedOrder))}</span></div>
+              <div className="flex justify-between text-island-dark/70"><span>Impuesto incluido</span><span>{formatCOPDecimal(invoiceTax(selectedOrder))}</span></div>
+              <div className="flex justify-between text-lg font-semibold text-island-dark border-t border-island-blue/20 pt-2"><span>Total</span><span>{formatCOP(selectedOrder.total)}</span></div>
             </div>
           </div>
         </Modal>
@@ -284,7 +284,7 @@ export function BillingPage() {
       {closeOrder && (
         <Modal isOpen={!!closeOrder} onClose={() => setCloseOrder(null)} title="Facturar pedido">
           <div className="space-y-4">
-            <p className="text-sm text-stone font-body">
+            <p className="text-sm text-island-dark/70 font-body">
               Selecciona el método de pago para cerrar el pedido de {tableName(closeOrder.tableId)}.
             </p>
             <Select

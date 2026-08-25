@@ -6,7 +6,7 @@ export function PublicNavbar() {
       <style>{publicNavbarStyles}</style>
       <header className="home-nav">
         <Link to="/" className="brand-lockup" aria-label="La Isla Cafe">
-          <span className="brand-mark" />
+          <img src="/images/brand/icono-color.png" alt="" className="brand-mark" />
           <span>
             <strong>La Isla</strong>
             <small>CAFE PICNIC</small>
@@ -28,13 +28,12 @@ export function PublicNavbar() {
 
 const publicNavbarStyles = `
 .home-nav {
-  --home-ink: #1F2A1B;
-  --home-muted: #6B7768;
-  --home-paper: #FFF9EC;
-  --home-rule: #E7DEC6;
-  --home-espresso: #43593B;
-  --home-maize: #F2D17E;
-  --home-lagoon: #7CC1E7;
+  --home-text: #1A2480;
+  --home-muted: rgba(26,36,128,.7);
+  --home-bg: #FFFFFF;
+  --home-rule: rgba(26,36,128,.2);
+  --home-dark: #1A2480;
+  --home-accent2: #F5A623;
   position: sticky;
   top: 0;
   z-index: 30;
@@ -43,7 +42,7 @@ const publicNavbarStyles = `
   align-items: center;
   gap: 24px;
   padding: 18px clamp(18px, 4vw, 54px);
-  background: rgba(255, 249, 236, .88);
+  background: rgba(255, 255, 255, .88);
   border-bottom: 1px solid var(--home-rule);
   backdrop-filter: blur(16px);
 }
@@ -51,7 +50,7 @@ const publicNavbarStyles = `
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  color: var(--home-ink);
+  color: var(--home-text);
   text-decoration: none;
 }
 .brand-lockup strong {
@@ -68,12 +67,9 @@ const publicNavbarStyles = `
   margin-top: 5px;
 }
 .brand-mark {
-  display: inline-block;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, var(--home-maize) 0 36%, var(--home-lagoon) 37% 100%);
-  box-shadow: inset 0 0 0 1px rgba(31,42,27,.12);
+  display: block;
+  height: 44px;
+  width: auto;
 }
 .home-nav nav {
   display: flex;
@@ -88,8 +84,8 @@ const publicNavbarStyles = `
 }
 .nav-cta {
   justify-self: end;
-  color: var(--home-paper);
-  background: var(--home-espresso);
+  color: var(--home-bg);
+  background: var(--home-dark);
   border-radius: 999px;
   padding: 11px 18px;
   font-weight: 800;

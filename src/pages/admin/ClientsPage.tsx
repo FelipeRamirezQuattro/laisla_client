@@ -90,8 +90,8 @@ export function ClientsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Clientes</h1>
-          <p className="text-stone font-body text-sm">{total} clientes registrados</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Clientes</h1>
+          <p className="text-island-dark/70 font-body text-sm">{total} clientes registrados</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo cliente</Button>
       </div>
@@ -107,22 +107,22 @@ export function ClientsPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">Nombre</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Email</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Teléfono</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Visitas</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Nombre</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Email</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Teléfono</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Visitas</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody className="divide-y divide-island-blue/20">
               {clients.map((c) => (
-                <tr key={c._id} className="hover:bg-surface-tint transition-colors">
-                  <td className="px-4 py-3 font-medium text-espresso">{c.name}</td>
-                  <td className="px-4 py-3 text-stone">{c.email || '—'}</td>
-                  <td className="px-4 py-3 text-stone">{c.phone || '—'}</td>
-                  <td className="px-4 py-3 text-center text-stone">{c.visitCount}</td>
+                <tr key={c._id} className="hover:bg-sand transition-colors">
+                  <td className="px-4 py-3 font-medium text-island-dark">{c.name}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{c.email || '—'}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{c.phone || '—'}</td>
+                  <td className="px-4 py-3 text-center text-island-dark/70">{c.visitCount}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(c)}>Editar</Button>
@@ -132,7 +132,7 @@ export function ClientsPage() {
                 </tr>
               ))}
               {clients.length === 0 && (
-                <tr><td colSpan={5} className="text-center py-10 text-stone">No se encontraron clientes.</td></tr>
+                <tr><td colSpan={5} className="text-center py-10 text-island-dark/70">No se encontraron clientes.</td></tr>
               )}
             </tbody>
           </table>
@@ -148,7 +148,7 @@ export function ClientsPage() {
           <Input label="Email" type="email" error={errors.email?.message} {...register('email')} />
           <Input label="Teléfono" {...register('phone')} />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">Notas</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas</label>
             <textarea className="input-base h-20 resize-none" {...register('notes')} />
           </div>
           <div className="flex justify-end gap-3 pt-2">

@@ -29,18 +29,18 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-espresso bg-opacity-60 backdrop-blur-sm"
+        className="absolute inset-0 bg-island-dark bg-opacity-60 backdrop-blur-sm"
         onClick={onClose}
       />
       {/* Panel */}
       <div className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto`}>
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between p-6 border-b border-rule">
-            <h2 className="text-xl font-body font-semibold text-espresso">{title}</h2>
+          <div className="flex items-center justify-between p-6 border-b border-island-blue/20">
+            <h2 className="text-xl font-body font-semibold text-island-dark">{title}</h2>
             <button
               onClick={onClose}
-              className="text-stone hover:text-espresso transition-colors p-1 rounded-lg hover:bg-surface-tint"
+              className="text-island-dark/70 hover:text-island-dark transition-colors p-1 rounded-lg hover:bg-sand"
               aria-label="Cerrar modal"
             >
               <X size={20} />

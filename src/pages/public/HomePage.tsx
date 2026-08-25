@@ -1,51 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ArrowRight,
-  Coffee,
-  Laptop,
-  MapPin,
-  MessageCircle,
-  Sparkles,
-} from "lucide-react";
-import type { FormEvent, ImgHTMLAttributes, ReactNode } from "react";
-import { PublicNavbar } from "../../components/layout/PublicNavbar";
+import type { FormEvent, ImgHTMLAttributes } from "react";
 import { publicApi } from "../../api/public";
 import { publicMenuApi } from "../../api/publicMenu";
-import type {
-  Event,
-  Recipe,
-  RecipeCategoryOption,
-  RecipeVariant,
-} from "../../types";
-
-type MenuColumn = {
-  title: string;
-  ix: string;
-  items: Array<{
-    name: string;
-    desc: string;
-    price: string;
-    imageUrl?: string;
-  }>;
-};
+import type { Event, Recipe, RecipeVariant } from "../../types";
 
 const homeImages = {
-  hero: [
-    {
-      src: "/images/home/hero/barista-cafe-making-coffee-preparation-service-concept.jpg",
-      alt: "Barista preparando cafe espresso en La Isla Cafe",
-    },
-    {
-      src: "/images/home/hero/close-up-cup-cappuccino-coffee-chocolate-cake.jpg",
-      alt: "Cappuccino servido con torta de chocolate",
-    },
-    {
-      src: "/images/home/hero/mocca-coffee-shop%20(1).jpg",
-      alt: "Mocca caliente en mesa de cafe",
-    },
-  ],
-  spaces: [
+  hero: {
+    src: "/images/home/hero/barista-cafe-making-coffee-preparation-service-concept.jpg",
+    alt: "Barista preparando cafe espresso en La Isla Cafe",
+  },
+  reasons: [
     {
       src: "/images/home/spaces/metal-large-coffee-maker-machine-pouring-coffee-into-metal-cup.jpg",
       alt: "Maquina de espresso preparando cafe",
@@ -59,19 +24,22 @@ const homeImages = {
       alt: "Mesera sirviendo cafe en mesa",
     },
   ],
-  dinner: {
-    src: "/images/home/features/close-up-delicious-healthy-breakfast.jpg",
-    alt: "Mesa servida para compartir desayuno y cafe",
-  },
-  picnic: {
-    src: "/images/home/features/red-blanket-with-tea-cookies.jpg",
-    alt: "Manta de picnic con bebida y galletas",
-  },
-  visit: {
-    src: "/images/home/features/front-view-cup-coffee-with-milk.jpg",
-    alt: "Cafe con leche servido en taza",
+  menuFeature: {
+    src: "/images/home/hero/close-up-cup-cappuccino-coffee-chocolate-cake.jpg",
+    alt: "Cappuccino servido con torta de chocolate",
   },
 };
+
+const dinnerTraits = [
+  "Habla de cine",
+  "Trasnochador",
+  "Cocina de más",
+  "Pregunta todo",
+  "Viaja solo",
+  "Escucha más",
+];
+
+const bookingHours = ["10:00", "12:30", "15:00", "17:30", "20:00"];
 
 function publicPrice(variant: RecipeVariant) {
   return variant.finalPrice ?? variant.salePrice;
@@ -132,11 +100,24 @@ function eventCtaPath(event: Event) {
     : `/reservar/eventos/${event._id}`;
 }
 
+function nextDayChips(count: number) {
+  const days = [];
+  const today = new Date();
+  for (let i = 0; i < count; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const weekday = new Intl.DateTimeFormat("es-CO", { weekday: "short" })
+      .format(date)
+      .replace(".", "");
+    const label = `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${date.getDate()}`;
+    days.push({ label, date });
+  }
+  return days;
+}
+
 export function HomePage() {
+  const navigate = useNavigate();
   const [menuRecipes, setMenuRecipes] = useState<Recipe[]>([]);
-  const [menuCategories, setMenuCategories] = useState<RecipeCategoryOption[]>(
-    [],
-  );
   const [publicEvents, setPublicEvents] = useState<Event[]>([]);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<
@@ -144,17 +125,15 @@ export function HomePage() {
   >("idle");
   const [newsletterMessage, setNewsletterMessage] = useState("");
 
+  const [bookingDay, setBookingDay] = useState(0);
+  const [bookingHour, setBookingHour] = useState(2);
+  const [bookingPeople, setBookingPeople] = useState(2);
+
   useEffect(() => {
     publicMenuApi
       .get()
-      .then((res) => {
-        setMenuRecipes(res.data.recipes);
-        setMenuCategories(res.data.categories);
-      })
-      .catch(() => {
-        setMenuRecipes([]);
-        setMenuCategories([]);
-      });
+      .then((res) => setMenuRecipes(res.data.recipes))
+      .catch(() => setMenuRecipes([]));
   }, []);
 
   useEffect(() => {
@@ -164,38 +143,30 @@ export function HomePage() {
       .catch(() => setPublicEvents([]));
   }, []);
 
-  const menuColumns = useMemo<MenuColumn[]>(() => {
-    if (!menuRecipes.length) return [];
-    return menuCategories
-      .filter((category) =>
-        menuRecipes.some((recipe) => recipe.category === category.value),
-      )
-      .slice(0, 4)
-      .map((category, index) => ({
-        title: category.label,
-        ix: `N°${String(index + 1).padStart(2, "0")}`,
-        items: menuRecipes
-          .filter((recipe) => recipe.category === category.value)
-          .slice(0, 5)
-          .map((recipe) => ({
-            name: recipe.name,
-            desc:
-              recipe.description ||
-              `${recipe.variants.length} variante(s) disponibles en barra`,
-            price: recipePriceLabel(recipe),
-            imageUrl: recipe.imageUrl,
-          })),
-      }));
-  }, [menuRecipes, menuCategories]);
+  const menuItems = useMemo(
+    () =>
+      menuRecipes.slice(0, 6).map((recipe) => ({
+        id: recipe._id,
+        name: recipe.name,
+        desc:
+          recipe.description ||
+          `${recipe.variants.length} variante(s) disponibles en barra`,
+        price: recipePriceLabel(recipe),
+      })),
+    [menuRecipes],
+  );
 
-  const featuredExperience =
-    publicEvents.find((event) => event.type === "dinner-with-strangers") ??
-    publicEvents.find((event) => event.type !== "picnic") ??
-    null;
-  const picnicEvents = publicEvents
-    .filter((event) => event.type === "picnic")
+  const calendarEvents = publicEvents
+    .filter((event) => event.type !== "dinner-with-strangers")
     .slice(0, 3);
-  const calendarEvents = publicEvents.slice(0, 4);
+  const dinnerEvent =
+    publicEvents.find((event) => event.type === "dinner-with-strangers") ??
+    null;
+
+  const bookingDays = useMemo(() => nextDayChips(5), []);
+  const bookingSummary = `${bookingDays[bookingDay].label} · ${bookingHours[bookingHour]} · ${
+    bookingPeople === 1 ? "1 persona" : `${bookingPeople} personas`
+  }`;
 
   const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -205,351 +176,475 @@ export function HomePage() {
     try {
       await publicApi.subscribeNewsletter({ email: newsletterEmail });
       setNewsletterStatus("success");
-      setNewsletterMessage("Listo. Te apuntamos al boletin mensual.");
+      setNewsletterMessage("Listo. Te apuntamos al boletín mensual.");
       setNewsletterEmail("");
     } catch {
       setNewsletterStatus("error");
-      setNewsletterMessage("No pudimos registrar el correo. Intentalo de nuevo.");
+      setNewsletterMessage(
+        "No pudimos registrar el correo. Inténtalo de nuevo.",
+      );
     }
   };
 
   return (
-    <div className="la-isla-home min-h-screen bg-paper text-ink">
+    <div className="li-home">
       <style>{homeStyles}</style>
 
-      <PublicNavbar />
+      <header className="li-header">
+        <Link to="/" className="li-brand">
+          <img
+            src="/images/brand/wordmark-original-trim.png"
+            alt="La Isla · Café Picnic"
+            className="li-brand-mark"
+          />
+        </Link>
+        <nav className="li-nav">
+          <a href="#razones">Espacio</a>
+          <Link to="/menu">Carta</Link>
+          <a href="#eventos">Eventos</a>
+          <a href="#cena">Experiencias</a>
+        </nav>
+        <Link to="/reservar/mesa" className="li-header-cta">
+          Reservar mesa <span>→</span>
+        </Link>
+      </header>
 
       <main>
-        <section className="hero-shell">
-          <div className="hero-copy">
-            <h1>
-              Deja la prisa.
-              <br />
-              Sal del ruido.
-              <br />
-              Ven a <em>La Isla.</em>
-            </h1>
-            <p>
-              Un cafe de especialidad con patio, mesas largas, picnic kits y
-              experiencias para volver a conversar sin mirar el reloj.
-            </p>
-            <div className="hero-actions">
-              <Link to="/reservar/mesa" className="btn-primary-home">
-                Reservar mesa <ArrowRight size={18} />
-              </Link>
-              <Link to="/reservar/eventos" className="btn-quiet-home">
-                Ver eventos
-              </Link>
-            </div>
-          </div>
-
-          <div className="hero-carousel" aria-label="Ambiente de La Isla Cafe">
-            {homeImages.hero.map((image, index) => (
-              <ProgressiveImage
-                key={image.src}
-                src={image.src}
-                alt={image.alt}
-                className={`hero-slide hero-slide-${index + 1}`}
-                loading={index === 0 ? "eager" : "lazy"}
-              />
-            ))}
-            <div className="hero-photo-mark">
-              <span>La Isla</span>
-              <small>CAFE PICNIC</small>
-            </div>
-          </div>
-        </section>
-
-        <section className="intro-band">
-          <p>Una pausa en medio del ruido.</p>
-          <p>Un lugar para trabajar, comer, conversar y quedarse.</p>
-        </section>
-
-        <section className="worlds" id="mundos">
-          <SectionHead
-            eyebrow="Tres mundos"
-            title="El espacio tiene ritmo propio."
-          />
-          <div className="world-grid">
-            <WorldCard
-              n="N° 01"
-              icon={<Coffee size={22} />}
-              image={homeImages.spaces[0]}
-              title="Cafe de origen"
-              text="Barra corta, granos colombianos, metodos frios y una carta sin ruido. Pides rapido, te quedas lento."
-              tags={["Espresso", "Filtrados", "Cold brew"]}
-            />
-            <WorldCard
-              n="N° 02"
-              icon={<Laptop size={22} />}
-              image={homeImages.spaces[1]}
-              title="Work cafe"
-              text="Mesas para sentarse sin culpa cuatro horas, enchufes, WiFi estable y una regla de casa: el volumen no decide por ti."
-              tags={["WiFi", "Enchufes", "Reservable"]}
-            />
-            <WorldCard
-              n="N° 03"
-              icon={<Sparkles size={22} />}
-              image={homeImages.spaces[2]}
-              title="Experiencias sociales"
-              text="Cine bajo cobertizo, cenas con desconocidos, catas guiadas, trivia y domingos de picnic."
-              tags={["Cenas", "Cine", "Catas"]}
-            />
-          </div>
-        </section>
-
-        {featuredExperience && (
-          <section className="feature-dinner">
-            <div className="feature-copy">
-              <p className="kicker dark">
-                Experiencia estrella ·{" "}
-                {featuredExperience.type === "dinner-with-strangers"
-                  ? "cena con desconocidos"
-                  : "proxima"}
+        <section className="li-hero">
+          <div className="li-hero-sunrays" aria-hidden="true" />
+          <div className="li-hero-dots" aria-hidden="true" />
+          <div className="li-hero-inner">
+            <div className="li-hero-copy">
+              <p className="li-pill">04°26′N · 75°14′W · Ibagué</p>
+              <h1 className="li-hero-title">
+                Baja el
+                <br />
+                volumen
+                <br />
+                <span>de la ciudad</span>
+              </h1>
+              <p className="li-hero-desc">
+                Café de especialidad, mesas largas, patio con sombra y planes
+                para conocer gente. Una isla de tres cuadras en pleno barrio
+                Belén.
               </p>
-              <h2>{featuredExperience.title}</h2>
-              <p>{featuredExperience.description}</p>
-              <div className="detail-list">
-                <Detail
-                  label="Cuando"
-                  value={eventDateTimeLabel(featuredExperience)}
-                />
-                <Detail
-                  label="Cuanto"
-                  value={`${eventPriceLabel(featuredExperience)} / persona`}
-                />
-                <Detail
-                  label="Cupos"
-                  value={`${eventSpotsLeft(featuredExperience)} de ${featuredExperience.maxCapacity} disponibles`}
-                />
-              </div>
-              <div className="hero-actions">
-                <Link
-                  to={eventCtaPath(featuredExperience)}
-                  className="btn-primary-home"
-                >
-                  Reservar
+              <div className="li-hero-actions">
+                <Link to="/reservar/mesa" className="li-btn-primary">
+                  Reservar mesa →
                 </Link>
                 <Link
-                  to={`/reservar/eventos/${featuredExperience._id}`}
-                  className="btn-quiet-home dark"
+                  to="/reservar/cena-con-desconocidos"
+                  className="li-btn-ghost"
                 >
-                  Ver detalles
+                  Cena con desconocidos
                 </Link>
               </div>
-            </div>
-            <div className="table-scene">
-              <ProgressiveImage
-                className="image-fill"
-                src={featuredExperience.imageUrl || homeImages.dinner.src}
-                alt={featuredExperience.title}
-              />
-              <div className="quote-tag">{featuredExperience.title}</div>
-              <p>{eventDateTimeLabel(featuredExperience)}</p>
-            </div>
-          </section>
-        )}
-
-        <section className="menu-section" id="carta">
-          <div className="split-head">
-            <SectionHead
-              eyebrow=" Una carta corta a proposito"
-              title="La carta."
-            />
-            <p>
-              La carta publicada desde el administrador. Cambia con la temporada
-              y con lo que el productor mande esta semana.
-            </p>
-            <Link to="/menu">Ver carta completa →</Link>
-          </div>
-          {menuColumns.length > 0 ? (
-            <div className="menu-grid">
-              {menuColumns.map((column) => (
-                <div className="menu-col" key={column.title}>
-                  <h3>
-                    <span>{column.ix}</span>
-                    {column.title}
-                  </h3>
-                  {column.items.map((item) => (
-                    <div
-                      className={`menu-item ${item.imageUrl ? "with-image" : ""}`}
-                      key={item.name}
-                    >
-                      {item.imageUrl && (
-                        <ProgressiveImage
-                          className="menu-thumb"
-                          src={item.imageUrl}
-                          alt={item.name}
-                          loading="lazy"
-                        />
-                      )}
-                      <div>
-                        <strong>{item.name}</strong>
-                        <p>{item.desc}</p>
-                      </div>
-                      <span>{item.price}</span>
-                    </div>
-                  ))}
+              <div className="li-hero-stats">
+                <div>
+                  <strong>9am–11pm</strong>
+                  <span>Vie y sáb</span>
                 </div>
-              ))}
+                <div>
+                  <strong>4h</strong>
+                  <span>Mesa sin culpa</span>
+                </div>
+                <div>
+                  <strong>Tolima</strong>
+                  <span>Grano de origen</span>
+                </div>
+              </div>
             </div>
+            <div className="li-hero-media">
+              <div className="li-hero-photo">
+                <ProgressiveImage
+                  className="image-fill"
+                  src={homeImages.hero.src}
+                  alt={homeImages.hero.alt}
+                  loading="eager"
+                />
+              </div>
+              <img
+                src="/images/brand/sello-color.png"
+                alt="La Isla · Café Picnic"
+                className="li-hero-seal"
+              />
+              <div className="li-hero-stamp">
+                Sin prisa · <span>sin ruido</span>
+              </div>
+            </div>
+          </div>
+          <div className="li-scallop" aria-hidden="true" />
+        </section>
+
+        <section className="li-reasons" id="razones">
+          <div className="li-reasons-head">
+            <div>
+              <p className="li-kicker">Tres razones · una isla</p>
+              <h2 className="li-section-title">
+                Aquí el reloj
+                <br />
+                se queda afuera
+              </h2>
+            </div>
+            <p className="li-reasons-lead">
+              No somos un café para llevar. Somos el sitio donde te sientas,
+              sacas el portátil o no, y de repente son las seis.
+            </p>
+          </div>
+          <div className="li-reasons-grid">
+            <article className="li-reason-card">
+              <div className="li-reason-meta">
+                <span className="li-reason-n">N.º 01</span>
+                <span className="li-reason-tag">Barra</span>
+              </div>
+              <div className="li-reason-photo">
+                <ProgressiveImage
+                  className="image-fill"
+                  src={homeImages.reasons[0].src}
+                  alt={homeImages.reasons[0].alt}
+                  loading="lazy"
+                />
+              </div>
+              <h3>Café de origen</h3>
+              <p>
+                Grano del Tolima, tostión de la semana escrita en la pizarra y
+                métodos fríos para el calor de Ibagué.
+              </p>
+            </article>
+            <article className="li-reason-card">
+              <div className="li-reason-meta">
+                <span className="li-reason-n">N.º 02</span>
+                <span className="li-reason-tag">Mesas</span>
+              </div>
+              <div className="li-reason-photo">
+                <ProgressiveImage
+                  className="image-fill"
+                  src={homeImages.reasons[1].src}
+                  alt={homeImages.reasons[1].alt}
+                  loading="lazy"
+                />
+              </div>
+              <h3>Isla de trabajo</h3>
+              <p>
+                Enchufe en cada mesa, WiFi que aguanta la videollamada y permiso
+                oficial para quedarte cuatro horas.
+              </p>
+            </article>
+            <article className="li-reason-card li-reason-card-3">
+              <div className="li-reason-meta">
+                <span className="li-reason-n">N.º 03</span>
+                <span className="li-reason-tag">Planes</span>
+              </div>
+              <div className="li-reason-photo">
+                <ProgressiveImage
+                  className="image-fill"
+                  src={homeImages.reasons[2].src}
+                  alt={homeImages.reasons[2].alt}
+                  loading="lazy"
+                />
+              </div>
+              <h3>Vida social</h3>
+              <p>
+                Cine bajo el cobertizo, catas guiadas, domingos de picnic y la
+                cena donde nadie se conoce.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="li-menu" id="carta">
+          <p className="li-kicker">Carta corta a propósito</p>
+          <h2 className="li-section-title">
+            Lo que se pide
+            <br />
+            dos veces
+          </h2>
+          {menuItems.length > 0 ? (
+            <>
+              <div className="li-menu-list">
+                {menuItems.map((item) => (
+                  <div className="li-menu-row" key={item.id}>
+                    <span className="li-menu-row-name">{item.name}</span>
+                    <span className="li-menu-row-leader" />
+                    <span className="li-menu-row-desc">{item.desc}</span>
+                    <strong className="li-menu-row-price">{item.price}</strong>
+                  </div>
+                ))}
+              </div>
+              <Link to="/menu" className="li-text-link">
+                Ver la carta completa →
+              </Link>
+            </>
           ) : (
-            <div className="empty-home-state">
-              La carta publica aparecera aqui cuando haya productos activos
+            <div className="li-empty-state">
+              La carta pública aparecerá aquí cuando haya productos activos
               publicados desde el administrador.
             </div>
           )}
-        </section>
-
-        {picnicEvents.length > 0 && (
-          <section className="picnic-section" id="picnic">
-            <div>
-              <p className="kicker">Picnic</p>
-              <h2>
-                Picnic en <em>La Isla.</em>
-              </h2>
-              <p>
-                Eventos picnic publicados desde el administrador, con cupos,
-                precio, fecha e imagen definidos para cada experiencia.
-              </p>
-              <div className="hero-actions">
-                <Link
-                  to={eventCtaPath(picnicEvents[0])}
-                  className="btn-primary-home"
-                >
-                  Reservar picnic
-                </Link>
-                <Link to="/reservar/eventos" className="btn-quiet-home">
-                  Ver todos
-                </Link>
-              </div>
-            </div>
-            <div className="picnic-content">
+          <div className="li-menu-feature">
+            <div className="li-menu-feature-photo">
               <ProgressiveImage
-                className="picnic-photo"
-                src={picnicEvents[0].imageUrl || homeImages.picnic.src}
-                alt={picnicEvents[0].title}
+                className="image-fill"
+                src={homeImages.menuFeature.src}
+                alt={homeImages.menuFeature.alt}
                 loading="lazy"
               />
-              <div className="tiers">
-                {picnicEvents.map((event, index) => (
-                  <Tier
-                    key={event._id}
-                    ix={`${index + 1}.`}
-                    name={event.title}
-                    price={eventPriceLabel(event)}
-                    desc={`${eventDateTimeLabel(event)} · ${eventSpotsLeft(event)} cupos disponibles`}
-                    href={eventCtaPath(event)}
-                  />
-                ))}
-              </div>
             </div>
-          </section>
-        )}
+            <div className="li-menu-feature-copy">
+              <p className="li-kicker">Café de origen</p>
+              <p className="li-menu-feature-title">
+                Grano seleccionado del Tolima
+              </p>
+              <p>
+                Tostión rotativa, notas frutales y dulces. Pregunta en barra
+                cuál está sirviendo hoy.
+              </p>
+            </div>
+          </div>
+        </section>
 
-        <section className="events-section" id="eventos">
-          <div className="split-head">
-            <SectionHead eyebrow=" Calendario" title="Próximos eventos." />
-            <Link to="/reservar/eventos">Ver todo el calendario →</Link>
+        <section className="li-events" id="eventos">
+          <div className="li-events-head">
+            <div>
+              <p className="li-kicker">Cartelera de la isla</p>
+              <h2 className="li-section-title">
+                Esta quincena
+                <br />
+                pasa esto
+              </h2>
+            </div>
+            <Link to="/reservar/eventos" className="li-text-link">
+              Todo el calendario →
+            </Link>
           </div>
           {calendarEvents.length > 0 ? (
-            <div className="event-grid">
-              {calendarEvents.map((event, index) => {
+            <div className="li-events-grid">
+              {calendarEvents.map((event) => {
                 const { day, month } = eventDateParts(event);
                 return (
                   <Link
                     to={eventCtaPath(event)}
-                    className={`event-card ${index === 0 ? "featured" : ""}`}
+                    className="li-event-card"
                     key={event._id}
                   >
-                    {event.imageUrl && (
-                      <ProgressiveImage
-                        className="event-card-image"
-                        src={event.imageUrl}
-                        alt={event.title}
-                        loading="lazy"
-                      />
-                    )}
-                    <div className="date-row">
-                      <div>
-                        <strong>{day}</strong>
-                        <span>{month}</span>
-                      </div>
-                      <span>{eventSpotsLeft(event)} cupos</span>
+                    <div className="li-event-date">
+                      <strong>{day}</strong>
+                      <span>{month}</span>
                     </div>
-                    <h3>{event.title}</h3>
-                    <p>{eventDateTimeLabel(event)}</p>
-                    <p>{eventPriceLabel(event)}</p>
+                    <div className="li-event-body">
+                      <span className="li-event-badge">
+                        {event.pricePerPerson > 0
+                          ? `${eventPriceLabel(event)} · ${eventSpotsLeft(event)} cupos`
+                          : "Entrada libre"}
+                      </span>
+                      <h3>{event.title}</h3>
+                      <p>{eventDateTimeLabel(event)}</p>
+                    </div>
                   </Link>
                 );
               })}
             </div>
           ) : (
-            <div className="empty-home-state">
-              Los eventos publicados desde el administrador apareceran aqui.
+            <div className="li-empty-state">
+              Los eventos publicados desde el administrador aparecerán aquí.
             </div>
           )}
         </section>
 
-        <section className="visit-section" id="visita">
-          <div className="visit-copy">
-            <p className="kicker">Visitanos</p>
-            <h2>
-              Estamos <em>aqui.</em>
-            </h2>
-            <p className="address">
-              Carrera 5 N° 28-14, barrio Belen,
-              <br />
-              Ibague, Tolima. Entre la Plaza de Belen
-              <br />y el Parque Andres Lopez.
-            </p>
-            <div className="hours">
-              <Detail label="Lun - Jue" value="9:00 - 21:00" />
-              <Detail label="Vie - Sab" value="9:00 - 23:00" />
-              <Detail label="Domingo" value="10:00 - 19:00 · brunch & picnic" />
+        <section className="li-dinner" id="cena">
+          <div className="li-dinner-dots" aria-hidden="true" />
+          <div className="li-dinner-inner">
+            <div className="li-dinner-copy">
+              <p className="li-pill">La experiencia de la casa</p>
+              <h2 className="li-dinner-title">
+                No sabes
+                <br />
+                con quién
+                <br />
+                <span>vas a cenar</span>
+              </h2>
+              <p className="li-dinner-desc">
+                Seis sillas, una mesa larga y ningún nombre por adelantado.
+                Contestas un cuestionario de compatibilidad, nosotros armamos el
+                grupo y tú apareces sin saber nada más.
+              </p>
+              <div className="li-hero-actions">
+                <Link
+                  to="/reservar/cena-con-desconocidos"
+                  className="li-btn-primary"
+                >
+                  Contestar el cuestionario →
+                </Link>
+                <a href="#cena" className="li-btn-ghost">
+                  Cómo funciona
+                </a>
+              </div>
+              <p className="li-dinner-meta">
+                {dinnerEvent
+                  ? `${eventDateTimeLabel(dinnerEvent)} · ${eventPriceLabel(dinnerEvent)}`
+                  : "Último jueves de cada mes · $65.000 con tres tiempos"}
+              </p>
             </div>
-            <div className="hero-actions">
-              <a
-                className="btn-primary-home"
-                href="https://maps.google.com"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <MapPin size={17} /> Como llegar
-              </a>
-              <a
-                className="btn-quiet-home"
-                href="https://wa.me/573000000000"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <MessageCircle size={17} /> WhatsApp
-              </a>
+            <div className="li-dinner-card-wrap">
+              <div className="li-dinner-card">
+                <div className="li-dinner-card-head">
+                  <span>Mesa · próxima cena</span>
+                  <span>6 sillas</span>
+                </div>
+                <div className="li-dinner-chips">
+                  {dinnerTraits.map((trait, index) => (
+                    <div
+                      className={`li-dinner-chip ${index >= 3 ? "li-dinner-chip-extra" : ""}`}
+                      key={trait}
+                    >
+                      <div
+                        className={`li-dinner-chip-mark ${index % 2 ? "alt" : ""}`}
+                      >
+                        ?
+                      </div>
+                      <span className="li-dinner-chip-label">{trait}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="li-dinner-note">
+                  Los nombres se revelan en la mesa. Lo único que sabes antes:
+                  que el algoritmo dijo que se iban a caer bien.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="map-panel">
-            <ProgressiveImage
-              className="image-fill"
-              src={homeImages.visit.src}
-              alt={homeImages.visit.alt}
-              loading="lazy"
-            />
-            <div className="pin">
-              <MapPin size={18} /> La Isla Cafe
-            </div>
-            <div className="ribbon">04°26'N · 75°14'W · Ibague</div>
           </div>
         </section>
 
-        <aside className="newsletter">
-          <div className="quote">
-            <span>Deja la prisa.</span>
-            <span>Sal del ruido.</span>
-            <span>Ven a La Isla.</span>
+        <section className="li-booking" id="reserva">
+          <div className="li-booking-sunrays" aria-hidden="true" />
+          <div className="li-booking-inner">
+            <div className="li-booking-copy">
+              <p className="li-kicker">Reserva de mesa</p>
+              <h2 className="li-section-title li-booking-title">
+                Aparta tu
+                <br />
+                pedazo de
+                <br />
+                sombra
+              </h2>
+              <p className="li-booking-desc">
+                Elige día, hora y cuántos son. Te guardamos la mesa 15 minutos
+                y, si vienen a trabajar, te sentamos cerca del enchufe.
+              </p>
+              <div className="li-booking-tags">
+                <span>Patio con sombra</span>
+                <span>Mesa larga</span>
+                <span>Barra</span>
+              </div>
+            </div>
+            <form
+              className="li-booking-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                navigate("/reservar/mesa");
+              }}
+            >
+              <p className="li-booking-form-title">Tu mesa en La Isla</p>
+              <p className="li-booking-step-label">1 · Día</p>
+              <div className="li-chip-row">
+                {bookingDays.map((day, index) => (
+                  <button
+                    type="button"
+                    key={day.label}
+                    onClick={() => setBookingDay(index)}
+                    className={`li-chip-btn ${index === bookingDay ? "is-active" : ""}`}
+                  >
+                    {day.label}
+                  </button>
+                ))}
+              </div>
+              <p className="li-booking-step-label">2 · Hora</p>
+              <div className="li-chip-row">
+                {bookingHours.map((hour, index) => (
+                  <button
+                    type="button"
+                    key={hour}
+                    onClick={() => setBookingHour(index)}
+                    className={`li-chip-btn ${index === bookingHour ? "is-active" : ""}`}
+                  >
+                    {hour}
+                  </button>
+                ))}
+              </div>
+              <p className="li-booking-step-label">3 · Cuántos son</p>
+              <div className="li-people-row">
+                <button
+                  type="button"
+                  className="li-people-btn"
+                  onClick={() => setBookingPeople((p) => Math.max(1, p - 1))}
+                  aria-label="Menos personas"
+                >
+                  −
+                </button>
+                <strong className="li-people-count">
+                  {bookingPeople === 1
+                    ? "1 persona"
+                    : `${bookingPeople} personas`}
+                </strong>
+                <button
+                  type="button"
+                  className="li-people-btn"
+                  onClick={() => setBookingPeople((p) => Math.min(12, p + 1))}
+                  aria-label="Más personas"
+                >
+                  +
+                </button>
+              </div>
+              <button type="submit" className="li-booking-submit">
+                Continuar con la reserva →
+              </button>
+              <p className="li-booking-summary">
+                {bookingSummary} · sin anticipo, confirmamos por WhatsApp.
+              </p>
+            </form>
           </div>
-          <form onSubmit={handleNewsletterSubmit}>
-            <label>Boletin · una vez al mes, no mas</label>
-            <div>
+        </section>
+      </main>
+
+      <footer className="li-footer">
+        <div className="li-footer-grid">
+          <div>
+            <img
+              src="/images/brand/logo-principal-blanco.png"
+              alt="La Isla · Café Picnic"
+              className="li-footer-logo"
+            />
+            <p className="li-footer-desc">
+              Café picnic en el corazón de Ibagué. Una pausa en medio del ruido,
+              de 9 de la mañana hasta que se acabe la conversación.
+            </p>
+          </div>
+          <nav className="li-footer-col">
+            <p className="li-footer-col-title">La isla</p>
+            <a href="#razones">El espacio</a>
+            <Link to="/menu">La carta</Link>
+            <a href="#eventos">Eventos</a>
+            <Link to="/reservar/cena-con-desconocidos">
+              Cena con desconocidos
+            </Link>
+          </nav>
+          <div className="li-footer-col">
+            <p className="li-footer-col-title">Visítanos</p>
+            <span>
+              Carrera 5 N.º 28-14
+              <br />
+              Barrio Belén · Ibagué
+            </span>
+            <span>Lun–Jue 9:00–21:00</span>
+            <span>Vie–Sáb 9:00–23:00</span>
+            <span>Dom 10:00–19:00</span>
+          </div>
+          <div className="li-footer-col">
+            <p className="li-footer-col-title">Boletín · 1 vez al mes</p>
+            <form
+              className="li-newsletter-form"
+              onSubmit={handleNewsletterSubmit}
+            >
               <input
                 type="email"
                 placeholder="tu@correo.com"
@@ -561,44 +656,18 @@ export function HomePage() {
               <button type="submit" disabled={newsletterStatus === "loading"}>
                 {newsletterStatus === "loading" ? "Enviando" : "Apuntarme"}
               </button>
-            </div>
-            <p>
-              {newsletterMessage ||
-                "Reservas para cenas, catas y eventos. Cero promos, cero ruido."}
-            </p>
-          </form>
-        </aside>
-      </main>
-
-      <footer className="home-footer">
-        <div>
-          <span className="brand-mark" />
-          <h2>La Isla Cafe</h2>
-          <p>
-            Una pausa en medio del ruido. Cafe picnic en el corazon de Ibague.
-          </p>
+            </form>
+            {newsletterMessage && (
+              <span className="li-newsletter-message">{newsletterMessage}</span>
+            )}
+            <span>hola@laisla.cafe · +57 300 000 0000 · @laisla.cafe</span>
+          </div>
         </div>
-        <nav>
-          <a href="#mundos">El espacio</a>
-          <a href="#carta">La carta</a>
-          <a href="#eventos">Eventos</a>
-          <a href="#visita">Visitanos</a>
-        </nav>
-        <div className="contact">
-          <span>hola@laisla.cafe</span>
-          <span>+57 300 000 0000</span>
-          <span>@laisla.cafe</span>
+        <div className="li-footer-bottom">
+          <span>© {new Date().getFullYear()} La Isla · Café Picnic</span>
+          <span>Hecho en Ibagué, Tolima</span>
         </div>
       </footer>
-    </div>
-  );
-}
-
-function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
-  return (
-    <div>
-      <p className="section-eyebrow">{eyebrow}</p>
-      <h2 className="section-title">{title}</h2>
     </div>
   );
 }
@@ -649,277 +718,232 @@ function ProgressiveImage({
   );
 }
 
-function WorldCard({
-  n,
-  icon,
-  image,
-  title,
-  text,
-  tags,
-}: {
-  n: string;
-  icon: ReactNode;
-  image: { src: string; alt: string };
-  title: string;
-  text: string;
-  tags: string[];
-}) {
-  return (
-    <article className="world-card">
-      <div className="visual-box">
-        <ProgressiveImage
-          className="image-fill"
-          src={image.src}
-          alt={image.alt}
-          loading="lazy"
-        />
-      </div>
-      <h3>{title}</h3>
-      <p>{text}</p>
-    </article>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="detail">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function Tier({
-  ix,
-  name,
-  desc,
-  price,
-  href,
-}: {
-  ix: string;
-  name: string;
-  desc: string;
-  price: string;
-  href?: string;
-}) {
-  const content = (
-    <>
-      <span>{ix}</span>
-      <div>
-        <strong>{name}</strong>
-        <p>{desc}</p>
-      </div>
-      <b>{price}</b>
-    </>
-  );
-
-  return href ? (
-    <Link to={href} className="tier">
-      {content}
-    </Link>
-  ) : (
-    <div className="tier">{content}</div>
-  );
-}
-
 const homeStyles = `
-.la-isla-home {
-  --home-ink: #1F2A1B;
-  --home-muted: #6B7768;
-  --home-paper: #FFF9EC;
-  --home-tint: #FBF3DE;
-  --home-rule: #E7DEC6;
-  --home-espresso: #43593B;
-  --home-terracotta: #E87A5D;
-  --home-maize: #F2D17E;
-  --home-lagoon: #7CC1E7;
-  background: var(--home-paper);
+.li-home {
+  --li-blue: #2B3FBE;
+  --li-dark: #1A2480;
+  --li-yellow: #F5A623;
+  --li-sand: #F5E6D3;
+  --li-muted: rgba(26,36,128,.72);
+  --li-rule: rgba(26,36,128,.2);
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: var(--li-dark);
+  background: #FFFFFF;
 }
-.la-isla-home a { text-decoration: none; }
-.home-nav {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 24px;
-  padding: 18px clamp(18px, 4vw, 54px);
-  background: rgba(255, 249, 236, .88);
-  border-bottom: 1px solid var(--home-rule);
-  backdrop-filter: blur(16px);
+.li-home a { text-decoration: none; }
+.li-home h1, .li-home h2, .li-home h3 {
+  font-family: "Archivo", system-ui, sans-serif;
+  font-stretch: 120%;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0;
 }
-.brand-lockup { display: inline-flex; align-items: center; gap: 12px; color: var(--home-ink); }
-.brand-lockup strong { display: block; font-family: "DM Sans", system-ui, sans-serif; font-size: 26px; line-height: 1; }
-.brand-lockup small { display: block; color: var(--home-muted); font-size: 10px; letter-spacing: 4px; margin-top: 5px; }
-.brand-mark { display: inline-block; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, var(--home-maize) 0 36%, var(--home-lagoon) 37% 100%); box-shadow: inset 0 0 0 1px rgba(31,42,27,.12); }
-.home-nav nav { display: flex; gap: 28px; font-size: 13px; font-weight: 700; color: var(--home-muted); }
-.home-nav nav a { color: var(--home-muted); }
-.nav-cta { justify-self: end; color: var(--home-paper); background: var(--home-espresso); border-radius: 999px; padding: 11px 18px; font-weight: 800; font-size: 13px; }
-.hero-shell { min-height: calc(100vh - 73px); display: grid; grid-template-columns: minmax(0, .9fr) minmax(360px, 46vw); gap: clamp(28px, 4vw, 48px); align-items: center; padding: clamp(30px, 4.5vw, 54px) clamp(20px, 6vw, 72px); overflow: hidden; }
-.hero-copy { max-width: 620px; }
-.kicker, .section-eyebrow { color: var(--home-terracotta); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 900; margin-bottom: 12px; }
-.kicker.dark { color: var(--home-maize); }
-.hero-copy h1 { font-family: "DM Sans", system-ui, sans-serif; color: var(--home-ink); font-size: clamp(46px, 6.1vw, 88px); line-height: .92; letter-spacing: 0; font-weight: 900; margin: 0 0 18px; }
-.hero-copy em, .feature-copy em, .picnic-section em, .visit-copy em { font-style: italic; color: var(--home-espresso); }
-.hero-copy p { max-width: 540px; color: var(--home-muted); font-size: 17px; line-height: 1.48; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
-.btn-primary-home, .btn-quiet-home { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; border-radius: 999px; padding: 0 20px; font-weight: 900; font-size: 14px; }
-.btn-primary-home { background: var(--home-terracotta); color: var(--home-paper); box-shadow: 0 10px 24px rgba(232,122,93,.24); }
-.btn-quiet-home { border: 1px solid var(--home-rule); color: var(--home-espresso); background: rgba(255,255,255,.38); }
-.btn-quiet-home.dark { color: var(--home-paper); border-color: rgba(255,249,236,.28); background: rgba(255,249,236,.08); }
-.progressive-image { position: relative; display: block; overflow: hidden; isolation: isolate; background: linear-gradient(135deg, #f8edcf 0%, #fff9ec 44%, #e8dcbf 100%); }
+
+/* — header — */
+.li-header { position: sticky; top: 0; z-index: 30; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; padding: 18px clamp(18px, 4vw, 48px); background: var(--li-sand); border-bottom: 2px solid var(--li-dark); }
+.li-brand { display: flex; align-items: center; }
+.li-brand-mark { height: 72px; width: auto; display: block; }
+.li-nav { display: flex; justify-content: center; gap: 28px; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--li-dark); }
+.li-nav a { color: var(--li-dark); }
+.li-nav a:hover { color: var(--li-blue); }
+.li-header-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--li-yellow); color: var(--li-dark); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 12px 20px; border-radius: 999px; border: 2px solid var(--li-dark); white-space: nowrap; }
+.li-header-cta:hover { background: #fff; }
+
+/* — shared — */
+.li-kicker { margin: 0 0 12px; font-size: 11px; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; color: var(--li-blue); }
+.li-pill { display: inline-flex; align-items: center; margin: 0 0 22px; background: var(--li-yellow); color: var(--li-dark); font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; padding: 8px 14px; border-radius: 999px; }
+.li-section-title { font-size: clamp(34px, 4.4vw, 58px); line-height: .88; letter-spacing: -.02em; }
+.li-text-link { display: inline-flex; color: var(--li-dark); font-size: 12.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; border-bottom: 2px solid var(--li-yellow); padding-bottom: 4px; margin-top: 18px; }
+.li-empty-state { border: 1px dashed var(--li-rule); border-radius: 8px; background: rgba(255,255,255,.5); color: var(--li-muted); padding: 22px; font-weight: 700; }
+.li-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.li-btn-primary, .li-btn-ghost { display: inline-flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 15px 24px; border-radius: 999px; border: 2px solid transparent; }
+.li-btn-primary { background: var(--li-yellow); color: var(--li-dark); }
+.li-btn-primary:hover { background: #fff; }
+.li-btn-ghost { border-color: rgba(245,230,211,.55); color: var(--li-sand); }
+.li-btn-ghost:hover { border-color: var(--li-yellow); color: var(--li-yellow); }
+
+/* — hero — */
+.li-hero { position: relative; overflow: hidden; background: var(--li-blue); padding: clamp(46px, 6vw, 74px) clamp(20px, 5vw, 48px) clamp(64px, 9vw, 108px); }
+.li-hero-sunrays { position: absolute; left: 50%; top: -42%; width: 2200px; height: 2200px; transform: translateX(-50%); background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(26,36,128,.55) 0deg 5.2deg, rgba(26,36,128,0) 5.2deg 12deg); opacity: .9; pointer-events: none; }
+.li-hero-dots { position: absolute; left: -160px; bottom: -520px; width: 1100px; height: 1100px; border-radius: 50%; background: repeating-radial-gradient(circle at 50% 50%, rgba(245,166,35,0) 0 80px, rgba(245,166,35,.35) 80px 84px); pointer-events: none; }
+.li-hero-inner { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(340px, 46%); gap: clamp(28px, 4vw, 56px); align-items: center; }
+.li-hero-title { color: #fff; font-size: clamp(44px, 7.2vw, 100px); line-height: .82; letter-spacing: -.03em; margin-bottom: 8px; text-wrap: balance; }
+.li-hero-title span { color: var(--li-yellow); }
+.li-hero-desc { max-width: 470px; margin: 26px 0 0; font-size: 17.5px; line-height: 1.5; color: rgba(245,230,211,.92); }
+.li-hero-stats { display: flex; gap: 26px; margin-top: 40px; padding-top: 22px; border-top: 2px solid rgba(245,230,211,.28); flex-wrap: wrap; }
+.li-hero-stats strong { display: block; font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 27px; color: var(--li-yellow); }
+.li-hero-stats span { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: rgba(245,230,211,.7); }
+.li-hero-media { position: relative; }
+.li-hero-photo { position: relative; height: clamp(320px, 42vw, 480px); border: 3px solid var(--li-sand); border-radius: 220px 220px 16px 16px; overflow: hidden; background: var(--li-dark); }
+.li-hero-seal { position: absolute; left: -46px; bottom: 32px; width: 148px; height: 148px; background: var(--li-sand); border-radius: 50%; padding: 9px; box-sizing: border-box; box-shadow: 0 16px 34px rgba(26,36,128,.3); }
+.li-hero-stamp { position: absolute; right: -14px; top: -14px; background: var(--li-sand); border: 2px solid var(--li-dark); padding: 10px 14px; transform: rotate(6deg); font-size: 10.5px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--li-dark); }
+.li-hero-stamp span { color: var(--li-blue); }
+.li-scallop { position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: radial-gradient(circle at 22px 26px, var(--li-sand) 20px, rgba(245,230,211,0) 21px) repeat-x; background-size: 44px 26px; }
+
+/* — progressive image — */
+.progressive-image { position: relative; display: block; overflow: hidden; isolation: isolate; background: linear-gradient(135deg, #F0E5D3 0%, #FFFFFF 44%, #E5D5BE 100%); }
 .progressive-image::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(110deg, rgba(255,255,255,0) 20%, rgba(255,255,255,.62) 46%, rgba(255,255,255,0) 72%); transform: translateX(-120%); animation: imageWash 1.35s ease-in-out infinite; opacity: 1; transition: opacity .55s ease .2s; pointer-events: none; }
-.progressive-image::after { content: ""; position: absolute; inset: 0; z-index: 2; background: radial-gradient(circle at 28% 18%, rgba(242,209,126,.36), transparent 34%), linear-gradient(180deg, rgba(31,42,27,.04), rgba(31,42,27,.12)); opacity: 1; transition: opacity .85s ease .18s; pointer-events: none; }
-.progressive-image img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.055); filter: blur(22px) saturate(.78); clip-path: inset(3% 3% 3% 3% round 8px); }
+.progressive-image::after { content: ""; position: absolute; inset: 0; z-index: 2; background: radial-gradient(circle at 28% 18%, rgba(245,166,35,.28), transparent 34%), linear-gradient(180deg, rgba(26,36,128,.05), rgba(26,36,128,.14)); opacity: 1; transition: opacity .85s ease .18s; pointer-events: none; }
+.progressive-image img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.055); filter: blur(22px) saturate(.85); }
 .progressive-image.is-loaded::before { opacity: 0; animation-play-state: paused; }
 .progressive-image.is-loaded::after { opacity: 0; }
 .progressive-image.is-loaded img { animation: imageReveal 1.25s cubic-bezier(.16,1,.3,1) both; }
 .image-fill { position: absolute; inset: 0; width: 100%; height: 100%; }
-@keyframes imageWash {
-  to { transform: translateX(120%); }
-}
+@keyframes imageWash { to { transform: translateX(120%); } }
 @keyframes imageReveal {
-  0% { opacity: 0; transform: scale(1.055); filter: blur(22px) saturate(.78); clip-path: inset(3% 3% 3% 3% round 8px); }
-  58% { opacity: .92; filter: blur(5px) saturate(.96); }
-  100% { opacity: 1; transform: scale(1); filter: blur(0) saturate(1); clip-path: inset(0 round 8px); }
+  0% { opacity: 0; transform: scale(1.055); filter: blur(22px) saturate(.85); }
+  58% { opacity: .92; filter: blur(5px) saturate(.95); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0) saturate(1); }
 }
-.hero-carousel { position: relative; height: min(60vh, 560px); min-height: 420px; border-radius: 8px; overflow: hidden; background: var(--home-tint); box-shadow: 0 28px 70px rgba(67,89,59,.16); }
-.hero-carousel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(31,42,27,.08), rgba(31,42,27,.46)); pointer-events: none; }
-.hero-slide { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; animation: heroFade 18s infinite; }
-.hero-slide img { position: absolute; inset: 0; }
-.hero-slide-1 { animation-delay: 0s; }
-.hero-slide-2 { animation-delay: 6s; }
-.hero-slide-3 { animation-delay: 12s; }
-@keyframes heroFade {
-  0%, 28% { opacity: 1; transform: scale(1); }
-  34%, 94% { opacity: 0; transform: scale(1.045); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.hero-photo-mark { position: absolute; right: 26px; bottom: 26px; z-index: 2; width: min(42%, 240px); aspect-ratio: 1; border-radius: 50%; background: rgba(242,209,126,.88); display: grid; place-items: center; text-align: center; color: var(--home-ink); box-shadow: 0 24px 60px rgba(31,42,27,.18); backdrop-filter: blur(3px); }
-.hero-photo-mark span { font-family: "DM Sans", system-ui, sans-serif; font-style: italic; font-size: clamp(32px, 3.4vw, 54px); }
-.hero-photo-mark small { display: block; margin-top: 12px; letter-spacing: 5px; color: var(--home-muted); font-size: 11px; }
-.ticket { position: absolute; border: 1px solid var(--home-rule); background: rgba(255,249,236,.92); color: var(--home-muted); border-radius: 999px; padding: 12px 16px; font-size: 12px; font-weight: 800; }
-.ticket-a { z-index: 2; left: 24px; top: 24px; }
-.ticket-b { z-index: 2; left: 24px; bottom: 24px; }
-.intro-band { border-block: 1px solid var(--home-rule); background: var(--home-espresso); color: var(--home-paper); display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 24px clamp(20px, 6vw, 72px); font-family: "DM Sans", system-ui, sans-serif; font-size: clamp(22px, 3vw, 42px); line-height: 1.08; }
-.intro-band p:last-child { color: rgba(255,249,236,.64); }
-.worlds, .menu-section, .events-section { padding: clamp(56px, 8vw, 104px) clamp(20px, 6vw, 72px); }
-.section-title { font-family: "DM Sans", system-ui, sans-serif; font-size: clamp(38px, 5vw, 76px); line-height: .94; color: var(--home-espresso); margin: 0; }
-.world-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 34px; }
-.world-card { border: 1px solid var(--home-rule); background: white; border-radius: 8px; padding: 22px; min-height: 440px; display: flex; flex-direction: column; }
-.world-num { color: var(--home-terracotta); font-size: 12px; font-weight: 900; letter-spacing: 1px; }
-.visual-box { position: relative; height: 170px; border-radius: 8px; background: var(--home-tint); margin: 18px 0 20px; display: grid; place-items: center; color: var(--home-paper); text-align: center; overflow: hidden; }
-.visual-box::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(31,42,27,.08), rgba(31,42,27,.55)); }
-.visual-box svg { position: relative; z-index: 1; filter: drop-shadow(0 2px 8px rgba(0,0,0,.22)); }
-.visual-box span { position: relative; z-index: 1; display: block; font-size: 11px; color: rgba(255,249,236,.86); margin-top: 6px; }
-.world-card h3 { font-family: "DM Sans", system-ui, sans-serif; font-size: 31px; line-height: 1; color: var(--home-ink); margin-bottom: 12px; }
-.world-card p { color: var(--home-muted); line-height: 1.55; }
-.world-card div:last-child { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
-.world-card div:last-child span { border: 1px solid var(--home-rule); border-radius: 999px; padding: 7px 10px; font-size: 11px; color: var(--home-espresso); font-weight: 800; }
-.feature-dinner { display: grid; grid-template-columns: 1fr 1fr; min-height: 680px; background: var(--home-espresso); color: var(--home-paper); }
-.feature-copy { padding: clamp(46px, 7vw, 88px); align-self: center; }
-.feature-copy h2, .picnic-section h2, .visit-copy h2 { font-family: "DM Sans", system-ui, sans-serif; font-size: clamp(44px, 6vw, 82px); line-height: .95; margin: 0 0 22px; }
-.feature-copy p, .picnic-section p { color: rgba(255,249,236,.72); font-size: 18px; line-height: 1.6; max-width: 570px; }
-.detail-list, .hours { margin-top: 28px; border-top: 1px solid rgba(255,249,236,.18); }
-.detail { display: flex; justify-content: space-between; gap: 22px; padding: 13px 0; border-bottom: 1px solid rgba(255,249,236,.15); }
-.detail span { color: rgba(255,249,236,.58); }
-.detail strong { color: inherit; }
-.table-scene { position: relative; min-height: 520px; display: grid; place-items: center; background: #314429; overflow: hidden; }
-.table-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(31,42,27,.18), rgba(31,42,27,.64)); pointer-events: none; }
-.quote-tag { position: absolute; left: 34px; top: 34px; font-family: "DM Sans", system-ui, sans-serif; font-size: 28px; line-height: 1.05; color: var(--home-maize); }
-.quote-tag, .table-scene p { z-index: 1; }
-.table-scene p { position: absolute; right: 30px; bottom: 24px; color: rgba(255,249,236,.78); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-.split-head { display: grid; grid-template-columns: 1fr minmax(240px, 410px) auto; gap: 28px; align-items: end; margin-bottom: 34px; }
-.split-head p { color: var(--home-muted); line-height: 1.55; }
-.split-head a { color: var(--home-ink); border-bottom: 1px solid var(--home-terracotta); font-weight: 800; font-size: 13px; }
-.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.empty-home-state { border: 1px dashed var(--home-rule); border-radius: 8px; background: rgba(255,255,255,.46); color: var(--home-muted); padding: 22px; font-weight: 700; }
-.menu-col { border: 1px solid var(--home-rule); border-radius: 8px; background: white; padding: 24px; }
-.menu-col h3 { display: flex; gap: 14px; align-items: baseline; font-family: "DM Sans", system-ui, sans-serif; font-size: 34px; color: var(--home-espresso); margin-bottom: 14px; }
-.menu-col h3 span { font: 11px ui-monospace, monospace; color: var(--home-terracotta); }
-.menu-item { display: grid; grid-template-columns: 1fr auto; gap: 18px; padding: 17px 0; border-top: 1px solid var(--home-rule); align-items: center; }
-.menu-item.with-image { grid-template-columns: 74px 1fr auto; }
-.menu-thumb { width: 74px; height: 74px; border-radius: 8px; border: 1px solid var(--home-rule); background: var(--home-tint); }
-.menu-item strong { color: var(--home-ink); }
-.menu-item p { color: var(--home-muted); font-size: 13px; margin-top: 4px; }
-.menu-item > span { color: var(--home-espresso); font-weight: 900; }
-.picnic-section { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: 42px; padding: clamp(56px, 8vw, 104px) clamp(20px, 6vw, 72px); background: var(--home-espresso); color: var(--home-paper); }
-.picnic-content { display: grid; gap: 14px; align-self: center; }
-.picnic-photo { width: 100%; height: min(34vw, 280px); border-radius: 8px; border: 1px solid rgba(255,249,236,.18); }
-.tiers { display: grid; gap: 12px; }
-.tier { display: grid; grid-template-columns: 42px 1fr auto; gap: 18px; align-items: start; border: 1px solid rgba(255,249,236,.18); background: rgba(255,249,236,.07); border-radius: 8px; padding: 18px; color: inherit; transition: transform .2s ease, background .2s ease; }
-.tier:hover { transform: translateY(-2px); background: rgba(255,249,236,.11); }
-.tier > span { color: var(--home-maize); font-family: "DM Sans", system-ui, sans-serif; font-size: 24px; }
-.tier strong { color: var(--home-paper); }
-.tier p { color: rgba(255,249,236,.62); font-size: 13px; margin-top: 4px; }
-.tier b { color: var(--home-maize); white-space: nowrap; }
-.event-grid { display: grid; grid-template-columns: 1.25fr repeat(3, 1fr); gap: 14px; }
-.event-card { border: 1px solid var(--home-rule); border-radius: 8px; background: white; padding: 20px; min-height: 250px; display: flex; flex-direction: column; color: inherit; overflow: hidden; }
-.event-card.featured { background: var(--home-espresso); color: var(--home-paper); border-color: var(--home-espresso); }
-.event-card-image { width: calc(100% + 40px); height: 120px; margin: -20px -20px 18px; }
-.date-row { display: flex; justify-content: space-between; gap: 16px; margin-bottom: auto; }
-.date-row strong { display: block; font-family: "DM Sans", system-ui, sans-serif; font-size: 54px; line-height: .9; }
-.date-row span { color: var(--home-muted); font-size: 12px; text-transform: uppercase; }
-.featured .date-row span, .featured p { color: rgba(255,249,236,.7); }
-.date-row > span { border: 1px solid currentColor; border-radius: 999px; height: 26px; padding: 5px 9px; }
-.event-card h3 { font-family: "DM Sans", system-ui, sans-serif; font-size: 25px; line-height: 1.05; margin: 24px 0 12px; color: inherit; }
-.event-card p { color: var(--home-muted); font-size: 13px; }
-.visit-section { display: grid; grid-template-columns: .9fr 1.1fr; min-height: 620px; }
-.visit-copy { padding: clamp(46px, 7vw, 88px); background: white; }
-.visit-copy .kicker { color: var(--home-terracotta); }
-.visit-copy h2, .visit-copy h2 em { color: var(--home-espresso); }
-.address { color: var(--home-muted); font-size: 20px; line-height: 1.55; }
-.visit-copy .detail { border-color: var(--home-rule); }
-.visit-copy .detail span { color: var(--home-muted); }
-.map-panel { position: relative; min-height: 520px; overflow: hidden; border-left: 1px solid var(--home-rule); }
-.map-panel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(251,243,222,.05), rgba(31,42,27,.34)); pointer-events: none; }
-.pin { position: absolute; left: 46%; top: 43%; display: inline-flex; align-items: center; gap: 8px; background: var(--home-terracotta); color: var(--home-paper); border-radius: 999px; padding: 10px 14px; font-weight: 900; }
-.ribbon { position: absolute; right: 22px; bottom: 22px; background: var(--home-ink); color: var(--home-paper); border-radius: 999px; padding: 9px 12px; font-size: 11px; letter-spacing: 1px; }
-.pin, .ribbon { z-index: 1; }
-.newsletter { display: grid; grid-template-columns: 1.2fr .8fr; gap: 32px; align-items: center; padding: clamp(44px, 7vw, 78px) clamp(20px, 6vw, 72px); background: var(--home-maize); }
-.quote { display: grid; gap: 4px; font-family: "DM Sans", system-ui, sans-serif; font-size: clamp(34px, 5vw, 68px); line-height: .95; color: var(--home-ink); }
-.newsletter form { background: rgba(255,249,236,.54); border: 1px solid rgba(31,42,27,.12); border-radius: 8px; padding: 20px; }
-.newsletter label { font-weight: 900; color: var(--home-espresso); font-size: 13px; }
-.newsletter form > div { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 12px 0; }
-.newsletter input { border: 1px solid var(--home-rule); border-radius: 999px; padding: 13px 15px; background: white; color: var(--home-ink); }
-.newsletter button { border: 0; border-radius: 999px; padding: 0 16px; background: var(--home-espresso); color: var(--home-paper); font-weight: 900; }
-.newsletter button:disabled, .newsletter input:disabled { opacity: .68; cursor: wait; }
-.newsletter p { color: var(--home-muted); font-size: 12px; line-height: 1.5; }
-.home-footer { display: grid; grid-template-columns: 1.2fr .7fr .7fr; gap: 30px; padding: 42px clamp(20px, 6vw, 72px); background: var(--home-ink); color: var(--home-paper); }
-.home-footer h2 { font-family: "DM Sans", system-ui, sans-serif; font-size: 28px; margin: 10px 0 8px; }
-.home-footer p, .home-footer span { color: rgba(255,249,236,.62); }
-.home-footer nav, .contact { display: grid; gap: 10px; align-content: start; }
-.home-footer a { color: rgba(255,249,236,.72); }
+
+/* — reasons — */
+.li-reasons { background: var(--li-sand); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); }
+.li-reasons-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 44px; }
+.li-reasons-lead { max-width: 340px; margin: 0; font-size: 15.5px; line-height: 1.6; color: var(--li-muted); }
+.li-reasons-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; }
+.li-reason-card { background: #fff; border: 2px solid var(--li-dark); padding: 22px 22px 26px; }
+.li-reason-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+.li-reason-n { font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 14px; color: var(--li-blue); }
+.li-reason-tag { font-size: 10.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--li-muted); }
+.li-reason-photo { position: relative; height: 190px; border-radius: 130px 130px 8px 8px; overflow: hidden; background: var(--li-blue); }
+.li-reason-card h3 { font-size: 27px; line-height: 1; margin: 20px 0 10px; }
+.li-reason-card p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--li-muted); }
+
+/* — menu — */
+.li-menu { background: #fff; padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); }
+.li-menu-list { margin-top: 30px; border-top: 2px solid var(--li-dark); max-width: 760px; }
+.li-menu-row { display: flex; align-items: baseline; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--li-rule); }
+.li-menu-row-name { font-family: "Archivo", system-ui, sans-serif; font-stretch: 116%; font-weight: 800; font-size: 20px; text-transform: uppercase; white-space: nowrap; }
+.li-menu-row-leader { flex: 1; border-bottom: 1.5px dotted rgba(26,36,128,.35); align-self: center; }
+.li-menu-row-desc { font-size: 12.5px; color: var(--li-muted); max-width: 260px; }
+.li-menu-row-price { font-family: "Archivo", system-ui, sans-serif; font-stretch: 116%; font-size: 19px; color: var(--li-blue); white-space: nowrap; }
+.li-menu-feature { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: stretch; max-width: 760px; margin-top: 34px; border: 2px solid var(--li-dark); }
+.li-menu-feature-photo { position: relative; min-height: 140px; background: var(--li-blue); }
+.li-menu-feature-copy { padding: 18px 20px 18px 0; }
+.li-menu-feature-title { margin: 4px 0 8px; font-family: "Archivo", system-ui, sans-serif; font-stretch: 114%; font-weight: 800; font-size: 21px; line-height: 1.1; text-transform: uppercase; }
+.li-menu-feature-copy p:last-child { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--li-muted); }
+
+/* — events — */
+.li-events { background: var(--li-sand); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); border-top: 2px solid var(--li-dark); }
+.li-events-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 40px; }
+.li-events-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; }
+.li-event-card { display: grid; grid-template-columns: 92px 1fr; background: #fff; color: var(--li-dark); border: 2px solid var(--li-dark); }
+.li-event-date { background: var(--li-blue); color: var(--li-sand); padding: 18px 10px; text-align: center; border-right: 2px dashed rgba(245,230,211,.5); }
+.li-event-date strong { display: block; font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 40px; line-height: .85; }
+.li-event-date span { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; margin-top: 6px; }
+.li-event-body { padding: 18px; }
+.li-event-badge { display: inline-block; background: var(--li-yellow); color: var(--li-dark); font-size: 9.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; }
+.li-event-body h3 { font-size: 22px; line-height: 1.02; margin: 13px 0 7px; }
+.li-event-body p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--li-muted); }
+
+/* — dinner — */
+.li-dinner { position: relative; overflow: hidden; background: var(--li-dark); padding: clamp(56px, 8vw, 100px) clamp(20px, 5vw, 48px); }
+.li-dinner-dots { position: absolute; right: -220px; top: -220px; width: 800px; height: 800px; border-radius: 50%; background: repeating-radial-gradient(circle at 50% 50%, rgba(245,166,35,0) 0 58px, rgba(245,166,35,.22) 58px 61px); pointer-events: none; }
+.li-dinner-inner { position: relative; display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: 56px; align-items: center; }
+.li-dinner-title { color: #fff; font-size: clamp(38px, 5.6vw, 76px); line-height: .84; letter-spacing: -.03em; }
+.li-dinner-title span { color: var(--li-yellow); }
+.li-dinner-desc { max-width: 470px; margin: 24px 0 0; font-size: 17px; line-height: 1.55; color: rgba(245,230,211,.9); }
+.li-dinner-meta { margin: 20px 0 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: rgba(245,230,211,.55); }
+.li-dinner-card { position: relative; background: var(--li-blue); border: 3px solid var(--li-sand); padding: 30px 28px 28px; }
+.li-dinner-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 10.5px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.li-dinner-card-head span:first-child { color: var(--li-sand); }
+.li-dinner-card-head span:last-child { color: var(--li-yellow); }
+.li-dinner-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.li-dinner-chip { text-align: center; }
+.li-dinner-chip-mark { height: 78px; border-radius: 999px 999px 6px 6px; background: var(--li-sand); display: grid; place-items: center; font-family: "Archivo", system-ui, sans-serif; font-stretch: 120%; font-weight: 800; font-size: 32px; color: var(--li-blue); }
+.li-dinner-chip-mark.alt { background: var(--li-yellow); color: var(--li-dark); }
+.li-dinner-chip-label { display: block; margin-top: 8px; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,230,211,.85); }
+.li-dinner-note { margin: 22px 0 0; padding-top: 16px; border-top: 2px dashed rgba(245,230,211,.4); font-size: 13px; line-height: 1.5; color: rgba(245,230,211,.85); }
+
+/* — booking — */
+.li-booking { position: relative; overflow: hidden; background: var(--li-yellow); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); }
+.li-booking-sunrays { position: absolute; left: 50%; top: -70%; width: 1800px; height: 1800px; transform: translateX(-50%); background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.32) 0deg 4.4deg, rgba(255,255,255,0) 4.4deg 11deg); pointer-events: none; }
+.li-booking-inner { position: relative; display: grid; grid-template-columns: minmax(0,.95fr) 520px; gap: 56px; align-items: center; }
+.li-booking-title { line-height: .85; }
+.li-booking-desc { max-width: 420px; margin: 0; font-size: 16.5px; line-height: 1.55; color: rgba(26,36,128,.82); }
+.li-booking-tags { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.li-booking-tags span { background: #fff; border: 1.5px solid var(--li-dark); font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 8px 12px; border-radius: 999px; }
+.li-booking-form { background: #fff; border: 3px solid var(--li-dark); padding: 28px; }
+.li-booking-form-title { margin: 0 0 20px; font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 24px; text-transform: uppercase; }
+.li-booking-step-label { margin: 0 0 10px; font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--li-blue); }
+.li-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.li-chip-btn { flex: 1; min-width: 76px; padding: 11px 8px; border: 2px solid var(--li-dark); border-radius: 6px; cursor: pointer; background: #fff; color: var(--li-dark); font-family: "DM Sans", sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.li-chip-btn.is-active { background: var(--li-blue); color: #fff; }
+.li-people-row { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.li-people-btn { width: 46px; height: 46px; border: 2px solid var(--li-dark); border-radius: 999px; background: var(--li-sand); color: var(--li-dark); font-size: 22px; font-weight: 800; cursor: pointer; }
+.li-people-btn:hover { background: var(--li-yellow); }
+.li-people-count { font-family: "Archivo", system-ui, sans-serif; font-stretch: 120%; font-weight: 800; font-size: 30px; min-width: 150px; text-align: center; }
+.li-booking-submit { width: 100%; padding: 18px; border: 2px solid var(--li-dark); border-radius: 999px; background: var(--li-blue); color: #fff; font-family: "DM Sans", sans-serif; font-size: 13.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.li-booking-submit:hover { background: var(--li-dark); }
+.li-booking-summary { margin: 14px 0 0; font-size: 12.5px; line-height: 1.5; color: rgba(26,36,128,.65); }
+
+/* — footer — */
+.li-footer { background: var(--li-dark); padding: 56px clamp(20px, 5vw, 48px) 34px; color: var(--li-sand); }
+.li-footer-grid { display: grid; grid-template-columns: 1.3fr .8fr .8fr .9fr; gap: 36px; }
+.li-footer-logo { height: 88px; width: auto; display: block; margin-bottom: 16px; }
+.li-footer-desc { margin: 0; max-width: 280px; font-size: 14px; line-height: 1.6; color: rgba(245,230,211,.78); }
+.li-footer-col { display: grid; gap: 11px; align-content: start; }
+.li-footer-col-title { margin: 0 0 4px; font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--li-yellow); }
+.li-footer-col a, .li-footer-col span { font-size: 14px; color: rgba(245,230,211,.85); line-height: 1.5; }
+.li-footer-col a:hover { color: var(--li-yellow); }
+.li-newsletter-form { display: flex; border: 2px solid var(--li-sand); }
+.li-newsletter-form input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 12px 13px; color: var(--li-sand); font-family: "DM Sans", sans-serif; font-size: 13.5px; outline: none; }
+.li-newsletter-form input::placeholder { color: rgba(245,230,211,.55); }
+.li-newsletter-form button { border: 0; border-left: 2px solid var(--li-sand); background: var(--li-yellow); color: var(--li-dark); padding: 0 15px; font-family: "DM Sans", sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.li-newsletter-form button:hover { background: #fff; }
+.li-newsletter-form button:disabled { opacity: .68; cursor: wait; }
+.li-newsletter-message { font-size: 12.5px; color: var(--li-yellow); }
+.li-footer-bottom { display: flex; justify-content: space-between; gap: 24px; margin-top: 40px; padding-top: 18px; border-top: 1px solid rgba(245,230,211,.28); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,230,211,.6); }
+
+/* — responsive: tablet — */
 @media (max-width: 980px) {
-  .home-nav { grid-template-columns: 1fr auto; }
-  .home-nav nav { display: none; }
-  .hero-shell, .feature-dinner, .picnic-section, .visit-section, .newsletter, .home-footer { grid-template-columns: 1fr; }
-  .hero-shell { min-height: auto; }
-  .hero-carousel { height: 420px; min-height: 380px; }
-  .world-grid, .menu-grid, .event-grid { grid-template-columns: 1fr; }
-  .split-head { grid-template-columns: 1fr; align-items: start; }
-  .intro-band { grid-template-columns: 1fr; }
+  .li-nav { display: none; }
+  .li-header { grid-template-columns: auto 1fr auto; }
+  .li-hero-inner, .li-dinner-inner, .li-booking-inner { grid-template-columns: 1fr; }
+  .li-booking-form { max-width: 520px; }
+  .li-reasons-grid, .li-events-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .li-reason-card-3 { display: none; }
+  .li-events-grid { grid-template-columns: 1fr; }
+  .li-menu-feature { grid-template-columns: 1fr; }
+  .li-menu-feature-photo { height: 160px; }
+  .li-footer-grid { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 620px) {
-  .hero-shell, .worlds, .menu-section, .events-section, .picnic-section { padding-inline: 16px; }
-  .hero-copy h1 { font-size: 44px; }
-  .hero-carousel { height: 360px; min-height: 340px; }
-  .hero-photo-mark { width: 180px; right: 18px; bottom: 18px; }
-  .ticket { display: none; }
-  .home-nav { padding-inline: 14px; }
-  .brand-lockup small { letter-spacing: 2px; }
-  .nav-cta { padding-inline: 14px; }
-  .tier { grid-template-columns: 32px 1fr; }
-  .tier b { grid-column: 2; }
-  .newsletter form > div { grid-template-columns: 1fr; }
-  .menu-item.with-image { grid-template-columns: 58px 1fr; }
-  .menu-thumb { width: 58px; height: 58px; }
-  .menu-item > span { grid-column: 2; }
+
+/* — responsive: mobile (matches 1d) — */
+@media (max-width: 640px) {
+  .li-header { padding: 16px 18px; }
+  .li-brand-mark { height: 47px; }
+  .li-header-cta { padding: 10px 14px; font-size: 11px; }
+  .li-header-cta span { display: none; }
+  .li-hero { padding: 34px 18px 42px; }
+  .li-hero-title { font-size: 46px; }
+  .li-hero-desc { font-size: 15px; }
+  .li-hero-actions { flex-direction: column; }
+  .li-hero-actions a { width: 100%; text-align: center; }
+  .li-hero-stats { display: none; }
+  .li-hero-photo { height: 240px; border-radius: 120px 120px 10px 10px; margin-top: 24px; }
+  .li-hero-seal { width: 84px; height: 84px; left: auto; right: 12px; bottom: 12px; }
+  .li-hero-stamp { display: none; }
+  .li-reasons-head { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .li-reasons-lead { display: none; }
+  .li-reasons-grid { grid-template-columns: 1fr; }
+  .li-reason-card-3 { display: none; }
+  .li-menu-row { flex-wrap: wrap; }
+  .li-menu-row-leader { display: none; }
+  .li-menu-row-price { margin-left: auto; }
+  .li-events-grid { grid-template-columns: 1fr; }
+  .li-dinner-chip:nth-child(n+4) { display: none; }
+  .li-dinner-chip-label { display: none; }
+  .li-dinner-chips { grid-template-columns: repeat(3, 1fr); }
+  .li-dinner-chip-mark { height: 66px; font-size: 26px; }
+  .li-booking-tags { display: none; }
+  .li-chip-btn { min-width: 62px; font-size: 11px; }
+  .li-footer-grid { grid-template-columns: 1fr; }
+  .li-footer-bottom { flex-direction: column; gap: 6px; }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .progressive-image::before, .hero-slide { animation: none; }
-  .hero-slide-1 { opacity: 1; }
-  .progressive-image.is-loaded img { animation: none; opacity: 1; transform: none; filter: none; clip-path: none; }
+  .progressive-image::before { animation: none; }
+  .progressive-image.is-loaded img { animation: none; opacity: 1; transform: none; filter: none; }
 }
 `;

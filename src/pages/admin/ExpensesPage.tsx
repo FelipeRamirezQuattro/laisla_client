@@ -195,8 +195,8 @@ export function ExpensesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Gastos diarios</h1>
-          <p className="text-stone font-body text-sm">
+          <h1 className="font-body text-2xl font-bold text-island-dark">Gastos diarios</h1>
+          <p className="text-island-dark/70 font-body text-sm">
             Caja menor, compras de insumos y gastos operativos del día.
           </p>
         </div>
@@ -218,45 +218,45 @@ export function ExpensesPage() {
         <section className="card space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="font-body text-lg font-semibold text-espresso">Historial del día</h2>
-              <p className="text-sm text-stone font-body">{expenses.length} registro(s)</p>
+              <h2 className="font-body text-lg font-semibold text-island-dark">Historial del día</h2>
+              <p className="text-sm text-island-dark/70 font-body">{expenses.length} registro(s)</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-stone font-body">Total gastos</p>
-              <p className="text-xl font-body font-bold text-espresso">{formatCOP(total)}</p>
+              <p className="text-xs text-island-dark/70 font-body">Total gastos</p>
+              <p className="text-xl font-body font-bold text-island-dark">{formatCOP(total)}</p>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm font-body">
-              <thead className="border-b border-rule">
+              <thead className="border-b border-island-blue/20">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-stone">Gasto</th>
-                  <th className="px-3 py-2 text-left font-medium text-stone">Relación</th>
-                  <th className="px-3 py-2 text-left font-medium text-stone">Proveedor</th>
-                  <th className="px-3 py-2 text-right font-medium text-stone">Valor</th>
-                  <th className="px-3 py-2 text-right font-medium text-stone">Acciones</th>
+                  <th className="px-3 py-2 text-left font-medium text-island-dark/70">Gasto</th>
+                  <th className="px-3 py-2 text-left font-medium text-island-dark/70">Relación</th>
+                  <th className="px-3 py-2 text-left font-medium text-island-dark/70">Proveedor</th>
+                  <th className="px-3 py-2 text-right font-medium text-island-dark/70">Valor</th>
+                  <th className="px-3 py-2 text-right font-medium text-island-dark/70">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-rule">
+              <tbody className="divide-y divide-island-blue/20">
                 {expenses.map((expense) => (
-                  <tr key={expense._id} className="hover:bg-surface-tint">
+                  <tr key={expense._id} className="hover:bg-sand">
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2">
-                        {expense.type === 'INSUMO' ? <PackagePlus size={16} className="text-terracotta" /> : <ReceiptText size={16} className="text-stone" />}
+                        {expense.type === 'INSUMO' ? <PackagePlus size={16} className="text-island-blue" /> : <ReceiptText size={16} className="text-island-dark/70" />}
                         <div>
-                          <p className="font-medium text-espresso">{expense.description}</p>
-                          <p className="text-xs text-stone">{formatDate(expense.date)}</p>
+                          <p className="font-medium text-island-dark">{expense.description}</p>
+                          <p className="text-xs text-island-dark/70">{formatDate(expense.date)}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-stone">
+                    <td className="px-3 py-3 text-island-dark/70">
                       {expense.type === 'INSUMO'
                         ? `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`
                         : 'Gasto general'}
                     </td>
-                    <td className="px-3 py-3 text-stone">{providerName(expense.providerId) || '-'}</td>
-                    <td className="px-3 py-3 text-right font-semibold text-ink">{formatCOP(expense.amount)}</td>
+                    <td className="px-3 py-3 text-island-dark/70">{providerName(expense.providerId) || '-'}</td>
+                    <td className="px-3 py-3 text-right font-semibold text-island-dark">{formatCOP(expense.amount)}</td>
                     <td className="px-3 py-3 text-right">
                       <Button type="button" variant="ghost" size="sm" onClick={() => startEdit(expense)}>
                         <Edit3 size={14} />
@@ -267,7 +267,7 @@ export function ExpensesPage() {
                 ))}
                 {expenses.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-10 text-center text-stone">No hay gastos registrados para esta fecha.</td>
+                    <td colSpan={5} className="py-10 text-center text-island-dark/70">No hay gastos registrados para esta fecha.</td>
                   </tr>
                 )}
               </tbody>
@@ -277,7 +277,7 @@ export function ExpensesPage() {
 
         <aside className="card h-fit">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-body text-lg font-semibold text-espresso">{editing ? 'Editar gasto' : 'Registrar gasto'}</h2>
+            <h2 className="font-body text-lg font-semibold text-island-dark">{editing ? 'Editar gasto' : 'Registrar gasto'}</h2>
             <Button type="button" variant="ghost" size="sm" onClick={() => loadExpenses(selectedDate)} title="Actualizar">
               <RefreshCw size={14} />
             </Button>
@@ -349,7 +349,7 @@ export function ExpensesPage() {
               onChange={(event) => setForm({ ...form, amount: event.target.value === '' ? '' : +event.target.value })}
             />
             <div>
-              <label className="mb-1 block text-sm font-medium text-ink font-body">Notas</label>
+              <label className="mb-1 block text-sm font-medium text-island-dark font-body">Notas</label>
               <textarea
                 className="input-base h-20 resize-none"
                 value={form.notes}
@@ -372,18 +372,18 @@ export function ExpensesPage() {
 
       {historyOpen && (
         <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-espresso bg-opacity-50 backdrop-blur-sm" onClick={() => setHistoryOpen(false)} />
+          <div className="absolute inset-0 bg-island-dark bg-opacity-50 backdrop-blur-sm" onClick={() => setHistoryOpen(false)} />
           <aside className="absolute right-0 top-0 h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 border-b border-rule bg-white px-6 py-4">
+            <div className="sticky top-0 z-10 border-b border-island-blue/20 bg-white px-6 py-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-body uppercase tracking-wide text-stone">Gastos</p>
-                  <h2 className="font-body text-xl font-semibold text-espresso">Histórico de caja menor</h2>
+                  <p className="text-xs font-body uppercase tracking-wide text-island-dark/70">Gastos</p>
+                  <h2 className="font-body text-xl font-semibold text-island-dark">Histórico de caja menor</h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setHistoryOpen(false)}
-                  className="rounded-lg p-1 text-stone transition-colors hover:bg-surface-tint hover:text-espresso"
+                  className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-sand hover:text-island-dark"
                   aria-label="Cerrar"
                 >
                   <X size={20} />
@@ -399,27 +399,27 @@ export function ExpensesPage() {
               </div>
             </div>
             <div className="space-y-4 px-6 py-5">
-              <div className="rounded-xl bg-surface-tint p-4">
-                <p className="text-xs text-stone font-body">Total del periodo</p>
-                <p className="text-2xl font-body font-bold text-espresso">{formatCOP(historyTotal)}</p>
+              <div className="rounded-xl bg-sand p-4">
+                <p className="text-xs text-island-dark/70 font-body">Total del periodo</p>
+                <p className="text-2xl font-body font-bold text-island-dark">{formatCOP(historyTotal)}</p>
               </div>
               <div className="space-y-2">
                 {historyExpenses.map((expense) => (
-                  <div key={expense._id} className="rounded-xl border border-rule bg-white p-4">
+                  <div key={expense._id} className="rounded-xl border border-island-blue/20 bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-body font-semibold text-espresso">{expense.description}</p>
-                        <p className="text-xs text-stone font-body">
+                        <p className="font-body font-semibold text-island-dark">{expense.description}</p>
+                        <p className="text-xs text-island-dark/70 font-body">
                           {formatDate(expense.date)} · {expense.type === 'INSUMO'
                             ? `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`
                             : 'Gasto general'}
                         </p>
                         {providerName(expense.providerId) && (
-                          <p className="mt-1 text-xs text-stone font-body">Proveedor: {providerName(expense.providerId)}</p>
+                          <p className="mt-1 text-xs text-island-dark/70 font-body">Proveedor: {providerName(expense.providerId)}</p>
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="font-body font-bold text-ink">{formatCOP(expense.amount)}</p>
+                        <p className="font-body font-bold text-island-dark">{formatCOP(expense.amount)}</p>
                         <Button
                           type="button"
                           variant="ghost"
@@ -437,7 +437,7 @@ export function ExpensesPage() {
                   </div>
                 ))}
                 {historyExpenses.length === 0 && (
-                  <p className="py-10 text-center text-sm text-stone font-body">No hay gastos en el periodo seleccionado.</p>
+                  <p className="py-10 text-center text-sm text-island-dark/70 font-body">No hay gastos en el periodo seleccionado.</p>
                 )}
               </div>
             </div>

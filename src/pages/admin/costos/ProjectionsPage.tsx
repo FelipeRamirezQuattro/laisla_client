@@ -85,9 +85,9 @@ export function ProjectionsPage() {
   if (!projection) {
     return (
       <div className="space-y-6">
-        <h1 className="font-body text-2xl font-bold text-espresso">Proyecciones {yearNum}</h1>
+        <h1 className="font-body text-2xl font-bold text-island-dark">Proyecciones {yearNum}</h1>
         <div className="card text-center py-12">
-          <p className="text-stone font-body mb-4">No hay proyección para {yearNum}.</p>
+          <p className="text-island-dark/70 font-body mb-4">No hay proyección para {yearNum}.</p>
           <Button onClick={createProjection} loading={creating}>Crear proyección {yearNum}</Button>
         </div>
       </div>
@@ -117,8 +117,8 @@ export function ProjectionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Proyecciones {yearNum}</h1>
-          <p className="text-stone font-body text-sm">
+          <h1 className="font-body text-2xl font-bold text-island-dark">Proyecciones {yearNum}</h1>
+          <p className="text-island-dark/70 font-body text-sm">
             Tasa de crecimiento: {(projection.growthRate * 100).toFixed(1)}% · {projection.workingDaysPerMonth} días/mes
           </p>
         </div>
@@ -135,16 +135,16 @@ export function ProjectionsPage() {
       {/* Monthly table */}
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm font-body">
-          <thead className="bg-surface-tint border-b border-rule">
+          <thead className="bg-sand border-b border-island-blue/20">
             <tr>
-              <th className="text-left px-4 py-3 text-stone font-medium">Mes</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Tickets/día</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Ticket prom.</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Ventas mes</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Costo ventas</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Gastos op.</th>
-              <th className="text-right px-4 py-3 text-stone font-medium">Utilidad</th>
-              <th className="text-center px-4 py-3 text-stone font-medium">Editar</th>
+              <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mes</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Tickets/día</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Ticket prom.</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Ventas mes</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Costo ventas</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Gastos op.</th>
+              <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Utilidad</th>
+              <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Editar</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-rule">
@@ -158,8 +158,8 @@ export function ProjectionsPage() {
               });
               const isEditing = editMonth === m.month;
               return (
-                <tr key={m.month} className={`hover:bg-surface-tint transition-colors ${m.isManualOverride ? 'bg-warning-tint' : ''}`}>
-                  <td className="px-4 py-3 font-medium text-ink">
+                <tr key={m.month} className={`hover:bg-sand transition-colors ${m.isManualOverride ? 'bg-warning-tint' : ''}`}>
+                  <td className="px-4 py-3 font-medium text-island-dark">
                     {MONTHS[m.month - 1]}
                     {m.isManualOverride && <Pencil size={12} className="ml-1 inline-block text-warning" />}
                   </td>
@@ -171,7 +171,7 @@ export function ProjectionsPage() {
                       <td className="px-2 py-2">
                         <input className="input-base text-sm w-24" type="number" value={editAvgTicket} onChange={(e) => setEditAvgTicket(+e.target.value)} />
                       </td>
-                      <td className="px-4 py-3 text-right text-stone">
+                      <td className="px-4 py-3 text-right text-island-dark/70">
                         {formatCOP(editDailyTickets * projection.workingDaysPerMonth * editAvgTicket)}
                       </td>
                       <td className="px-2 py-2">
@@ -180,7 +180,7 @@ export function ProjectionsPage() {
                       <td className="px-2 py-2">
                         <input className="input-base text-sm w-28" type="number" value={editOpExp} onChange={(e) => setEditOpExp(+e.target.value)} />
                       </td>
-                      <td className="px-4 py-3 text-right text-stone">—</td>
+                      <td className="px-4 py-3 text-right text-island-dark/70">—</td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex gap-1 justify-center">
                           <Button size="sm" onClick={saveMonth} loading={saving === m.month}>OK</Button>
@@ -192,11 +192,11 @@ export function ProjectionsPage() {
                     </>
                   ) : (
                     <>
-                      <td className="px-4 py-3 text-right text-stone">{m.dailyTickets}</td>
-                      <td className="px-4 py-3 text-right text-stone">{formatCOP(m.averageTicket)}</td>
-                      <td className="px-4 py-3 text-right font-medium text-ink">{formatCOP(calc.monthlySales)}</td>
-                      <td className="px-4 py-3 text-right text-stone">{formatCOP(calc.costOfSales)}</td>
-                      <td className="px-4 py-3 text-right text-stone">{formatCOP(m.operatingExpenses)}</td>
+                      <td className="px-4 py-3 text-right text-island-dark/70">{m.dailyTickets}</td>
+                      <td className="px-4 py-3 text-right text-island-dark/70">{formatCOP(m.averageTicket)}</td>
+                      <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(calc.monthlySales)}</td>
+                      <td className="px-4 py-3 text-right text-island-dark/70">{formatCOP(calc.costOfSales)}</td>
+                      <td className="px-4 py-3 text-right text-island-dark/70">{formatCOP(m.operatingExpenses)}</td>
                       <td className={`px-4 py-3 text-right font-medium ${calc.profit >= 0 ? 'text-success' : 'text-error-ink'}`}>
                         {formatCOP(calc.profit)}
                       </td>
@@ -218,9 +218,9 @@ export function ProjectionsPage() {
 function KpiCard({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
   return (
     <div className="card">
-      <p className="text-xs text-stone font-body">{label}</p>
-      <p className={`text-xl font-body font-bold mt-1 ${highlight ? 'text-success' : 'text-espresso'}`}>{value}</p>
-      {sub && <p className="text-xs text-stone font-body mt-0.5">{sub}</p>}
+      <p className="text-xs text-island-dark/70 font-body">{label}</p>
+      <p className={`text-xl font-body font-bold mt-1 ${highlight ? 'text-success' : 'text-island-dark'}`}>{value}</p>
+      {sub && <p className="text-xs text-island-dark/70 font-body mt-0.5">{sub}</p>}
     </div>
   );
 }

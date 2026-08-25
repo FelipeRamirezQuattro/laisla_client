@@ -74,8 +74,8 @@ function NavItem({ to, label, Icon, end }: NavItemDef) {
       className={({ isActive }) =>
         `flex items-center gap-3 px-6 py-2.5 text-sm font-body transition-all duration-200 ${
           isActive
-            ? 'bg-cream text-espresso font-medium'
-            : 'text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10'
+            ? 'bg-white text-island-dark font-medium'
+            : 'text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10'
         }`
       }
     >
@@ -110,14 +110,14 @@ export function Sidebar() {
     <>
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-espresso bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-island-dark bg-opacity-50 z-20 lg:hidden"
           onClick={() => useUiStore.getState().setSidebarOpen(false)}
         />
       )}
 
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 shrink-0 bg-espresso text-cream z-30 flex flex-col
+          fixed top-0 left-0 h-full w-64 shrink-0 bg-island-dark text-white z-30 flex flex-col
           transition-transform duration-300
           ${sidebarOpen ? 'translate-x-0 lg:static' : '-translate-x-full lg:hidden'}
           shadow-xl lg:shadow-none
@@ -125,14 +125,17 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div className="px-6 py-6 border-b border-white border-opacity-10 flex items-start justify-between gap-3">
-          <div>
-            <h1 className="font-body text-xl font-bold text-cream">La Isla Café</h1>
-            <p className="text-xs text-cream text-opacity-60 font-body mt-0.5">Panel de Administración</p>
+          <div className="flex items-center gap-2">
+            <img src="/images/brand/icono-blanco.png" alt="" className="h-8 w-8 shrink-0" />
+            <div>
+              <h1 className="font-body text-xl font-bold text-white">La Isla Café</h1>
+              <p className="text-xs text-white text-opacity-60 font-body mt-0.5">Panel de Administración</p>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => useUiStore.getState().setSidebarOpen(false)}
-            className="rounded-lg p-1 text-cream text-opacity-70 hover:bg-white hover:bg-opacity-10 hover:text-cream"
+            className="rounded-lg p-1 text-white text-opacity-70 hover:bg-white hover:bg-opacity-10 hover:text-white"
             aria-label="Cerrar menú"
           >
             <X size={18} />
@@ -151,7 +154,7 @@ export function Sidebar() {
           {/* Gestión del negocio collapsible group */}
           <button
             onClick={() => setGestionOpen((o) => !o)}
-            className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+            className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200"
           >
             <span className="flex items-center gap-3">
               <Users size={16} strokeWidth={1.75} />
@@ -175,7 +178,7 @@ export function Sidebar() {
             <>
               <button
                 onClick={() => setProjectOpen((o) => !o)}
-                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200"
               >
                 <span className="flex items-center gap-3">
                   <FolderOpen size={16} strokeWidth={1.75} />
@@ -193,13 +196,13 @@ export function Sidebar() {
               {/* Control de Inventario collapsible group */}
               <button
                 onClick={() => setInventarioOpen((o) => !o)}
-                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200"
               >
                 <span className="flex items-center gap-3">
                   <ClipboardCheck size={16} strokeWidth={1.75} />
                   Control de Inventario
                   {agotadoCount > 0 && (
-                    <span className="bg-error text-cream text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
+                    <span className="bg-error text-white text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
                       {agotadoCount}
                     </span>
                   )}
@@ -219,8 +222,8 @@ export function Sidebar() {
                       className={({ isActive }) =>
                         `flex items-center justify-between px-6 py-2.5 text-sm font-body transition-all duration-200 ${
                           isActive
-                            ? 'bg-cream text-espresso font-medium'
-                            : 'text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10'
+                            ? 'bg-white text-island-dark font-medium'
+                            : 'text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10'
                         }`
                       }
                     >
@@ -229,7 +232,7 @@ export function Sidebar() {
                         {item.label}
                       </span>
                       {item.to.includes('stock') && agotadoCount > 0 && (
-                        <span className="bg-error text-cream text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
+                        <span className="bg-error text-white text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
                           {agotadoCount}
                         </span>
                       )}
@@ -241,7 +244,7 @@ export function Sidebar() {
               {/* Costos & Finanzas collapsible group */}
               <button
                 onClick={() => setCostOpen((o) => !o)}
-                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200"
               >
                 <span className="flex items-center gap-3">
                   <CircleDollarSign size={16} strokeWidth={1.75} />
@@ -267,7 +270,7 @@ export function Sidebar() {
             <>
               <button
                 onClick={() => setConfigOpen((o) => !o)}
-                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-cream text-opacity-70 hover:text-cream hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+                className="flex items-center justify-between w-full px-6 py-2.5 text-sm font-body text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200"
               >
                 <span className="flex items-center gap-3">
                   <UserCog size={16} strokeWidth={1.75} />
@@ -287,8 +290,8 @@ export function Sidebar() {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-white border-opacity-10">
-          <p className="text-xs text-cream text-opacity-40 font-body">La Isla Café Picnic © {new Date().getFullYear()}</p>
-          <p className="text-xs text-cream text-opacity-30 font-body">Ibagué, Colombia</p>
+          <p className="text-xs text-white text-opacity-40 font-body">La Isla Café Picnic © {new Date().getFullYear()}</p>
+          <p className="text-xs text-white text-opacity-30 font-body">Ibagué, Colombia</p>
         </div>
       </aside>
     </>

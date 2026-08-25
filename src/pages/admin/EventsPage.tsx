@@ -194,8 +194,8 @@ export function EventsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-body text-2xl font-bold text-espresso">Eventos</h1>
-          <p className="text-stone font-body text-sm">{filteredEvents.length} eventos en esta página · {total} total</p>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Eventos</h1>
+          <p className="text-island-dark/70 font-body text-sm">{filteredEvents.length} eventos en esta página · {total} total</p>
         </div>
         <Button onClick={openCreate} icon={<Plus size={15} />}>Nuevo evento</Button>
       </div>
@@ -206,7 +206,7 @@ export function EventsPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-rule bg-surface-tint px-4 py-2 font-body text-sm text-stone">
+        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredEvents.length} de {events.length} eventos
         </div>
       </div>
@@ -214,28 +214,28 @@ export function EventsPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-surface-tint border-b border-rule">
+            <thead className="bg-sand border-b border-island-blue/20">
               <tr>
-                <th className="text-left px-4 py-3 text-stone font-medium">Título</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Tipo</th>
-                <th className="text-left px-4 py-3 text-stone font-medium">Fecha</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Precio</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Cupos</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Publicado</th>
-                <th className="text-center px-4 py-3 text-stone font-medium">Estado</th>
-                <th className="text-right px-4 py-3 text-stone font-medium">Acciones</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Título</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Tipo</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Fecha</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Precio</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Cupos</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Publicado</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody className="divide-y divide-island-blue/20">
               {filteredEvents.map((e) => (
-                <tr key={e._id} className="hover:bg-surface-tint transition-colors">
-                  <td className="px-4 py-3 font-medium text-espresso max-w-xs truncate">{e.title}</td>
-                  <td className="px-4 py-3 text-stone">{typeLabels[e.type]}</td>
-                  <td className="px-4 py-3 text-stone">
+                <tr key={e._id} className="hover:bg-sand transition-colors">
+                  <td className="px-4 py-3 font-medium text-island-dark max-w-xs truncate">{e.title}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{typeLabels[e.type]}</td>
+                  <td className="px-4 py-3 text-island-dark/70">
                     {formatDate(e.date)} · {formatTime(e.time)}
                   </td>
                   <td className="px-4 py-3 text-right">{formatCOP(e.pricePerPerson)}</td>
-                  <td className="px-4 py-3 text-center text-stone">
+                  <td className="px-4 py-3 text-center text-island-dark/70">
                     {e.currentRegistrations}/{e.maxCapacity}
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -254,7 +254,7 @@ export function EventsPage() {
                 </tr>
               ))}
               {filteredEvents.length === 0 && (
-                <tr><td colSpan={8} className="text-center py-10 text-stone">No hay eventos.</td></tr>
+                <tr><td colSpan={8} className="text-center py-10 text-island-dark/70">No hay eventos.</td></tr>
               )}
             </tbody>
           </table>
@@ -269,7 +269,7 @@ export function EventsPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input label="Título" error={errors.title?.message} {...register('title')} />
           <div>
-            <label className="text-sm font-medium text-ink font-body block mb-1">Descripción</label>
+            <label className="text-sm font-medium text-island-dark font-body block mb-1">Descripción</label>
             <textarea className="input-base h-20 resize-none" {...register('description')} />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -310,7 +310,7 @@ export function EventsPage() {
         <Modal isOpen={!!guestsModal} onClose={() => setGuestsModal(null)} title={`Invitados — ${guestsModal.title}`} size="xl">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-stone font-body">
+              <p className="text-sm text-island-dark/70 font-body">
                 {activeGuestsCount} {isDinnerEvent ? 'invitados registrados' : 'cupos reservados'}
               </p>
               {isDinnerEvent && (
@@ -326,15 +326,15 @@ export function EventsPage() {
             {/* Groups */}
             {isDinnerEvent && (guestsModal.generatedGroups?.length || 0) > 0 && (
               <div className="space-y-3">
-                <h3 className="font-body font-semibold text-espresso text-sm">Grupos generados</h3>
+                <h3 className="font-body font-semibold text-island-dark text-sm">Grupos generados</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {Object.entries(groupedGuests).filter(([g]) => Number(g) > 0).map(([grpNum, grpGuests]) => (
-                    <div key={grpNum} className="bg-surface-tint rounded-lg p-3">
-                      <p className="text-xs font-bold text-espresso font-body mb-2 uppercase tracking-wide">Grupo {grpNum}</p>
+                    <div key={grpNum} className="bg-sand rounded-lg p-3">
+                      <p className="text-xs font-bold text-island-dark font-body mb-2 uppercase tracking-wide">Grupo {grpNum}</p>
                       <div className="space-y-1">
                         {grpGuests.map((g) => (
-                          <div key={g._id} className="text-sm font-body text-ink flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-terracotta inline-block shrink-0" />
+                          <div key={g._id} className="text-sm font-body text-island-dark flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-island-blue inline-block shrink-0" />
                             {g.name}
                           </div>
                         ))}
@@ -347,16 +347,16 @@ export function EventsPage() {
 
             {/* All guests list */}
             <div>
-              <h3 className="font-body font-semibold text-espresso text-sm mb-2">Todos los invitados</h3>
+              <h3 className="font-body font-semibold text-island-dark text-sm mb-2">Todos los invitados</h3>
               <div className="space-y-1 max-h-60 overflow-y-auto">
                 {guests.map((g) => (
-                  <div key={g._id} className="flex items-center justify-between text-sm font-body px-3 py-2 bg-surface-tint rounded-lg">
+                  <div key={g._id} className="flex items-center justify-between text-sm font-body px-3 py-2 bg-sand rounded-lg">
                     <div>
-                      <span className="font-medium text-espresso">{g.name}</span>
-                      <span className="text-stone ml-2 text-xs">{g.email}</span>
-                      <span className="text-stone ml-2 text-xs">{g.phone}</span>
+                      <span className="font-medium text-island-dark">{g.name}</span>
+                      <span className="text-island-dark/70 ml-2 text-xs">{g.email}</span>
+                      <span className="text-island-dark/70 ml-2 text-xs">{g.phone}</span>
                       {!isDinnerGuest(g) && g.notes && (
-                        <p className="text-stone text-xs mt-1">{g.notes}</p>
+                        <p className="text-island-dark/70 text-xs mt-1">{g.notes}</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -373,7 +373,7 @@ export function EventsPage() {
                     </div>
                   </div>
                 ))}
-                {guests.length === 0 && <p className="text-center text-stone py-4 text-sm">Sin invitados registrados.</p>}
+                {guests.length === 0 && <p className="text-center text-island-dark/70 py-4 text-sm">Sin invitados registrados.</p>}
               </div>
             </div>
           </div>

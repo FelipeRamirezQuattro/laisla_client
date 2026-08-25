@@ -19,7 +19,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
               <div
                 className={`
                   w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium font-body transition-all duration-300
-                  ${isCompleted ? 'bg-espresso text-cream' : isActive ? 'bg-terracotta text-cream shadow-lg' : 'bg-surface-tint text-stone border-2 border-rule border-opacity-30'}
+                  ${isCompleted ? 'bg-island-dark text-white' : isActive ? 'bg-island-blue text-white shadow-lg' : 'bg-sand text-island-dark/70 border-2 border-island-blue/20'}
                 `}
               >
                 {isCompleted ? (
@@ -30,7 +30,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
               </div>
               <span
                 className={`text-xs font-body hidden sm:block ${
-                  isActive ? 'text-terracotta font-medium' : 'text-stone'
+                  isActive ? 'text-island-blue font-medium' : 'text-island-dark/70'
                 }`}
               >
                 {step}
@@ -39,7 +39,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
             {index < steps.length - 1 && (
               <div
                 className={`h-0.5 w-12 sm:w-20 mx-1 transition-all duration-300 ${
-                  isCompleted ? 'bg-espresso' : 'bg-rule'
+                  isCompleted ? 'bg-island-dark' : 'bg-island-blue/20'
                 }`}
               />
             )}
