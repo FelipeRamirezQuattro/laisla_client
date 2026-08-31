@@ -7,36 +7,41 @@ import type { Event, Recipe, RecipeVariant } from "../../types";
 
 const homeImages = {
   hero: {
-    src: "/images/home/hero/barista-cafe-making-coffee-preparation-service-concept.jpg",
-    alt: "Barista preparando cafe espresso en La Isla Cafe",
+    src: "/images/home/hero-barista.jpg",
+    alt: "Barista preparando cafe en La Isla",
   },
   reasons: [
-    {
-      src: "/images/home/spaces/metal-large-coffee-maker-machine-pouring-coffee-into-metal-cup.jpg",
-      alt: "Maquina de espresso preparando cafe",
-    },
-    {
-      src: "/images/home/spaces/mocca-coffee-shop.jpg",
-      alt: "Mesa de cafe para trabajar y conversar",
-    },
-    {
-      src: "/images/home/spaces/waitress-serving-coffee.jpg",
-      alt: "Mesera sirviendo cafe en mesa",
-    },
+    { src: "/images/home/space-maquina.jpg", alt: "Maquina de espresso" },
+    { src: "/images/home/space-mesa.jpg", alt: "Mesa para trabajar" },
+    { src: "/images/home/space-mesera.jpg", alt: "Mesera sirviendo cafe" },
   ],
   menuFeature: {
-    src: "/images/home/hero/close-up-cup-cappuccino-coffee-chocolate-cake.jpg",
-    alt: "Cappuccino servido con torta de chocolate",
+    src: "/images/home/hero-cappuccino.jpg",
+    alt: "Cappuccino con torta",
   },
+  menuPicnic: {
+    src: "/images/home/picnic.jpg",
+    alt: "Picnic kit de La Isla",
+  },
+  isleña: [
+    { src: "/images/home/space-mesera.jpg", alt: "Mesera de La Isla" },
+    { src: "/images/home/visita.jpg", alt: "El patio de La Isla" },
+  ],
+  cena: {
+    src: "/images/home/cena.jpg",
+    alt: "Mesa larga en la cena con desconocidos",
+  },
+  eventFallbacks: [
+    { src: "/images/home/picnic.jpg", alt: "Evento en La Isla" },
+    { src: "/images/home/space-maquina.jpg", alt: "Evento en La Isla" },
+    { src: "/images/home/visita.jpg", alt: "Evento en La Isla" },
+  ],
 };
 
-const dinnerTraits = [
-  "Habla de cine",
-  "Trasnochador",
-  "Cocina de más",
-  "Pregunta todo",
-  "Viaja solo",
-  "Escucha más",
+const dinnerFeatures = [
+  "Menu de tres tiempos sorpresa, cocinado esa noche.",
+  "Cuestionario de compatibilidad para armar la mesa.",
+  "Los nombres se revelan en la mesa, no antes.",
 ];
 
 const bookingHours = ["10:00", "12:30", "15:00", "17:30", "20:00"];
@@ -202,7 +207,8 @@ export function HomePage() {
           <a href="#razones">Espacio</a>
           <Link to="/menu">Carta</Link>
           <a href="#eventos">Eventos</a>
-          <a href="#cena">Experiencias</a>
+          <a href="#cena">La cena</a>
+          <a href="#visita">Visita</a>
         </nav>
         <Link to="/reservar/mesa" className="li-header-cta">
           Reservar mesa <span>→</span>
@@ -212,7 +218,6 @@ export function HomePage() {
       <main>
         <section className="li-hero">
           <div className="li-hero-sunrays" aria-hidden="true" />
-          <div className="li-hero-dots" aria-hidden="true" />
           <div className="li-hero-inner">
             <div className="li-hero-copy">
               <p className="li-pill">04°26′N · 75°14′W · Ibagué</p>
@@ -255,6 +260,7 @@ export function HomePage() {
               </div>
             </div>
             <div className="li-hero-media">
+              <div className="li-hero-blob" aria-hidden="true" />
               <div className="li-hero-photo">
                 <ProgressiveImage
                   className="image-fill"
@@ -263,17 +269,13 @@ export function HomePage() {
                   loading="eager"
                 />
               </div>
-              <img
-                src="/images/brand/sello-color.png"
-                alt="La Isla · Café Picnic"
-                className="li-hero-seal"
-              />
-              <div className="li-hero-stamp">
-                Sin prisa · <span>sin ruido</span>
-              </div>
             </div>
           </div>
-          <div className="li-scallop" aria-hidden="true" />
+          <div className="li-scallop" aria-hidden="true">
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+              <path d="M0 30C240 8 470 50 720 46 970 42 1210 10 1440 24V100H0Z" fill="#F5E6D3" />
+            </svg>
+          </div>
         </section>
 
         <section className="li-reasons" id="razones">
@@ -292,113 +294,87 @@ export function HomePage() {
             </p>
           </div>
           <div className="li-reasons-grid">
-            <article className="li-reason-card">
-              <div className="li-reason-meta">
-                <span className="li-reason-n">N.º 01</span>
-                <span className="li-reason-tag">Barra</span>
-              </div>
-              <div className="li-reason-photo">
-                <ProgressiveImage
-                  className="image-fill"
-                  src={homeImages.reasons[0].src}
-                  alt={homeImages.reasons[0].alt}
-                  loading="lazy"
-                />
-              </div>
-              <h3>Café de origen</h3>
-              <p>
-                Grano del Tolima, tostión de la semana escrita en la pizarra y
-                métodos fríos para el calor de Ibagué.
-              </p>
-            </article>
-            <article className="li-reason-card">
-              <div className="li-reason-meta">
-                <span className="li-reason-n">N.º 02</span>
-                <span className="li-reason-tag">Mesas</span>
-              </div>
-              <div className="li-reason-photo">
-                <ProgressiveImage
-                  className="image-fill"
-                  src={homeImages.reasons[1].src}
-                  alt={homeImages.reasons[1].alt}
-                  loading="lazy"
-                />
-              </div>
-              <h3>Isla de trabajo</h3>
-              <p>
-                Enchufe en cada mesa, WiFi que aguanta la videollamada y permiso
-                oficial para quedarte cuatro horas.
-              </p>
-            </article>
-            <article className="li-reason-card li-reason-card-3">
-              <div className="li-reason-meta">
-                <span className="li-reason-n">N.º 03</span>
-                <span className="li-reason-tag">Planes</span>
-              </div>
-              <div className="li-reason-photo">
-                <ProgressiveImage
-                  className="image-fill"
-                  src={homeImages.reasons[2].src}
-                  alt={homeImages.reasons[2].alt}
-                  loading="lazy"
-                />
-              </div>
-              <h3>Vida social</h3>
-              <p>
-                Cine bajo el cobertizo, catas guiadas, domingos de picnic y la
-                cena donde nadie se conoce.
-              </p>
-            </article>
+            {[
+              { n: "N.º 01", tag: "Barra", title: "Café de origen", desc: "Grano del Tolima, tostión de la semana escrita en la pizarra y métodos fríos para el calor de Ibagué.", img: homeImages.reasons[0] },
+              { n: "N.º 02", tag: "Mesas", title: "Isla de trabajo", desc: "Enchufe en cada mesa, WiFi que aguanta la videollamada y permiso oficial para quedarte cuatro horas.", img: homeImages.reasons[1] },
+              { n: "N.º 03", tag: "Planes", title: "Vida social", desc: "Cine bajo el cobertizo, catas guiadas, domingos de picnic y la cena donde nadie se conoce.", img: homeImages.reasons[2], extra: "li-reason-card-3" },
+            ].map((reason) => (
+              <article className={`li-reason-card ${reason.extra ?? ""}`} key={reason.title}>
+                <div className="li-reason-photo">
+                  <ProgressiveImage
+                    className="image-fill"
+                    src={reason.img.src}
+                    alt={reason.img.alt}
+                    loading="lazy"
+                  />
+                  <span className="li-reason-badge">{reason.n}</span>
+                </div>
+                <div className="li-reason-body">
+                  <p className="li-reason-tag">{reason.tag}</p>
+                  <h3>{reason.title}</h3>
+                  <p>{reason.desc}</p>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
         <section className="li-menu" id="carta">
-          <p className="li-kicker">Carta corta a propósito</p>
-          <h2 className="li-section-title">
-            Lo que se pide
-            <br />
-            dos veces
-          </h2>
-          {menuItems.length > 0 ? (
-            <>
-              <div className="li-menu-list">
-                {menuItems.map((item) => (
-                  <div className="li-menu-row" key={item.id}>
-                    <span className="li-menu-row-name">{item.name}</span>
-                    <span className="li-menu-row-leader" />
-                    <span className="li-menu-row-desc">{item.desc}</span>
-                    <strong className="li-menu-row-price">{item.price}</strong>
-                  </div>
-                ))}
-              </div>
+          <div className="li-menu-grid">
+            <div>
+              <p className="li-kicker">Carta corta a propósito</p>
+              <h2 className="li-section-title">
+                Lo que se pide
+                <br />
+                dos veces
+              </h2>
+              {menuItems.length > 0 ? (
+                <div className="li-menu-list">
+                  {menuItems.map((item) => (
+                    <div className="li-menu-row" key={item.id}>
+                      <span className="li-menu-row-name">{item.name}</span>
+                      <span className="li-menu-row-desc">{item.desc}</span>
+                      <strong className="li-menu-row-price">{item.price}</strong>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="li-empty-state">
+                  La carta pública aparecerá aquí cuando haya productos activos
+                  publicados desde el administrador.
+                </div>
+              )}
               <Link to="/menu" className="li-text-link">
                 Ver la carta completa →
               </Link>
-            </>
-          ) : (
-            <div className="li-empty-state">
-              La carta pública aparecerá aquí cuando haya productos activos
-              publicados desde el administrador.
             </div>
-          )}
-          <div className="li-menu-feature">
-            <div className="li-menu-feature-photo">
-              <ProgressiveImage
-                className="image-fill"
-                src={homeImages.menuFeature.src}
-                alt={homeImages.menuFeature.alt}
-                loading="lazy"
-              />
-            </div>
-            <div className="li-menu-feature-copy">
-              <p className="li-kicker">Café de origen</p>
-              <p className="li-menu-feature-title">
-                Grano seleccionado del Tolima
-              </p>
-              <p>
-                Tostión rotativa, notas frutales y dulces. Pregunta en barra
-                cuál está sirviendo hoy.
-              </p>
+            <div className="li-menu-aside">
+              <div className="li-menu-feature-photo">
+                <ProgressiveImage
+                  className="image-fill"
+                  src={homeImages.menuFeature.src}
+                  alt={homeImages.menuFeature.alt}
+                  loading="lazy"
+                />
+              </div>
+              <div className="li-menu-roast">
+                <p className="li-kicker">Tostión de la semana</p>
+                <p className="li-menu-roast-title">
+                  Finca La Palma
+                  <br />· Anaime
+                </p>
+                <p>
+                  Notas de panela, mandarina y almendra. Se acaba el domingo.
+                </p>
+              </div>
+              <div className="li-menu-picnic-photo">
+                <ProgressiveImage
+                  className="image-fill"
+                  src={homeImages.menuPicnic.src}
+                  alt={homeImages.menuPicnic.alt}
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -419,17 +395,27 @@ export function HomePage() {
           </div>
           {calendarEvents.length > 0 ? (
             <div className="li-events-grid">
-              {calendarEvents.map((event) => {
+              {calendarEvents.map((event, index) => {
                 const { day, month } = eventDateParts(event);
+                const fallback =
+                  homeImages.eventFallbacks[index % homeImages.eventFallbacks.length];
                 return (
                   <Link
                     to={eventCtaPath(event)}
                     className="li-event-card"
                     key={event._id}
                   >
-                    <div className="li-event-date">
-                      <strong>{day}</strong>
-                      <span>{month}</span>
+                    <div className="li-event-photo">
+                      <ProgressiveImage
+                        className="image-fill"
+                        src={event.imageUrl || fallback.src}
+                        alt={event.title || fallback.alt}
+                        loading="lazy"
+                      />
+                      <span className="li-event-date">
+                        <strong>{day}</strong>
+                        <span>{month}</span>
+                      </span>
                     </div>
                     <div className="li-event-body">
                       <span className="li-event-badge">
@@ -451,9 +437,106 @@ export function HomePage() {
           )}
         </section>
 
+        <section className="li-isleña">
+          <div className="li-isleña-inner">
+            <div className="li-isleña-copy">
+              <p className="li-kicker">Te presentamos a La Isleña</p>
+              <p className="li-isleña-title">
+                Sin prisa,
+                <br />
+                <span>sin ruido</span>
+              </p>
+              <p className="li-isleña-desc">
+                Llega en chanclas, se queda hasta que se acabe la conversación.
+                Si la ves pasar, ya entendiste el plan.
+              </p>
+              <div className="li-isleña-thumbs">
+                {homeImages.isleña.map((img, index) => (
+                  <div
+                    className="li-isleña-thumb"
+                    style={{ transform: `rotate(${index % 2 ? 2 : -2}deg)` }}
+                    key={img.src}
+                  >
+                    <ProgressiveImage
+                      className="image-fill"
+                      src={img.src}
+                      alt={img.alt}
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="li-isleña-facts">
+              <div className="li-isleña-fact">
+                <span>Su pedido</span>
+                <span>Latte con canela</span>
+              </div>
+              <div className="li-isleña-fact">
+                <span>Su mesa</span>
+                <span>La del rincón</span>
+              </div>
+              <div className="li-isleña-fact">
+                <span>Se reconoce por</span>
+                <span>Las chanclas</span>
+              </div>
+            </div>
+            <img
+              src="/images/brand/mascota-islena.png"
+              alt="La Isleña, el personaje de La Isla"
+              className="li-isleña-mascot"
+            />
+          </div>
+        </section>
+
         <section className="li-dinner" id="cena">
-          <div className="li-dinner-dots" aria-hidden="true" />
           <div className="li-dinner-inner">
+            <div className="li-dinner-card-wrap">
+              <div className="li-dinner-card">
+                <div className="li-dinner-card-head">
+                  <span className="li-dinner-avatar">
+                    <img src="/images/brand/icono-color.png" alt="" />
+                  </span>
+                  <span>
+                    <strong>laisla.cafe</strong>
+                    <span>Ibagué · Barrio Belén</span>
+                  </span>
+                </div>
+                <div className="li-dinner-photo">
+                  <ProgressiveImage
+                    className="image-fill"
+                    src={homeImages.cena.src}
+                    alt={homeImages.cena.alt}
+                    loading="lazy"
+                  />
+                  <span className="li-dinner-photo-tag">Mesa 07 · 7:30 pm</span>
+                  <span className="li-dinner-photo-filter">sin filtro</span>
+                </div>
+                <div className="li-dinner-card-icons" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 20.5C6 16.6 2.8 13.6 2.8 10.2A4.6 4.6 0 0112 7.9a4.6 4.6 0 019.2 2.3c0 3.4-3.2 6.4-9.2 10.3z" fill="#2B3FBE" /></svg>
+                  <svg viewBox="0 0 24 24"><path d="M21 12.2c0 4.2-4 7.6-9 7.6-1 0-2-.1-2.9-.4L4 21l1.3-3.5A7 7 0 013 12.2c0-4.2 4-7.6 9-7.6s9 3.4 9 7.6z" stroke="#1A2480" strokeWidth="1.8" fill="none" strokeLinejoin="round" /></svg>
+                  <span className="li-dinner-card-stat">1.248 personas guardaron esta mesa</span>
+                </div>
+                <p className="li-dinner-caption">
+                  Seis desconocidos, tres tiempos y cero apellidos.{" "}
+                  <span>#CenaConDesconocidos #ModoIsla</span>
+                </p>
+                <div className="li-dinner-card-features">
+                  <div>
+                    <span>👥</span>
+                    <span>3 tiempos</span>
+                  </div>
+                  <div>
+                    <span>❤</span>
+                    <span>Algoritmo</span>
+                  </div>
+                  <div>
+                    <span>◎</span>
+                    <span>6 personas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="li-dinner-copy">
               <p className="li-pill">La experiencia de la casa</p>
               <h2 className="li-dinner-title">
@@ -465,9 +548,20 @@ export function HomePage() {
               </h2>
               <p className="li-dinner-desc">
                 Seis sillas, una mesa larga y ningún nombre por adelantado.
-                Contestas un cuestionario de compatibilidad, nosotros armamos el
-                grupo y tú apareces sin saber nada más.
+                Contestas un cuestionario de compatibilidad, nosotros armamos
+                el grupo y tú apareces a las 7:30 pm sin saber nada más.
               </p>
+              <ul className="li-dinner-features">
+                {dinnerFeatures.map((feature) => (
+                  <li key={feature}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="12" cy="12" r="11" fill="#F5A623" />
+                      <path d="M7 12.4l3.3 3.2L17 9" stroke="#1A2480" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
               <div className="li-hero-actions">
                 <Link
                   to="/reservar/cena-con-desconocidos"
@@ -475,42 +569,12 @@ export function HomePage() {
                 >
                   Contestar el cuestionario →
                 </Link>
-                <a href="#cena" className="li-btn-ghost">
-                  Cómo funciona
-                </a>
               </div>
               <p className="li-dinner-meta">
                 {dinnerEvent
                   ? `${eventDateTimeLabel(dinnerEvent)} · ${eventPriceLabel(dinnerEvent)}`
                   : "Último jueves de cada mes · $65.000 con tres tiempos"}
               </p>
-            </div>
-            <div className="li-dinner-card-wrap">
-              <div className="li-dinner-card">
-                <div className="li-dinner-card-head">
-                  <span>Mesa · próxima cena</span>
-                  <span>6 sillas</span>
-                </div>
-                <div className="li-dinner-chips">
-                  {dinnerTraits.map((trait, index) => (
-                    <div
-                      className={`li-dinner-chip ${index >= 3 ? "li-dinner-chip-extra" : ""}`}
-                      key={trait}
-                    >
-                      <div
-                        className={`li-dinner-chip-mark ${index % 2 ? "alt" : ""}`}
-                      >
-                        ?
-                      </div>
-                      <span className="li-dinner-chip-label">{trait}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="li-dinner-note">
-                  Los nombres se revelan en la mesa. Lo único que sabes antes:
-                  que el algoritmo dijo que se iban a caer bien.
-                </p>
-              </div>
             </div>
           </div>
         </section>
@@ -606,7 +670,7 @@ export function HomePage() {
         </section>
       </main>
 
-      <footer className="li-footer">
+      <footer className="li-footer" id="visita">
         <div className="li-footer-grid">
           <div>
             <img
@@ -724,222 +788,252 @@ const homeStyles = `
   --li-dark: #1A2480;
   --li-yellow: #F5A623;
   --li-sand: #F5E6D3;
-  --li-muted: rgba(26,36,128,.72);
+  --li-muted: rgba(26,36,128,.75);
   --li-rule: rgba(26,36,128,.2);
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "Nunito", system-ui, sans-serif;
   color: var(--li-dark);
   background: #FFFFFF;
 }
 .li-home a { text-decoration: none; }
-.li-home h1, .li-home h2, .li-home h3 {
-  font-family: "Archivo", system-ui, sans-serif;
-  font-stretch: 120%;
-  font-weight: 800;
-  text-transform: uppercase;
+.li-home h1, .li-home h2, .li-home h3, .li-home strong.li-display {
+  font-family: "Caveat Brush", cursive;
+  font-weight: 400;
   margin: 0;
 }
 
 /* — header — */
-.li-header { position: sticky; top: 0; z-index: 30; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; padding: 18px clamp(18px, 4vw, 48px); background: var(--li-sand); border-bottom: 2px solid var(--li-dark); }
+.li-header { position: sticky; top: 0; z-index: 30; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 24px; padding: 14px clamp(18px, 4vw, 48px); background: var(--li-sand); border-bottom: 1px solid rgba(26,36,128,.28); }
 .li-brand { display: flex; align-items: center; }
-.li-brand-mark { height: 72px; width: auto; display: block; }
-.li-nav { display: flex; justify-content: center; gap: 28px; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--li-dark); }
+.li-brand-mark { height: 44px; width: auto; display: block; }
+.li-nav { display: flex; justify-content: center; gap: 28px; font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--li-dark); }
 .li-nav a { color: var(--li-dark); }
 .li-nav a:hover { color: var(--li-blue); }
-.li-header-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--li-yellow); color: var(--li-dark); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 12px 20px; border-radius: 999px; border: 2px solid var(--li-dark); white-space: nowrap; }
-.li-header-cta:hover { background: #fff; }
+.li-header-cta { display: inline-flex; align-items: center; gap: 9px; background: var(--li-blue); color: #fff; font-size: 14px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 13px 22px; border-radius: 999px; border: 1.5px solid rgba(26,36,128,.4); white-space: nowrap; }
+.li-header-cta:hover { background: var(--li-dark); }
 
 /* — shared — */
-.li-kicker { margin: 0 0 12px; font-size: 11px; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; color: var(--li-blue); }
-.li-pill { display: inline-flex; align-items: center; margin: 0 0 22px; background: var(--li-yellow); color: var(--li-dark); font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; padding: 8px 14px; border-radius: 999px; }
-.li-section-title { font-size: clamp(34px, 4.4vw, 58px); line-height: .88; letter-spacing: -.02em; }
-.li-text-link { display: inline-flex; color: var(--li-dark); font-size: 12.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; border-bottom: 2px solid var(--li-yellow); padding-bottom: 4px; margin-top: 18px; }
-.li-empty-state { border: 1px dashed var(--li-rule); border-radius: 8px; background: rgba(255,255,255,.5); color: var(--li-muted); padding: 22px; font-weight: 700; }
-.li-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-.li-btn-primary, .li-btn-ghost { display: inline-flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 15px 24px; border-radius: 999px; border: 2px solid transparent; }
+.li-kicker { margin: 0 0 14px; font-size: 13px; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; color: var(--li-blue); font-family: "Nunito", sans-serif; }
+.li-pill { display: inline-flex; align-items: center; margin: 0 0 26px; background: var(--li-yellow); color: var(--li-dark); font-size: 13px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; padding: 8px 14px; border-radius: 999px; font-family: "Nunito", sans-serif; }
+.li-section-title { font-size: clamp(40px, 4.8vw, 64px); line-height: .95; letter-spacing: -.01em; }
+.li-text-link { display: inline-flex; color: var(--li-dark); font-size: 14.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; border-bottom: 2px solid var(--li-yellow); padding-bottom: 5px; margin-top: 26px; font-family: "Nunito", sans-serif; }
+.li-empty-state { border: 1px dashed var(--li-rule); border-radius: 8px; background: rgba(255,255,255,.5); color: var(--li-muted); padding: 22px; font-weight: 700; margin-top: 30px; }
+.li-hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+.li-btn-primary, .li-btn-ghost { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 17px 26px; border-radius: 999px; border: 2px solid transparent; font-family: "Nunito", sans-serif; }
 .li-btn-primary { background: var(--li-yellow); color: var(--li-dark); }
 .li-btn-primary:hover { background: #fff; }
-.li-btn-ghost { border-color: rgba(245,230,211,.55); color: var(--li-sand); }
+.li-btn-ghost { border-color: rgba(245,230,211,.6); color: var(--li-sand); }
 .li-btn-ghost:hover { border-color: var(--li-yellow); color: var(--li-yellow); }
 
 /* — hero — */
-.li-hero { position: relative; overflow: hidden; background: var(--li-blue); padding: clamp(46px, 6vw, 74px) clamp(20px, 5vw, 48px) clamp(64px, 9vw, 108px); }
-.li-hero-sunrays { position: absolute; left: 50%; top: -42%; width: 2200px; height: 2200px; transform: translateX(-50%); background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(26,36,128,.55) 0deg 5.2deg, rgba(26,36,128,0) 5.2deg 12deg); opacity: .9; pointer-events: none; }
-.li-hero-dots { position: absolute; left: -160px; bottom: -520px; width: 1100px; height: 1100px; border-radius: 50%; background: repeating-radial-gradient(circle at 50% 50%, rgba(245,166,35,0) 0 80px, rgba(245,166,35,.35) 80px 84px); pointer-events: none; }
+.li-hero { position: relative; overflow: hidden; background: var(--li-blue); padding: clamp(46px, 6vw, 74px) clamp(20px, 5vw, 48px) clamp(64px, 9vw, 108px); scroll-margin-top: 90px; }
+.li-hero-sunrays { position: absolute; left: 50%; top: -42%; width: 2400px; height: 2400px; transform: translateX(-50%); background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(26,36,128,.55) 0deg 5.2deg, rgba(26,36,128,0) 5.2deg 12deg); opacity: .9; pointer-events: none; }
 .li-hero-inner { position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(340px, 46%); gap: clamp(28px, 4vw, 56px); align-items: center; }
-.li-hero-title { color: #fff; font-size: clamp(44px, 7.2vw, 100px); line-height: .82; letter-spacing: -.03em; margin-bottom: 8px; text-wrap: balance; }
+.li-hero-title { color: #fff; font-size: clamp(52px, 7.4vw, 104px); line-height: .9; margin-bottom: 10px; text-wrap: balance; }
 .li-hero-title span { color: var(--li-yellow); }
-.li-hero-desc { max-width: 470px; margin: 26px 0 0; font-size: 17.5px; line-height: 1.5; color: rgba(245,230,211,.92); }
-.li-hero-stats { display: flex; gap: 26px; margin-top: 40px; padding-top: 22px; border-top: 2px solid rgba(245,230,211,.28); flex-wrap: wrap; }
-.li-hero-stats strong { display: block; font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 27px; color: var(--li-yellow); }
-.li-hero-stats span { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: rgba(245,230,211,.7); }
-.li-hero-media { position: relative; }
-.li-hero-photo { position: relative; height: clamp(320px, 42vw, 480px); border: 3px solid var(--li-sand); border-radius: 220px 220px 16px 16px; overflow: hidden; background: var(--li-dark); }
-.li-hero-seal { position: absolute; left: -46px; bottom: 32px; width: 148px; height: 148px; background: var(--li-sand); border-radius: 50%; padding: 9px; box-sizing: border-box; box-shadow: 0 16px 34px rgba(26,36,128,.3); }
-.li-hero-stamp { position: absolute; right: -14px; top: -14px; background: var(--li-sand); border: 2px solid var(--li-dark); padding: 10px 14px; transform: rotate(6deg); font-size: 10.5px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--li-dark); }
-.li-hero-stamp span { color: var(--li-blue); }
-.li-scallop { position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: radial-gradient(circle at 22px 26px, var(--li-sand) 20px, rgba(245,230,211,0) 21px) repeat-x; background-size: 44px 26px; }
+.li-hero-desc { max-width: 470px; margin: 26px 0 0; font-size: 19px; line-height: 1.5; color: rgba(245,230,211,.92); }
+.li-hero-stats { display: flex; gap: 26px; margin-top: 44px; padding-top: 24px; border-top: 2px solid rgba(245,230,211,.28); flex-wrap: wrap; }
+.li-hero-stats strong { display: block; font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 34px; color: var(--li-yellow); }
+.li-hero-stats span { font-size: 13.5px; letter-spacing: .12em; text-transform: uppercase; color: rgba(245,230,211,.7); }
+.li-hero-media { position: relative; padding: 10px 0; }
+.li-hero-blob { position: absolute; left: 34px; top: 26px; width: 82%; height: 82%; border-radius: 58% 42% 47% 53% / 52% 48% 52% 48%; background: rgba(245,166,35,.85); }
+.li-hero-photo { position: relative; height: clamp(320px, 42vw, 512px); width: clamp(320px, 42vw, 512px); max-width: 100%; margin: 0 auto; border-radius: 52% 48% 44% 56% / 50% 56% 44% 50%; overflow: hidden; border: 4px solid var(--li-sand); background: var(--li-dark); }
+.li-scallop { position: absolute; left: 0; right: 0; bottom: -1px; height: 96px; line-height: 0; pointer-events: none; }
+.li-scallop svg { display: block; width: 100%; height: 100%; }
 
 /* — progressive image — */
 .progressive-image { position: relative; display: block; overflow: hidden; isolation: isolate; background: linear-gradient(135deg, #F0E5D3 0%, #FFFFFF 44%, #E5D5BE 100%); }
 .progressive-image::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(110deg, rgba(255,255,255,0) 20%, rgba(255,255,255,.62) 46%, rgba(255,255,255,0) 72%); transform: translateX(-120%); animation: imageWash 1.35s ease-in-out infinite; opacity: 1; transition: opacity .55s ease .2s; pointer-events: none; }
 .progressive-image::after { content: ""; position: absolute; inset: 0; z-index: 2; background: radial-gradient(circle at 28% 18%, rgba(245,166,35,.28), transparent 34%), linear-gradient(180deg, rgba(26,36,128,.05), rgba(26,36,128,.14)); opacity: 1; transition: opacity .85s ease .18s; pointer-events: none; }
-.progressive-image img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.055); filter: blur(22px) saturate(.85); }
+.progressive-image img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.055); filter: saturate(.9) blur(22px); }
 .progressive-image.is-loaded::before { opacity: 0; animation-play-state: paused; }
 .progressive-image.is-loaded::after { opacity: 0; }
 .progressive-image.is-loaded img { animation: imageReveal 1.25s cubic-bezier(.16,1,.3,1) both; }
 .image-fill { position: absolute; inset: 0; width: 100%; height: 100%; }
 @keyframes imageWash { to { transform: translateX(120%); } }
 @keyframes imageReveal {
-  0% { opacity: 0; transform: scale(1.055); filter: blur(22px) saturate(.85); }
-  58% { opacity: .92; filter: blur(5px) saturate(.95); }
-  100% { opacity: 1; transform: scale(1); filter: blur(0) saturate(1); }
+  0% { opacity: 0; transform: scale(1.055); filter: saturate(.9) blur(22px); }
+  58% { opacity: .92; filter: saturate(.9) blur(5px); }
+  100% { opacity: 1; transform: scale(1); filter: saturate(.9) blur(0); }
 }
 
 /* — reasons — */
 .li-reasons { background: var(--li-sand); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); }
 .li-reasons-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 44px; }
-.li-reasons-lead { max-width: 340px; margin: 0; font-size: 15.5px; line-height: 1.6; color: var(--li-muted); }
+.li-reasons-lead { max-width: 340px; margin: 0; font-size: 17px; line-height: 1.6; color: var(--li-muted); }
 .li-reasons-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; }
-.li-reason-card { background: #fff; border: 2px solid var(--li-dark); padding: 22px 22px 26px; }
-.li-reason-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
-.li-reason-n { font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 14px; color: var(--li-blue); }
-.li-reason-tag { font-size: 10.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--li-muted); }
-.li-reason-photo { position: relative; height: 190px; border-radius: 130px 130px 8px 8px; overflow: hidden; background: var(--li-blue); }
-.li-reason-card h3 { font-size: 27px; line-height: 1; margin: 20px 0 10px; }
-.li-reason-card p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--li-muted); }
+.li-reason-card { position: relative; background: var(--li-sand); border: 1.5px solid rgba(43,63,190,.55); border-radius: 18px; overflow: hidden; }
+.li-reason-photo { position: relative; height: 210px; background: var(--li-blue); }
+.li-reason-badge { position: absolute; left: 16px; top: 16px; background: var(--li-yellow); border: 2px solid #fff; color: var(--li-dark); font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 7px 14px; border-radius: 999px; font-family: "Nunito", sans-serif; }
+.li-reason-body { padding: 22px 24px 28px; }
+.li-reason-tag { margin: 0 0 8px; font-size: 13px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--li-blue); font-family: "Nunito", sans-serif; }
+.li-reason-card h3 { font-size: 33px; line-height: 1; margin: 0 0 12px; }
+.li-reason-card p { margin: 0; font-size: 16.5px; line-height: 1.6; color: var(--li-muted); }
 
 /* — menu — */
 .li-menu { background: #fff; padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); }
-.li-menu-list { margin-top: 30px; border-top: 2px solid var(--li-dark); max-width: 760px; }
-.li-menu-row { display: flex; align-items: baseline; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--li-rule); }
-.li-menu-row-name { font-family: "Archivo", system-ui, sans-serif; font-stretch: 116%; font-weight: 800; font-size: 20px; text-transform: uppercase; white-space: nowrap; }
-.li-menu-row-leader { flex: 1; border-bottom: 1.5px dotted rgba(26,36,128,.35); align-self: center; }
-.li-menu-row-desc { font-size: 12.5px; color: var(--li-muted); max-width: 260px; }
-.li-menu-row-price { font-family: "Archivo", system-ui, sans-serif; font-stretch: 116%; font-size: 19px; color: var(--li-blue); white-space: nowrap; }
-.li-menu-feature { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: stretch; max-width: 760px; margin-top: 34px; border: 2px solid var(--li-dark); }
-.li-menu-feature-photo { position: relative; min-height: 140px; background: var(--li-blue); }
-.li-menu-feature-copy { padding: 18px 20px 18px 0; }
-.li-menu-feature-title { margin: 4px 0 8px; font-family: "Archivo", system-ui, sans-serif; font-stretch: 114%; font-weight: 800; font-size: 21px; line-height: 1.1; text-transform: uppercase; }
-.li-menu-feature-copy p:last-child { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--li-muted); }
+.li-menu-grid { display: grid; grid-template-columns: minmax(0,1fr) 400px; gap: 56px; align-items: start; }
+.li-menu-list { margin-top: 34px; border-top: 1px solid rgba(26,36,128,.28); max-width: 760px; }
+.li-menu-row { display: flex; align-items: baseline; gap: 16px; padding: 19px 0; border-bottom: 1px solid var(--li-rule); }
+.li-menu-row-name { font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 25px; color: var(--li-dark); white-space: nowrap; }
+.li-menu-row-desc { flex: 1; font-size: 15.5px; color: var(--li-muted); }
+.li-menu-row-price { font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 24px; color: var(--li-blue); white-space: nowrap; }
+.li-menu-aside { display: grid; gap: 18px; }
+.li-menu-feature-photo { position: relative; height: 210px; border-radius: 22px 22px 0 0; overflow: hidden; border: 1.5px solid rgba(26,36,128,.35); border-bottom: 0; background: var(--li-blue); margin-bottom: -18px; }
+.li-menu-roast { background: var(--li-yellow); border: 1.5px solid rgba(26,36,128,.35); border-radius: 0 0 22px 22px; padding: 22px 24px; }
+.li-menu-roast-title { margin: 0; font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 28px; line-height: 1; color: var(--li-dark); }
+.li-menu-roast p:last-child { margin: 12px 0 0; font-size: 16px; line-height: 1.55; color: rgba(26,36,128,.8); }
+.li-menu-picnic-photo { position: relative; height: 170px; border-radius: 20px; overflow: hidden; background: var(--li-blue); }
 
 /* — events — */
-.li-events { background: var(--li-sand); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); border-top: 2px solid var(--li-dark); }
+.li-events { background: var(--li-sand); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); border-top: 1px solid rgba(26,36,128,.28); scroll-margin-top: 90px; }
 .li-events-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; margin-bottom: 40px; }
 .li-events-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; }
-.li-event-card { display: grid; grid-template-columns: 92px 1fr; background: #fff; color: var(--li-dark); border: 2px solid var(--li-dark); }
-.li-event-date { background: var(--li-blue); color: var(--li-sand); padding: 18px 10px; text-align: center; border-right: 2px dashed rgba(245,230,211,.5); }
-.li-event-date strong { display: block; font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 40px; line-height: .85; }
-.li-event-date span { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; margin-top: 6px; }
-.li-event-body { padding: 18px; }
-.li-event-badge { display: inline-block; background: var(--li-yellow); color: var(--li-dark); font-size: 9.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; }
-.li-event-body h3 { font-size: 22px; line-height: 1.02; margin: 13px 0 7px; }
-.li-event-body p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--li-muted); }
+.li-event-card { display: block; background: #fff; color: var(--li-dark); border: 1.5px solid rgba(43,63,190,.5); border-radius: 20px; overflow: hidden; }
+.li-event-photo { position: relative; height: 170px; background: var(--li-blue); }
+.li-event-date { position: absolute; left: 16px; top: 16px; display: flex; align-items: baseline; gap: 6px; background: var(--li-yellow); border: 2px solid #fff; color: var(--li-dark); padding: 6px 13px; border-radius: 999px; }
+.li-event-date strong { font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 24px; line-height: 1; }
+.li-event-date span { font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; font-family: "Nunito", sans-serif; }
+.li-event-body { padding: 20px 22px 24px; }
+.li-event-badge { display: inline-block; background: var(--li-sand); border: 1px solid rgba(26,36,128,.4); color: var(--li-dark); font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; font-family: "Nunito", sans-serif; }
+.li-event-body h3 { font-size: 29px; line-height: 1; margin: 14px 0 8px; }
+.li-event-body p { margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--li-muted); }
+
+/* — la isleña — */
+.li-isleña { position: relative; overflow: hidden; background: var(--li-sand); border-top: 1px solid rgba(26,36,128,.28); padding: clamp(40px, 6vw, 56px) clamp(20px, 5vw, 48px) 0; }
+.li-isleña-inner { display: grid; grid-template-columns: minmax(0,1fr) minmax(150px,200px) 390px; gap: 32px; align-items: end; max-width: 1240px; margin: 0 auto; min-height: 340px; }
+.li-isleña-copy { padding-bottom: clamp(40px, 6vw, 64px); max-width: 620px; }
+.li-isleña-title { margin: 0; font-family: "Caveat Brush", cursive; font-weight: 400; font-size: clamp(48px, 5.8vw, 78px); line-height: .92; color: var(--li-dark); }
+.li-isleña-title span { color: var(--li-blue); }
+.li-isleña-desc { margin: 18px 0 0; max-width: 420px; font-size: 18px; line-height: 1.6; color: var(--li-muted); }
+.li-isleña-thumbs { display: flex; gap: 16px; margin-top: 26px; }
+.li-isleña-thumb { position: relative; width: 170px; height: 130px; border-radius: 18px; overflow: hidden; }
+.li-isleña-facts { display: flex; flex-direction: column; gap: 22px; padding: 6px 0 6px 24px; margin-bottom: clamp(40px, 6vw, 64px); border-left: 2px dashed rgba(26,36,128,.35); align-self: center; }
+.li-isleña-fact span { display: block; }
+.li-isleña-fact span:first-child { font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--li-blue); font-family: "Nunito", sans-serif; margin-bottom: 5px; }
+.li-isleña-fact span:last-child { font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 23px; line-height: 1.1; color: var(--li-dark); }
+.li-isleña-mascot { display: block; width: 100%; height: auto; margin-bottom: -14px; align-self: end; }
 
 /* — dinner — */
-.li-dinner { position: relative; overflow: hidden; background: var(--li-dark); padding: clamp(56px, 8vw, 100px) clamp(20px, 5vw, 48px); }
-.li-dinner-dots { position: absolute; right: -220px; top: -220px; width: 800px; height: 800px; border-radius: 50%; background: repeating-radial-gradient(circle at 50% 50%, rgba(245,166,35,0) 0 58px, rgba(245,166,35,.22) 58px 61px); pointer-events: none; }
-.li-dinner-inner { position: relative; display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: 56px; align-items: center; }
-.li-dinner-title { color: #fff; font-size: clamp(38px, 5.6vw, 76px); line-height: .84; letter-spacing: -.03em; }
+.li-dinner { position: relative; overflow: hidden; background: var(--li-dark); padding: clamp(56px, 8vw, 100px) clamp(20px, 5vw, 48px); scroll-margin-top: 90px; }
+.li-dinner-inner { position: relative; display: grid; grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr); gap: 56px; align-items: center; max-width: 1240px; margin: 0 auto; }
+.li-dinner-title { color: #fff; font-size: clamp(44px, 5.8vw, 90px); line-height: .9; }
 .li-dinner-title span { color: var(--li-yellow); }
-.li-dinner-desc { max-width: 470px; margin: 24px 0 0; font-size: 17px; line-height: 1.55; color: rgba(245,230,211,.9); }
-.li-dinner-meta { margin: 20px 0 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: rgba(245,230,211,.55); }
-.li-dinner-card { position: relative; background: var(--li-blue); border: 3px solid var(--li-sand); padding: 30px 28px 28px; }
-.li-dinner-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; font-size: 10.5px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
-.li-dinner-card-head span:first-child { color: var(--li-sand); }
-.li-dinner-card-head span:last-child { color: var(--li-yellow); }
-.li-dinner-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.li-dinner-chip { text-align: center; }
-.li-dinner-chip-mark { height: 78px; border-radius: 999px 999px 6px 6px; background: var(--li-sand); display: grid; place-items: center; font-family: "Archivo", system-ui, sans-serif; font-stretch: 120%; font-weight: 800; font-size: 32px; color: var(--li-blue); }
-.li-dinner-chip-mark.alt { background: var(--li-yellow); color: var(--li-dark); }
-.li-dinner-chip-label { display: block; margin-top: 8px; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,230,211,.85); }
-.li-dinner-note { margin: 22px 0 0; padding-top: 16px; border-top: 2px dashed rgba(245,230,211,.4); font-size: 13px; line-height: 1.5; color: rgba(245,230,211,.85); }
+.li-dinner-desc { max-width: 470px; margin: 26px 0 0; font-size: 19px; line-height: 1.55; color: rgba(245,230,211,.9); }
+.li-dinner-features { display: grid; gap: 14px; margin: 30px 0 0; padding: 0; list-style: none; max-width: 470px; }
+.li-dinner-features li { display: flex; gap: 12px; align-items: flex-start; }
+.li-dinner-features svg { flex: none; width: 22px; height: 22px; margin-top: 2px; }
+.li-dinner-features span:last-child { font-size: 18px; line-height: 1.5; color: rgba(245,230,211,.9); }
+.li-dinner-meta { margin: 22px 0 0; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: rgba(245,230,211,.55); }
+.li-dinner-card-wrap { position: relative; padding: 16px 16px 16px 0; }
+.li-dinner-card-wrap::before { content: ""; position: absolute; left: 16px; top: 16px; right: 0; bottom: 0; border-radius: 30px; background: rgba(245,166,35,.9); }
+.li-dinner-card { position: relative; background: var(--li-sand); border-radius: 30px; overflow: hidden; }
+.li-dinner-card-head { display: flex; align-items: center; gap: 11px; padding: 14px 16px; }
+.li-dinner-avatar { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: #fff; border: 1.5px solid rgba(26,36,128,.25); overflow: hidden; flex: none; }
+.li-dinner-avatar img { width: 22px; height: 22px; object-fit: contain; }
+.li-dinner-card-head strong { display: block; font-size: 15px; font-weight: 800; color: var(--li-dark); font-family: "Nunito", sans-serif; }
+.li-dinner-card-head span span { display: block; font-size: 13px; color: rgba(26,36,128,.6); font-family: "Nunito", sans-serif; }
+.li-dinner-photo { position: relative; height: 420px; }
+.li-dinner-photo-tag { position: absolute; left: 14px; top: 14px; background: rgba(26,36,128,.85); color: var(--li-sand); font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; padding: 6px 11px; border-radius: 999px; font-family: "Nunito", sans-serif; }
+.li-dinner-photo-filter { position: absolute; right: 14px; bottom: 14px; background: var(--li-yellow); color: var(--li-dark); font-family: "Caveat Brush", cursive; font-size: 21px; padding: 5px 13px 3px; border-radius: 999px; transform: rotate(-3deg); }
+.li-dinner-card-icons { display: flex; align-items: center; gap: 16px; padding: 13px 16px 0; color: var(--li-dark); }
+.li-dinner-card-icons svg { width: 23px; height: 23px; }
+.li-dinner-card-stat { flex: 1; text-align: right; font-size: 14.5px; font-weight: 800; color: rgba(26,36,128,.7); font-family: "Nunito", sans-serif; }
+.li-dinner-caption { margin: 8px 16px 0; padding-bottom: 16px; font-size: 15.5px; line-height: 1.5; color: rgba(26,36,128,.7); font-family: "Nunito", sans-serif; }
+.li-dinner-caption span { color: var(--li-blue); font-weight: 700; }
+.li-dinner-card-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px; border-top: 1px dashed rgba(26,36,128,.28); background: #fff; }
+.li-dinner-card-features div { display: grid; justify-items: center; gap: 7px; }
+.li-dinner-card-features div span:first-child { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(43,63,190,.12); color: var(--li-blue); font-size: 18px; }
+.li-dinner-card-features div span:last-child { font-size: 12.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--li-blue); font-family: "Nunito", sans-serif; }
 
 /* — booking — */
-.li-booking { position: relative; overflow: hidden; background: var(--li-yellow); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); }
-.li-booking-sunrays { position: absolute; left: 50%; top: -70%; width: 1800px; height: 1800px; transform: translateX(-50%); background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.32) 0deg 4.4deg, rgba(255,255,255,0) 4.4deg 11deg); pointer-events: none; }
-.li-booking-inner { position: relative; display: grid; grid-template-columns: minmax(0,.95fr) 520px; gap: 56px; align-items: center; }
-.li-booking-title { line-height: .85; }
-.li-booking-desc { max-width: 420px; margin: 0; font-size: 16.5px; line-height: 1.55; color: rgba(26,36,128,.82); }
+.li-booking { position: relative; overflow: hidden; background: var(--li-yellow); padding: clamp(56px, 8vw, 96px) clamp(20px, 5vw, 48px); scroll-margin-top: 90px; }
+.li-booking-sunrays { position: absolute; left: 50%; top: -70%; width: 1900px; height: 1900px; transform: translateX(-50%); background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.3) 0deg 4.4deg, rgba(255,255,255,0) 4.4deg 11deg); pointer-events: none; }
+.li-booking-inner { position: relative; display: grid; grid-template-columns: minmax(0,.95fr) 520px; gap: 56px; align-items: center; max-width: 1240px; margin: 0 auto; }
+.li-booking-title { line-height: .9; }
+.li-booking-desc { max-width: 420px; margin: 0; font-size: 18.5px; line-height: 1.55; color: rgba(26,36,128,.82); }
 .li-booking-tags { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
-.li-booking-tags span { background: #fff; border: 1.5px solid var(--li-dark); font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 8px 12px; border-radius: 999px; }
-.li-booking-form { background: #fff; border: 3px solid var(--li-dark); padding: 28px; }
-.li-booking-form-title { margin: 0 0 20px; font-family: "Archivo", system-ui, sans-serif; font-stretch: 118%; font-weight: 800; font-size: 24px; text-transform: uppercase; }
-.li-booking-step-label { margin: 0 0 10px; font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--li-blue); }
-.li-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-.li-chip-btn { flex: 1; min-width: 76px; padding: 11px 8px; border: 2px solid var(--li-dark); border-radius: 6px; cursor: pointer; background: #fff; color: var(--li-dark); font-family: "DM Sans", sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-.li-chip-btn.is-active { background: var(--li-blue); color: #fff; }
-.li-people-row { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-.li-people-btn { width: 46px; height: 46px; border: 2px solid var(--li-dark); border-radius: 999px; background: var(--li-sand); color: var(--li-dark); font-size: 22px; font-weight: 800; cursor: pointer; }
+.li-booking-tags span { background: #fff; border: 1.5px solid var(--li-dark); font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 8px 12px; border-radius: 999px; font-family: "Nunito", sans-serif; }
+.li-booking-form { position: relative; z-index: 2; background: #fff; border: 1.5px solid rgba(26,36,128,.35); border-radius: 28px; padding: 32px; }
+.li-booking-form-title { margin: 0 0 22px; font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 28px; color: var(--li-dark); }
+.li-booking-step-label { margin: 0 0 10px; font-size: 13px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--li-blue); font-family: "Nunito", sans-serif; }
+.li-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+.li-chip-btn { flex: 1; min-width: 76px; padding: 12px 8px; border: 1.5px solid rgba(26,36,128,.4); border-radius: 999px; cursor: pointer; background: #fff; color: var(--li-dark); font-family: "Nunito", sans-serif; font-size: 14px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.li-chip-btn.is-active { background: var(--li-blue); color: #fff; border-color: var(--li-blue); }
+.li-people-row { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.li-people-btn { width: 46px; height: 46px; border: 1.5px solid rgba(26,36,128,.4); border-radius: 999px; background: var(--li-sand); color: var(--li-dark); font-size: 24px; font-weight: 800; cursor: pointer; }
 .li-people-btn:hover { background: var(--li-yellow); }
-.li-people-count { font-family: "Archivo", system-ui, sans-serif; font-stretch: 120%; font-weight: 800; font-size: 30px; min-width: 150px; text-align: center; }
-.li-booking-submit { width: 100%; padding: 18px; border: 2px solid var(--li-dark); border-radius: 999px; background: var(--li-blue); color: #fff; font-family: "DM Sans", sans-serif; font-size: 13.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.li-people-count { font-family: "Caveat Brush", cursive; font-weight: 400; font-size: 36px; min-width: 150px; text-align: center; }
+.li-booking-submit { width: 100%; padding: 19px; border: 1.5px solid rgba(26,36,128,.4); border-radius: 999px; background: var(--li-blue); color: #fff; font-family: "Nunito", sans-serif; font-size: 16px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
 .li-booking-submit:hover { background: var(--li-dark); }
-.li-booking-summary { margin: 14px 0 0; font-size: 12.5px; line-height: 1.5; color: rgba(26,36,128,.65); }
+.li-booking-summary { margin: 14px 0 0; font-size: 14.5px; line-height: 1.5; color: rgba(26,36,128,.65); }
 
 /* — footer — */
-.li-footer { background: var(--li-dark); padding: 56px clamp(20px, 5vw, 48px) 34px; color: var(--li-sand); }
-.li-footer-grid { display: grid; grid-template-columns: 1.3fr .8fr .8fr .9fr; gap: 36px; }
-.li-footer-logo { height: 88px; width: auto; display: block; margin-bottom: 16px; }
-.li-footer-desc { margin: 0; max-width: 280px; font-size: 14px; line-height: 1.6; color: rgba(245,230,211,.78); }
-.li-footer-col { display: grid; gap: 11px; align-content: start; }
-.li-footer-col-title { margin: 0 0 4px; font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--li-yellow); }
-.li-footer-col a, .li-footer-col span { font-size: 14px; color: rgba(245,230,211,.85); line-height: 1.5; }
+.li-footer { background: var(--li-dark); padding: 64px clamp(20px, 5vw, 48px) 40px; color: var(--li-sand); scroll-margin-top: 20px; }
+.li-footer-grid { display: grid; grid-template-columns: 1.3fr .8fr .8fr .9fr; gap: 40px; }
+.li-footer-logo { height: 88px; width: auto; display: block; margin-bottom: 18px; }
+.li-footer-desc { margin: 0; max-width: 280px; font-size: 16px; line-height: 1.6; color: rgba(245,230,211,.78); }
+.li-footer-col { display: grid; gap: 12px; align-content: start; }
+.li-footer-col-title { margin: 0 0 6px; font-size: 13px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--li-yellow); font-family: "Nunito", sans-serif; }
+.li-footer-col a, .li-footer-col span { font-size: 16px; color: rgba(245,230,211,.85); line-height: 1.5; }
 .li-footer-col a:hover { color: var(--li-yellow); }
-.li-newsletter-form { display: flex; border: 2px solid var(--li-sand); }
-.li-newsletter-form input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 12px 13px; color: var(--li-sand); font-family: "DM Sans", sans-serif; font-size: 13.5px; outline: none; }
+.li-newsletter-form { display: flex; border: 1.5px solid rgba(245,230,211,.7); border-radius: 999px; overflow: hidden; }
+.li-newsletter-form input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 13px 14px; color: var(--li-sand); font-family: "Nunito", sans-serif; font-size: 16px; outline: none; }
 .li-newsletter-form input::placeholder { color: rgba(245,230,211,.55); }
-.li-newsletter-form button { border: 0; border-left: 2px solid var(--li-sand); background: var(--li-yellow); color: var(--li-dark); padding: 0 15px; font-family: "DM Sans", sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.li-newsletter-form button { flex: none; white-space: nowrap; border: 0; border-left: 1.5px solid rgba(245,230,211,.7); background: var(--li-yellow); color: var(--li-dark); padding: 0 16px; font-family: "Nunito", sans-serif; font-size: 14px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
 .li-newsletter-form button:hover { background: #fff; }
 .li-newsletter-form button:disabled { opacity: .68; cursor: wait; }
-.li-newsletter-message { font-size: 12.5px; color: var(--li-yellow); }
-.li-footer-bottom { display: flex; justify-content: space-between; gap: 24px; margin-top: 40px; padding-top: 18px; border-top: 1px solid rgba(245,230,211,.28); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,230,211,.6); }
+.li-newsletter-message { font-size: 15px; color: var(--li-yellow); }
+.li-footer-bottom { display: flex; justify-content: space-between; gap: 24px; margin-top: 44px; padding-top: 20px; border-top: 1px solid rgba(245,230,211,.28); font-size: 13.5px; letter-spacing: .16em; text-transform: uppercase; color: rgba(245,230,211,.6); font-family: "Nunito", sans-serif; }
 
 /* — responsive: tablet — */
 @media (max-width: 980px) {
   .li-nav { display: none; }
-  .li-header { grid-template-columns: auto 1fr auto; }
   .li-hero-inner, .li-dinner-inner, .li-booking-inner { grid-template-columns: 1fr; }
+  .li-dinner-inner { grid-template-columns: 1fr; }
+  .li-dinner-card-wrap { order: 2; }
   .li-booking-form { max-width: 520px; }
-  .li-reasons-grid, .li-events-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .li-reason-card-3 { display: none; }
+  .li-menu-grid { grid-template-columns: 1fr; }
+  .li-menu-aside { max-width: 420px; }
+  .li-reasons-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .li-reason-card-3 { grid-column: 1 / -1; }
   .li-events-grid { grid-template-columns: 1fr; }
-  .li-menu-feature { grid-template-columns: 1fr; }
-  .li-menu-feature-photo { height: 160px; }
+  .li-isleña-inner { grid-template-columns: 1fr; }
+  .li-isleña-facts { flex-direction: row; flex-wrap: wrap; gap: 20px 32px; padding: 20px 0 0; margin: 8px 0 0; border-left: 0; border-top: 2px dashed rgba(26,36,128,.35); align-self: auto; }
+  .li-isleña-mascot { width: 220px; margin-left: auto; }
   .li-footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
-/* — responsive: mobile (matches 1d) — */
+/* — responsive: mobile — */
 @media (max-width: 640px) {
-  .li-header { padding: 16px 18px; }
-  .li-brand-mark { height: 47px; }
-  .li-header-cta { padding: 10px 14px; font-size: 11px; }
+  .li-header { padding: 12px 18px; }
+  .li-brand-mark { height: 32px; }
+  .li-header-cta { padding: 10px 14px; font-size: 13px; }
   .li-header-cta span { display: none; }
-  .li-hero { padding: 34px 18px 42px; }
-  .li-hero-title { font-size: 46px; }
-  .li-hero-desc { font-size: 15px; }
+  .li-hero { padding: 34px 18px 58px; }
+  .li-hero-title { font-size: 54px; }
+  .li-hero-desc { font-size: 17px; }
   .li-hero-actions { flex-direction: column; }
   .li-hero-actions a { width: 100%; text-align: center; }
-  .li-hero-stats { display: none; }
-  .li-hero-photo { height: 240px; border-radius: 120px 120px 10px 10px; margin-top: 24px; }
-  .li-hero-seal { width: 84px; height: 84px; left: auto; right: 12px; bottom: 12px; }
-  .li-hero-stamp { display: none; }
+  .li-hero-stats { display: flex; }
+  .li-hero-photo { height: 300px; width: 300px; margin-top: 12px; }
+  .li-scallop { height: 44px; }
   .li-reasons-head { flex-direction: column; align-items: flex-start; gap: 16px; }
   .li-reasons-lead { display: none; }
   .li-reasons-grid { grid-template-columns: 1fr; }
-  .li-reason-card-3 { display: none; }
   .li-menu-row { flex-wrap: wrap; }
-  .li-menu-row-name { white-space: normal; flex: 1 1 100%; }
-  .li-menu-row-leader { display: none; }
-  .li-menu-row-price { margin-left: auto; }
+  .li-menu-row-desc { flex: 1 1 100%; order: 3; }
   .li-events-grid { grid-template-columns: 1fr; }
-  .li-dinner-chip:nth-child(n+4) { display: none; }
-  .li-dinner-chip-label { display: none; }
-  .li-dinner-chips { grid-template-columns: repeat(3, 1fr); }
-  .li-dinner-chip-mark { height: 66px; font-size: 26px; }
+  .li-isleña-thumbs { display: none; }
+  .li-isleña-facts { gap: 16px 24px; }
+  .li-isleña-fact span:last-child { font-size: 20px; }
+  .li-isleña-mascot { width: 180px; }
+  .li-dinner-photo { height: 240px; }
+  .li-dinner-card-features { display: none; }
+  .li-dinner-caption { display: none; }
+  .li-dinner-card-stat { text-align: left; }
   .li-booking-tags { display: none; }
-  .li-chip-btn { min-width: 62px; font-size: 11px; }
-  .li-booking-submit { padding: 18px 10px; }
+  .li-chip-btn { min-width: 70px; padding: 12px 6px; font-size: 13px; }
+  .li-booking-submit { padding: 18px 8px; font-size: 14.5px; letter-spacing: .06em; }
   .li-footer-grid { grid-template-columns: 1fr; }
   .li-footer-bottom { flex-direction: column; gap: 6px; }
 }
