@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { providersApi } from '../../api/providers';
 import { Provider } from '../../types';
 import { useToast } from '../../hooks/useToast';
+import { useConfirm } from '../../hooks/useConfirm';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
@@ -33,6 +34,7 @@ export function ProvidersPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Provider | null>(null);
   const toast = useToast();
+  const confirm = useConfirm();
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -78,7 +80,7 @@ export function ProvidersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este proveedor?')) return;
+    if (!(await confirm('¿Eliminar este proveedor?'))) return;
     try {
       await providersApi.delete(id);
       toast.success('Proveedor eliminado');

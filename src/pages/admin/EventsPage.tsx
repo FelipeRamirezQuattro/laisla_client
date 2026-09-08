@@ -8,6 +8,7 @@ import { Event, EventType, DinnerGuest, EventBooking, EventGuest } from '../../t
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, formatTime } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
+import { useConfirm } from '../../hooks/useConfirm';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -62,6 +63,7 @@ export function EventsPage() {
   const [guests, setGuests] = useState<EventGuest[]>([]);
   const [generatingGroups, setGeneratingGroups] = useState(false);
   const toast = useToast();
+  const confirm = useConfirm();
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -123,7 +125,7 @@ export function EventsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este evento?')) return;
+    if (!(await confirm('¿Eliminar este evento?'))) return;
     try {
       await eventsApi.delete(id);
       toast.success('Evento eliminado');

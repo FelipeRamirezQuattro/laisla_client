@@ -10,6 +10,7 @@ import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
 import { PageLoader } from '../../components/ui/Spinner';
 import { useToast } from '../../hooks/useToast';
+import { useConfirm } from '../../hooks/useConfirm';
 import { useAuthStore } from '../../store/authStore';
 import { formatDateTime } from '../../utils/formatDate';
 import type { User, UserRole } from '../../types';
@@ -78,6 +79,7 @@ export function UsuariosPage() {
   const [passwordUser, setPasswordUser] = useState<User | null>(null);
   const [search, setSearch] = useState('');
   const toast = useToast();
+  const confirm = useConfirm();
   const { user: currentUser } = useAuthStore();
 
   const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm<UserForm>({
@@ -159,7 +161,7 @@ export function UsuariosPage() {
   };
 
   const handleDelete = async (selected: User) => {
-    if (!confirm('¿Eliminar este usuario?')) return;
+    if (!(await confirm('¿Eliminar este usuario?'))) return;
     try {
       await usersApi.delete(userId(selected));
       toast.success('Usuario eliminado');

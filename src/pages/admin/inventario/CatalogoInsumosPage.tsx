@@ -12,6 +12,7 @@ import {
 import { insumosInvApi } from "../../../api/inventario";
 import { useAuth } from "../../../hooks/useAuth";
 import { useToast } from "../../../hooks/useToast";
+import { useConfirm } from "../../../hooks/useConfirm";
 import { PageLoader } from "../../../components/ui/Spinner";
 import { Modal } from "../../../components/ui/Modal";
 import { Input } from "../../../components/ui/Input";
@@ -190,6 +191,7 @@ function InlineCell({
 export function CatalogoInsumosPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
   const isAdmin = user?.role === "admin";
 
   const [grupos, setGrupos] = useState<CategoriaConInsumos[]>([]);
@@ -306,7 +308,7 @@ export function CatalogoInsumosPage() {
       toast.error("No se puede eliminar una categoría con insumos");
       return;
     }
-    if (!window.confirm(`¿Eliminar la categoría "${cat.nombre}"?`)) return;
+    if (!(await confirm(`¿Eliminar la categoría "${cat.nombre}"?`))) return;
 
     try {
       await insumosInvApi.deleteCategoria(cat._id);
@@ -319,7 +321,7 @@ export function CatalogoInsumosPage() {
   };
 
   const deleteSelected = async () => {
-    if (!window.confirm(`¿Desactivar ${selected.size} insumo(s)?`)) return;
+    if (!(await confirm({ message: `¿Desactivar ${selected.size} insumo(s)?`, confirmLabel: 'Desactivar' }))) return;
     try {
       await Promise.all(
         Array.from(selected).map((id) => insumosInvApi.delete(id)),

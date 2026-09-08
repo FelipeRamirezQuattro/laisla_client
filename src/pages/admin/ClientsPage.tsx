@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { clientsApi } from '../../api/clients';
 import { Client } from '../../types';
 import { useToast } from '../../hooks/useToast';
+import { useConfirm } from '../../hooks/useConfirm';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
@@ -31,6 +32,7 @@ export function ClientsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const toast = useToast();
+  const confirm = useConfirm();
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -76,7 +78,7 @@ export function ClientsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este cliente?')) return;
+    if (!(await confirm('¿Eliminar este cliente?'))) return;
     try {
       await clientsApi.delete(id);
       toast.success('Cliente eliminado');

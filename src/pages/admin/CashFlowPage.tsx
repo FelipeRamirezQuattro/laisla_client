@@ -8,6 +8,7 @@ import { CashClosing } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
+import { useConfirm } from '../../hooks/useConfirm';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PageLoader } from '../../components/ui/Spinner';
@@ -45,6 +46,7 @@ export function CashFlowPage() {
     cancelledOrders: [],
   });
   const toast = useToast();
+  const confirm = useConfirm();
 
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -80,9 +82,11 @@ export function CashFlowPage() {
 
   const onSubmit = async (data: FormData) => {
     if (dailySales.openOrdersCount > 0) {
-      const ok = window.confirm(
-        `Hay ${dailySales.openOrdersCount} pedido(s) sin facturar en la fecha seleccionada. ¿Deseas guardar el cierre de todos modos?`
-      );
+      const ok = await confirm({
+        message: `Hay ${dailySales.openOrdersCount} pedido(s) sin facturar en la fecha seleccionada. ¿Deseas guardar el cierre de todos modos?`,
+        confirmLabel: 'Guardar de todas formas',
+        variant: 'primary',
+      });
       if (!ok) return;
     }
     try {

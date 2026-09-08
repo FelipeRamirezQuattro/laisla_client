@@ -10,6 +10,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
 import { useToast } from '../../../hooks/useToast';
+import { useConfirm } from '../../../hooks/useConfirm';
 import { formatShortDate } from '../../../utils/formatDate';
 import type { Project, ProjectTask, ProjectTaskStatus, TaskPriority, User } from '../../../types';
 
@@ -91,6 +92,7 @@ export function ProyectoDetailPage() {
   const [draft, setDraft] = useState<TaskDraft>(emptyDraft());
   const [attachment, setAttachment] = useState({ filename: '', url: '' });
   const toast = useToast();
+  const confirm = useConfirm();
 
   const fetchProject = async () => {
     setLoading(true);
@@ -182,7 +184,7 @@ export function ProyectoDetailPage() {
   };
 
   const deleteTask = async (task: ProjectTask) => {
-    if (!confirm('¿Eliminar esta tarea?')) return;
+    if (!(await confirm('¿Eliminar esta tarea?'))) return;
     try {
       await tasksApi.delete(task._id);
       toast.success('Tarea eliminada');

@@ -6,6 +6,7 @@ import { Recipe, RecipeCategoryOption } from '../../../types';
 import { formatCOPDecimal } from '../../../utils/formatCurrency';
 import { useAuth } from '../../../hooks/useAuth';
 import { useToast } from '../../../hooks/useToast';
+import { useConfirm } from '../../../hooks/useConfirm';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
@@ -25,6 +26,7 @@ export function RecipesPage() {
   const [categoryName, setCategoryName] = useState('');
   const [categorySaving, setCategorySaving] = useState(false);
   const toast = useToast();
+  const confirm = useConfirm();
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -69,7 +71,7 @@ export function RecipesPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Eliminar la receta "${name}"?`)) return;
+    if (!(await confirm(`¿Eliminar la receta "${name}"?`))) return;
     try {
       await recipesApi.delete(id);
       toast.success('Receta eliminada');

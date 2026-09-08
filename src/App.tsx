@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
 import { RoleGuard } from './components/RoleGuard';
+import { ConfirmProvider } from './hooks/useConfirm';
 
 // Admin pages
 import { LoginPage } from './pages/admin/LoginPage';
@@ -138,11 +139,19 @@ function AppRoutes() {
 }
 
 export default function App() {
-  if (!googleClientId) return <AppRoutes />;
+  if (!googleClientId) {
+    return (
+      <ConfirmProvider>
+        <AppRoutes />
+      </ConfirmProvider>
+    );
+  }
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <AppRoutes />
+      <ConfirmProvider>
+        <AppRoutes />
+      </ConfirmProvider>
     </GoogleOAuthProvider>
   );
 }
