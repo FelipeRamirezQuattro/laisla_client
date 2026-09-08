@@ -13,7 +13,7 @@ import { useToast } from '../../../hooks/useToast';
 
 interface Summary {
   totalRecipes: number;
-  totalRawMaterials: number;
+  totalInsumos: number;
   alertsCount: number;
   laborPerItem: number;
   overheadPerItem: number;
@@ -43,7 +43,7 @@ export function DashboardCostosPage() {
       const pendingCount = stockRes.data.reduce((sum, item) => sum + item.pendingCount, 0);
       setSummary({
         totalRecipes: (recipesRes.data as import('../../../types').Recipe[]).length,
-        totalRawMaterials: insumos.length,
+        totalInsumos: insumos.length,
         alertsCount: pendingCount,
         laborPerItem: paramsRes.data.laborPerItem,
         overheadPerItem: paramsRes.data.overheadPerItem,
@@ -76,7 +76,7 @@ export function DashboardCostosPage() {
         />
         <KpiCard
           label="Insumos catalogados"
-          value={summary.totalRawMaterials.toString()}
+          value={summary.totalInsumos.toString()}
           href="/admin/inventario/catalogo"
           Icon={FlaskConical}
         />
