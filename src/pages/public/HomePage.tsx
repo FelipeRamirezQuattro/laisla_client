@@ -11,7 +11,6 @@ import { HomeIslena } from "./home/HomeIslena";
 import { HomeDinner } from "./home/HomeDinner";
 import { HomeBooking } from "./home/HomeBooking";
 import { HomeLocation } from "./home/HomeLocation";
-import { HomeFooter } from "./home/HomeFooter";
 import { recipePriceLabel } from "./home/helpers";
 
 export function HomePage() {
@@ -63,7 +62,6 @@ export function HomePage() {
         <HomeBooking />
         <HomeLocation />
       </main>
-      <HomeFooter />
     </div>
   );
 }

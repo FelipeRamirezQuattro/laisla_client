@@ -10,6 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
+import { Drawer } from '../../../components/ui/Drawer';
 
 const UNIT_OPTIONS = MEASUREMENT_UNITS.map((u) => ({ value: u.value, label: u.label }));
 
@@ -217,33 +218,24 @@ export function DisposablePacksPage() {
         </div>
       )}
 
-      {modalOpen && (
-        <div className="fixed inset-0 z-50">
-          <button
-            type="button"
-            className="absolute inset-0 bg-island-dark bg-opacity-50"
-            onClick={closeDrawer}
-            aria-label="Cerrar editor de pack"
-          />
-          <aside className="absolute right-0 top-0 flex h-full w-full max-w-3xl flex-col bg-white shadow-2xl">
-            <div className="flex items-start justify-between border-b border-island-blue/20 px-6 py-5">
-              <div>
-                <p className="text-xs font-body uppercase tracking-wide text-island-dark/70">Packs desechables</p>
-                <h2 className="font-body text-xl font-semibold text-island-dark">
-                  {editing ? 'Editar pack' : 'Nuevo pack'}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={closeDrawer}
-                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-gray-100 hover:text-island-dark"
-                aria-label="Cerrar"
-              >
-                <X size={20} />
-              </button>
+      <Drawer
+        isOpen={modalOpen}
+        onClose={closeDrawer}
+        eyebrow="Packs desechables"
+        title={editing ? 'Editar pack' : 'Nuevo pack'}
+        footer={
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-body text-island-dark/70">Costo estimado del pack</p>
+              <p className="font-body text-lg font-semibold text-island-dark">{formatCOPDecimal(packPreviewCost)}</p>
             </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-5">
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={closeDrawer}>Cancelar</Button>
+              <Button onClick={handleSave} loading={saving}>{editing ? 'Actualizar' : 'Crear'}</Button>
+            </div>
+          </div>
+        }
+      >
               <div className="space-y-5">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
@@ -332,21 +324,7 @@ export function DisposablePacksPage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 border-t border-island-blue/20 bg-white px-6 py-4">
-              <div>
-                <p className="text-xs font-body text-island-dark/70">Costo estimado del pack</p>
-                <p className="font-body text-lg font-semibold text-island-dark">{formatCOPDecimal(packPreviewCost)}</p>
-              </div>
-              <div className="flex gap-3">
-                <Button variant="secondary" onClick={closeDrawer}>Cancelar</Button>
-                <Button onClick={handleSave} loading={saving}>{editing ? 'Actualizar' : 'Crear'}</Button>
-              </div>
-            </div>
-          </aside>
-        </div>
-      )}
+      </Drawer>
     </div>
   );
 }

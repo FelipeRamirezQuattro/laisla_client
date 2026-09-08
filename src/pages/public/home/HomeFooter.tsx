@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
+import "./home.css";
 import { publicApi } from "../../../api/public";
 import { InstagramIcon, TikTokIcon } from "../../../components/icons/SocialIcons";
 import { contact, socialLinks } from "../../../utils/siteInfo";

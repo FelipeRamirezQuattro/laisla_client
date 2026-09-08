@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Edit3, History, PackagePlus, ReceiptText, RefreshCw, X } from 'lucide-react';
+import { Edit3, History, PackagePlus, ReceiptText, RefreshCw } from 'lucide-react';
 import { expensesApi } from '../../api/expenses';
 import { insumosInvApi } from '../../api/inventario';
 import { providersApi } from '../../api/providers';
@@ -12,6 +12,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { PageLoader } from '../../components/ui/Spinner';
+import { Drawer } from '../../components/ui/Drawer';
 
 type ExpenseType = 'INSUMO' | 'OTRO';
 
@@ -370,35 +371,24 @@ export function ExpensesPage() {
         </aside>
       </div>
 
-      {historyOpen && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-island-dark bg-opacity-50 backdrop-blur-sm" onClick={() => setHistoryOpen(false)} />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 border-b border-island-blue/20 bg-white px-6 py-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-body uppercase tracking-wide text-island-dark/70">Gastos</p>
-                  <h2 className="font-body text-xl font-semibold text-island-dark">Histórico de caja menor</h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setHistoryOpen(false)}
-                  className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-gray-100 hover:text-island-dark"
-                  aria-label="Cerrar"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                <Input label="Desde" type="date" value={historyFrom} onChange={(event) => setHistoryFrom(event.target.value)} />
-                <Input label="Hasta" type="date" value={historyTo} onChange={(event) => setHistoryTo(event.target.value)} />
-                <Button type="button" variant="secondary" onClick={loadHistory} loading={historyLoading}>
-                  <RefreshCw size={14} />
-                  Actualizar
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-4 px-6 py-5">
+      <Drawer
+        isOpen={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        eyebrow="Gastos"
+        title="Histórico de caja menor"
+        size="lg"
+        headerExtra={
+          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <Input label="Desde" type="date" value={historyFrom} onChange={(event) => setHistoryFrom(event.target.value)} />
+            <Input label="Hasta" type="date" value={historyTo} onChange={(event) => setHistoryTo(event.target.value)} />
+            <Button type="button" variant="secondary" onClick={loadHistory} loading={historyLoading}>
+              <RefreshCw size={14} />
+              Actualizar
+            </Button>
+          </div>
+        }
+      >
+            <div className="space-y-4">
               <div className="rounded-xl bg-gray-100 p-4">
                 <p className="text-xs text-island-dark/70 font-body">Total del periodo</p>
                 <p className="text-2xl font-body font-bold text-island-dark">{formatCOP(historyTotal)}</p>
@@ -441,9 +431,7 @@ export function ExpensesPage() {
                 )}
               </div>
             </div>
-          </aside>
-        </div>
-      )}
+      </Drawer>
     </div>
   );
 }

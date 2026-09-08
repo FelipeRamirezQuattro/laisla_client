@@ -11,6 +11,7 @@ import { useToast } from '../../hooks/useToast';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PageLoader } from '../../components/ui/Spinner';
+import { Drawer } from '../../components/ui/Drawer';
 
 const schema = z.object({
   date: z.string().min(1, 'Fecha requerida'),
@@ -300,25 +301,14 @@ export function CashFlowPage() {
         </div>
       </form>
 
-      {historyOpen && (
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-island-dark bg-opacity-50 backdrop-blur-sm" onClick={() => setHistoryOpen(false)} />
-          <aside className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-island-blue/20 bg-white px-6 py-4">
-              <div>
-                <p className="text-xs font-body uppercase tracking-wide text-island-dark/70">Caja</p>
-                <h2 className="font-body text-xl font-semibold text-island-dark">Historial de cierres</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setHistoryOpen(false)}
-                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-gray-100 hover:text-island-dark"
-                aria-label="Cerrar"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="space-y-3 px-6 py-5">
+      <Drawer
+        isOpen={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        eyebrow="Caja"
+        title="Historial de cierres"
+        size="md"
+      >
+            <div className="space-y-3">
               {closings.map((c) => (
                 <div key={c._id} className="border border-island-blue/20 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -338,9 +328,7 @@ export function CashFlowPage() {
               ))}
               {closings.length === 0 && <p className="text-center text-island-dark/70 font-body text-sm py-8">Sin historial de cierres.</p>}
             </div>
-          </aside>
-        </div>
-      )}
+      </Drawer>
     </div>
   );
 }

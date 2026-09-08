@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Check, ChevronDown, ChevronUp, CheckSquare, Minus, Moon, Square, Sun, X } from 'lucide-react';
 import { insumosInvApi, revisionesApi } from '../../../api/inventario';
 import { useAuth } from '../../../hooks/useAuth';
@@ -31,9 +32,11 @@ const NIVEL_BTN: Record<string, string> = {
   AGOTADO: 'bg-error hover:bg-error-ink text-white',
 };
 
-export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'control' | 'historial' } = {}) {
+export function ControlDiarioPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'historial' ? 'historial' : 'control';
 
   const [activeTab, setActiveTab] = useState<'control' | 'historial'>(initialTab);
   const [turno, setTurno] = useState<TurnoInventario>(detectTurno());

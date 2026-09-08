@@ -7,27 +7,10 @@ import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNotifications } from '../../hooks/useNotifications';
+import { buildBreadcrumbMap } from '../../config/adminNav';
 import type { Notification } from '../../types';
 
-const breadcrumbMap: Record<string, string> = {
-  '/admin': 'Dashboard',
-  '/admin/products': 'Productos',
-  '/admin/tables': 'Mesas',
-  '/admin/orders': 'Pedidos',
-  '/admin/orders/active': 'Pedidos activos',
-  '/admin/billing': 'Facturación',
-  '/admin/expenses': 'Gastos diarios',
-  '/admin/clients': 'Clientes',
-  '/admin/providers': 'Proveedores',
-  '/admin/events': 'Eventos',
-  '/admin/reservations': 'Reservaciones',
-  '/admin/cashflow': 'Caja / Cierre del Día',
-  '/admin/reports': 'Reportes',
-  '/admin/proyectos': 'Proyectos',
-  '/admin/mis-tareas': 'Mis tareas',
-  '/admin/notificaciones': 'Notificaciones',
-  '/admin/usuarios': 'Usuarios',
-};
+const breadcrumbMap = buildBreadcrumbMap();
 
 function notificationIcon(notification: Notification) {
   if (notification.entityType === 'task') return <ClipboardList size={16} />;

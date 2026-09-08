@@ -1,5 +1,5 @@
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams, generatePath } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
@@ -54,6 +54,12 @@ import { DinnerWithStrangersPage } from './pages/public/DinnerWithStrangersPage'
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
+// Preserves route params (e.g. :id) when redirecting an old URL to its new location.
+function ReplaceRoute({ to }: { to: string }) {
+  const params = useParams();
+  return <Navigate to={generatePath(to, params)} replace />;
+}
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -83,7 +89,8 @@ function AppRoutes() {
             <Route path="/admin/proyectos" element={<RoleGuard roles={['admin', 'superadmin']}><ProyectosPage /></RoleGuard>} />
             <Route path="/admin/proyectos/:id" element={<RoleGuard roles={['admin', 'superadmin']}><ProyectoDetailPage /></RoleGuard>} />
             <Route path="/admin/usuarios" element={<RoleGuard roles={['superadmin']}><UsuariosPage /></RoleGuard>} />
-            {/* Cost module */}
+            {/* Costos & Finanzas (unifies the former "Costos" and "Inventario" sections — recipes,
+                cost sheets, disposable packs, and stock/insumos are the same features either way) */}
             <Route path="/admin/costos/dashboard" element={<RoleGuard roles={['admin', 'superadmin']}><DashboardCostosPage /></RoleGuard>} />
             <Route path="/admin/costos/parametros" element={<RoleGuard roles={['admin', 'superadmin']}><ParametrosMODGIFPage /></RoleGuard>} />
             <Route path="/admin/costos/recetas" element={<RoleGuard roles={['admin', 'superadmin']}><RecipesPage /></RoleGuard>} />
@@ -92,18 +99,23 @@ function AppRoutes() {
             <Route path="/admin/costos/packs-desechables" element={<RoleGuard roles={['admin', 'superadmin']}><DisposablePacksPage /></RoleGuard>} />
             <Route path="/admin/costos/proyecciones/:year" element={<RoleGuard roles={['admin', 'superadmin']}><ProjectionsPage /></RoleGuard>} />
             <Route path="/admin/costos/resultados/:year" element={<RoleGuard roles={['admin', 'superadmin']}><ActualResultsPage /></RoleGuard>} />
-            <Route path="/admin/costos/inventario" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
-            {/* Inventario diario */}
-            <Route path="/admin/inventario/control" element={<RoleGuard roles={['admin', 'superadmin']}><ControlDiarioPage /></RoleGuard>} />
-            <Route path="/admin/inventario/alertas" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
-            <Route path="/admin/inventario/catalogo" element={<RoleGuard roles={['admin', 'superadmin']}><CatalogoInsumosPage /></RoleGuard>} />
-            <Route path="/admin/inventario/recetas" element={<RoleGuard roles={['admin', 'superadmin']}><RecipesPage /></RoleGuard>} />
-            <Route path="/admin/inventario/recetas/:id" element={<RoleGuard roles={['admin', 'superadmin']}><RecipeEditorPage /></RoleGuard>} />
-            <Route path="/admin/inventario/recetas/:id/ficha" element={<RoleGuard roles={['admin', 'superadmin']}><CostSheetPage /></RoleGuard>} />
-            <Route path="/admin/inventario/packs-desechables" element={<RoleGuard roles={['admin', 'superadmin']}><DisposablePacksPage /></RoleGuard>} />
-            <Route path="/admin/inventario/stock" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
-            <Route path="/admin/inventario/historial" element={<RoleGuard roles={['admin', 'superadmin']}><ControlDiarioPage initialTab="historial" /></RoleGuard>} />
-            <Route path="/admin/inventario/reportes" element={<RoleGuard roles={['admin', 'superadmin']}><ReportesInventarioPage /></RoleGuard>} />
+            <Route path="/admin/costos/inventario/control" element={<RoleGuard roles={['admin', 'superadmin']}><ControlDiarioPage /></RoleGuard>} />
+            <Route path="/admin/costos/inventario/catalogo" element={<RoleGuard roles={['admin', 'superadmin']}><CatalogoInsumosPage /></RoleGuard>} />
+            <Route path="/admin/costos/inventario/stock" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
+            <Route path="/admin/costos/inventario/reportes" element={<RoleGuard roles={['admin', 'superadmin']}><ReportesInventarioPage /></RoleGuard>} />
+
+            {/* Legacy redirects — kept temporarily so old bookmarks/links keep working */}
+            <Route path="/admin/inventario/control" element={<Navigate to="/admin/costos/inventario/control" replace />} />
+            <Route path="/admin/inventario/alertas" element={<Navigate to="/admin/costos/inventario/stock" replace />} />
+            <Route path="/admin/inventario/catalogo" element={<Navigate to="/admin/costos/inventario/catalogo" replace />} />
+            <Route path="/admin/inventario/recetas" element={<Navigate to="/admin/costos/recetas" replace />} />
+            <Route path="/admin/inventario/recetas/:id" element={<ReplaceRoute to="/admin/costos/recetas/:id" />} />
+            <Route path="/admin/inventario/recetas/:id/ficha" element={<ReplaceRoute to="/admin/costos/recetas/:id/ficha" />} />
+            <Route path="/admin/inventario/packs-desechables" element={<Navigate to="/admin/costos/packs-desechables" replace />} />
+            <Route path="/admin/inventario/stock" element={<Navigate to="/admin/costos/inventario/stock" replace />} />
+            <Route path="/admin/inventario/historial" element={<Navigate to="/admin/costos/inventario/control?tab=historial" replace />} />
+            <Route path="/admin/inventario/reportes" element={<Navigate to="/admin/costos/inventario/reportes" replace />} />
+            <Route path="/admin/costos/inventario" element={<Navigate to="/admin/costos/inventario/stock" replace />} />
           </Route>
         </Route>
 
