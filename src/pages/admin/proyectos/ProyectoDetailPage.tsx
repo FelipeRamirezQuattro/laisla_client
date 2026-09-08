@@ -34,7 +34,7 @@ const priorityLabels = Object.fromEntries(priorityOptions.map((item) => [item.va
 const priorityClass: Record<TaskPriority, string> = {
   urgent: 'border-l-island-blue',
   high: 'border-l-sun-yellow',
-  medium: 'border-l-[#F9CA7B]',
+  medium: 'border-l-[#FDCE7D]',
   low: 'border-l-stone',
 };
 

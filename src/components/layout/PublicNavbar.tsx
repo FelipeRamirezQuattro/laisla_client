@@ -28,12 +28,12 @@ export function PublicNavbar() {
 
 const publicNavbarStyles = `
 .home-nav {
-  --home-text: #1A2480;
+  --home-text: #101A3A;
   --home-muted: rgba(26,36,128,.7);
   --home-bg: #FFFFFF;
   --home-rule: rgba(26,36,128,.2);
-  --home-dark: #1A2480;
-  --home-accent2: #F5A623;
+  --home-dark: #101A3A;
+  --home-accent2: #FCA613;
   position: sticky;
   top: 0;
   z-index: 30;

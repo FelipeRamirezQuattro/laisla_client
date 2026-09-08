@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+  <g fill="none" stroke="#FCA613" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.55">
+    <!-- palmera, esquina superior izquierda -->
+    <g transform="translate(30 26)">
+      <path d="M18 78V38" />
+      <path d="M18 40C4 30 -6 32 -14 24" />
+      <path d="M18 40C4 26 2 16 -2 4" />
+      <path d="M18 40C18 24 22 14 20 0" />
+      <path d="M18 40C32 26 34 16 38 4" />
+      <path d="M18 40C32 30 42 32 50 24" />
+    </g>
+
+    <!-- gafas de sol, arriba a la derecha -->
+    <g transform="translate(216 40) rotate(-6)">
+      <circle cx="0" cy="12" r="16" />
+      <circle cx="40" cy="12" r="16" />
+      <path d="M16 10H24" />
+      <path d="M-16 8C-26 4 -32 6 -34 12" />
+      <path d="M56 8C66 4 72 6 74 12" />
+    </g>
+
+    <!-- chancla, abajo a la izquierda -->
+    <g transform="translate(48 210) rotate(4)">
+      <ellipse cx="20" cy="46" rx="22" ry="34" />
+      <path d="M20 14C10 24 8 32 2 36" />
+      <path d="M20 14C30 24 32 32 38 36" />
+    </g>
+
+    <!-- olita, franja inferior -->
+    <path d="M0 292C24 278 40 306 64 292 88 278 104 306 128 292 152 278 168 306 192 292 216 278 232 306 256 292 280 278 296 306 320 292" />
+
+    <!-- segunda olita, más suave, a media altura -->
+    <path d="M150 150C168 142 178 158 196 150 214 142 224 158 242 150" opacity="0.6" />
+
+    <!-- gafas pequeñas, centro-izquierda, para dar variedad de escala -->
+    <g transform="translate(90 130) scale(0.55) rotate(8)">
+      <circle cx="0" cy="12" r="16" />
+      <circle cx="40" cy="12" r="16" />
+      <path d="M16 10H24" />
+    </g>
+  </g>
+</svg>

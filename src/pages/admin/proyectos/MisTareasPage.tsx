@@ -23,7 +23,7 @@ function projectName(task: ProjectTask) {
 }
 
 function projectColor(task: ProjectTask) {
-  return typeof task.projectId === 'string' ? '#1A2480' : task.projectId.color;
+  return typeof task.projectId === 'string' ? '#101A3A' : task.projectId.color;
 }
 
 export function MisTareasPage() {

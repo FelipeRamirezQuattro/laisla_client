@@ -122,12 +122,12 @@ export function MenuPage() {
 
 const menuStyles = `
 .public-menu-page {
-  --menu-text: #1A2480;
+  --menu-text: #101A3A;
   --menu-muted: rgba(26,36,128,.7);
   --menu-bg: #FFFFFF;
   --menu-rule: rgba(26,36,128,.2);
-  --menu-dark: #1A2480;
-  --menu-accent: #2B3FBE;
+  --menu-dark: #101A3A;
+  --menu-accent: #2043A9;
   background: var(--menu-bg);
   color: var(--menu-text);
 }

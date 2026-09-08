@@ -13,11 +13,11 @@ import { exportToCsv } from '../../utils/exportCsv';
 import { todayLocal } from '../../utils/formatDate';
 
 const COLORS = [
-  '#2B3FBE', // island-blue
-  '#1A2480', // island-dark
-  '#F5A623', // sun-yellow
-  '#8B9BDD', // island-blue tint
-  '#F9CA7B', // sun-yellow tint
+  '#2043A9', // island-blue
+  '#101A3A', // island-dark
+  '#FCA613', // sun-yellow
+  '#8498D0', // island-blue tint
+  '#FDCE7D', // sun-yellow tint
 ];
 
 const categoryLabels: Record<string, string> = {

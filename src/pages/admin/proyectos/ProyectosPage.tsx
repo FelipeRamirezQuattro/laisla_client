@@ -20,7 +20,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const palette = ['#2B3FBE', '#F5A623', '#1A2480', '#F5E6D3', '#8B9BDD', '#F9CA7B'];
+const palette = ['#2043A9', '#FCA613', '#101A3A', '#FBF6E2', '#8498D0', '#FDCE7D'];
 
 const statusLabels: Record<ProjectTaskStatus, string> = {
   pending: 'Pendientes',

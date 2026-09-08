@@ -3,11 +3,12 @@
 @tailwind utilities;
 
 :root {
-  /* Brand */
-  --color-island-blue: #2B3FBE;
-  --color-sun-yellow:  #F5A623;
-  --color-island-dark: #1A2480;
-  --color-sand:        #F5E6D3;
+  /* Brand — La Isla · Café Picnic, two-ink playero identity */
+  --color-island-blue: #2043A9;  /* Azul La Isla */
+  --color-sun-yellow:  #FCA613;  /* Mango La Isla */
+  --color-island-dark: #101A3A;  /* Tinta */
+  --color-sand:        #FBF6E2;  /* Crema */
+  --color-sand-light:  #FEF9E7;  /* Crema clara */
 
   /* Status — unchanged */
   --color-success:     #6B8E5A;
@@ -24,20 +25,20 @@
   --color-info-tint:   #D6E4EE;
 
   /* Border — replaces --color-rule / --color-rule-strong */
-  --color-border:        rgba(26, 36, 128, 0.20);  /* island-blue/20 */
-  --color-border-strong: rgba(26, 36, 128, 0.40);  /* island-blue/40 */
+  --color-border:        rgba(16, 26, 58, 0.20);  /* island-dark/20 */
+  --color-border-strong: rgba(16, 26, 58, 0.40);  /* island-dark/40 */
 }
 
 @layer base {
   html {
     font-family: "DM Sans", system-ui, sans-serif;
     color: var(--color-island-dark);
-    background-color: #FFFFFF;
+    background-color: var(--color-sand);
   }
 
   body {
     min-height: 100vh;
-    background-color: #FFFFFF;
+    background-color: var(--color-sand);
   }
 
   h1, h2, h3, h4 {
@@ -55,7 +56,7 @@
   }
 
   .btn-secondary {
-    @apply bg-sun-yellow text-island-dark font-body font-medium px-5 py-2.5 rounded-lg hover:bg-[#E0900F] transition-all duration-200;
+    @apply bg-sun-yellow text-island-dark font-body font-medium px-5 py-2.5 rounded-lg hover:bg-[#D68D10] transition-all duration-200;
   }
 
   .btn-ghost {
@@ -81,7 +82,7 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFFFFF;
+  background: var(--color-sand);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border-strong);

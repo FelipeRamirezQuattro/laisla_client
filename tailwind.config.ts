@@ -5,12 +5,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ═══ BRAND — La Isla · Café Picnic, 5 colors. ═══
-        'island-blue': '#2B3FBE',  // cup/mascot blue · "La Isla" wordmark · primary CTA
-        'sun-yellow':  '#F5A623',  // palm · "CAFÉ PICNIC" · secondary accent
-        'island-dark': '#1A2480',  // dark text · hover states · deep backgrounds
-        sand:          '#F5E6D3',  // cream/skin illustration tone · section backgrounds
-        // white — use Tailwind's built-in `white` (#FFFFFF)
+        // ═══ BRAND — La Isla · Café Picnic ═══
+        // Two-ink playero identity: cobalt blue + mango on cream.
+        'island-blue': '#2043A9',  // Azul La Isla · dominant ink · headings, icons, CTA
+        'sun-yellow':  '#FCA613',  // Mango La Isla · single accent · CTA fill, underlines
+        'island-dark': '#101A3A',  // Tinta · long-form body text (near-black blue, not gray)
+        sand:          '#FBF6E2',  // Crema · default page background, never pure white
+        'sand-light':  '#FEF9E7',  // Crema clara · alternate section background
+        // white — use Tailwind's built-in `white` (#FFFFFF), only for knockouts on blue
 
         // ═══ STATUS — NOT brand. Never use red-*/green-*/etc. ═══
         success: { DEFAULT: '#6B8E5A', ink: '#3F5733', tint: '#E5ECDC' },
@@ -22,16 +24,19 @@ const config: Config = {
         // 3 full-strength brand colors + 2 flattened tints (sand/white are
         // too light to read as chart segments).
         chart: {
-          '1': '#2B3FBE',  // island-blue
-          '2': '#F5A623',  // sun-yellow
-          '3': '#1A2480',  // island-dark
-          '4': '#8B9BDD',  // island-blue tint
-          '5': '#F9CA7B',  // sun-yellow tint
+          '1': '#2043A9',  // island-blue
+          '2': '#FCA613',  // sun-yellow
+          '3': '#101A3A',  // island-dark
+          '4': '#8498D0',  // island-blue tint
+          '5': '#FDCE7D',  // sun-yellow tint
         },
       },
       fontFamily: {
         display: ['"DM Sans"', 'system-ui', 'sans-serif'],
         body:    ['"DM Sans"', 'system-ui', 'sans-serif'],
+        // Additive: hand-lettered display face for the Homepage only —
+        // does not touch `display`/`body` so Admin stays on DM Sans.
+        script:  ['"Caprasimo"', 'cursive'],
       },
       animation: {
         'spin-slow': 'spin-slow 20s linear infinite',
