@@ -144,15 +144,15 @@ export function CashFlowPage() {
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
           <section className="space-y-4">
             <div className="grid sm:grid-cols-4 gap-3 text-sm font-body">
-              <div className="rounded-lg bg-sand p-4">
+              <div className="rounded-lg bg-gray-100 p-4">
                 <p className="text-island-dark/70 text-xs">Ventas efectivo</p>
                 <p className="font-bold text-island-dark">{formatCOP(dailySales.cashSales)}</p>
               </div>
-              <div className="rounded-lg bg-sand p-4">
+              <div className="rounded-lg bg-gray-100 p-4">
                 <p className="text-island-dark/70 text-xs">Ventas tarjeta</p>
                 <p className="font-bold text-island-dark">{formatCOP(dailySales.cardSales)}</p>
               </div>
-              <div className="rounded-lg bg-sand p-4">
+              <div className="rounded-lg bg-gray-100 p-4">
                 <p className="text-island-dark/70 text-xs">Transferencias</p>
                 <p className="font-bold text-island-dark">{formatCOP(dailySales.transferSales)}</p>
               </div>
@@ -163,7 +163,7 @@ export function CashFlowPage() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              <div className="rounded-lg border border-island-blue/20 bg-sand p-4 font-body">
+              <div className="rounded-lg border border-island-blue/20 bg-gray-100 p-4 font-body">
                 <p className="text-sm text-island-dark/70">Gastos registrados en caja menor</p>
                 <p className="font-semibold text-island-dark">
                   {dailySales.dailyExpenses.length} gasto(s) · {formatCOP(dailySales.totalDailyExpenses)}
@@ -272,7 +272,7 @@ export function CashFlowPage() {
           </section>
 
           <aside className="space-y-4">
-            <div className="bg-sand rounded-lg p-4 space-y-2 text-sm font-body">
+            <div className="bg-gray-100 rounded-lg p-4 space-y-2 text-sm font-body">
               <div className="flex justify-between">
                 <span className="text-island-dark/70">Gastos caja menor</span>
                 <span className="font-medium">{formatCOP(dailySales.totalDailyExpenses)}</span>
@@ -312,7 +312,7 @@ export function CashFlowPage() {
               <button
                 type="button"
                 onClick={() => setHistoryOpen(false)}
-                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-sand hover:text-island-dark"
+                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-gray-100 hover:text-island-dark"
                 aria-label="Cerrar"
               >
                 <X size={20} />

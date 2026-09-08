@@ -31,7 +31,7 @@ export function CascadeWarningModal({ isOpen, affectedPacks, affectedRecipes, on
         </div>
         <p className="text-xs text-island-dark/70 mb-6">¿Deseas continuar? Los costos de todas las recetas afectadas se recalcularán.</p>
         <div className="flex gap-3 justify-end">
-          <button onClick={onCancel} disabled={loading} className="px-4 py-2 text-sm font-body text-island-dark/70 border border-island-blue/20 rounded-lg hover:bg-sand transition-colors">
+          <button onClick={onCancel} disabled={loading} className="px-4 py-2 text-sm font-body text-island-dark/70 border border-island-blue/20 rounded-lg hover:bg-gray-100 transition-colors">
             Cancelar
           </button>
           <button onClick={onConfirm} disabled={loading} className="px-4 py-2 text-sm font-body bg-island-blue text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50">

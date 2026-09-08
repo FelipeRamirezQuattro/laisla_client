@@ -6,9 +6,9 @@ import { Event, AgeRange, ConversationType, DinnerStyle, PersonalityTag } from '
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate } from '../../utils/formatDate';
 import { StepIndicator } from '../../components/StepIndicator';
-import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useToast } from '../../hooks/useToast';
+import './eventsPublic.css';
 
 const steps = ['Bienvenida', 'Tus datos', 'Cuestionario', 'Confirmación'];
 
@@ -103,32 +103,32 @@ export function DinnerWithStrangersPage() {
 
   if (success) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-16 text-center">
-        <div className="w-24 h-24 rounded-full bg-island-dark flex items-center justify-center mx-auto mb-6 text-4xl">
-          <Sparkles size={38} className="text-white" />
+      <div className="ev-page ev-success">
+        <div className="ev-success-icon">
+          <Sparkles size={38} strokeWidth={2} />
         </div>
-        <h1 className="font-body text-3xl font-bold text-island-dark mb-4">¡Ya eres parte de la experiencia!</h1>
-        <p className="font-body text-island-dark/70 text-lg leading-relaxed mb-6">
+        <h1 className="ev-title" style={{ fontSize: 34 }}>¡Ya eres parte de la experiencia!</h1>
+        <p className="ev-lead" style={{ margin: '0 auto 18px' }}>
           Tu perfil de compatibilidad ha sido registrado. Pronto recibirás un correo con los detalles de tu grupo y mesa asignada.
         </p>
-        <p className="font-body text-island-dark/70 text-sm mb-8">
+        <p className="ev-lead" style={{ margin: '0 auto 28px', fontSize: 14.5 }}>
           <strong>{form.name}</strong>, nos vemos en la cena. Algo nos dice que vas a amar a las personas de tu mesa.
         </p>
-        <Button size="lg" onClick={() => window.location.href = '/'}>Volver al inicio</Button>
+        <button className="ev-btn-primary" onClick={() => window.location.href = '/'}>Volver al inicio</button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
-      <div className="text-center mb-8">
-        <p className="text-island-blue font-body text-sm uppercase tracking-widest font-medium mb-2">Experiencia estrella</p>
-        <h1 className="font-body text-3xl font-bold text-island-dark">Cena con Desconocidos</h1>
+    <div className="ev-page max-w-2xl mx-auto px-4 py-12">
+      <div className="ev-wizard-head">
+        <p className="ev-kicker">Experiencia estrella</p>
+        <h1 className="ev-title">Cena con Desconocidos</h1>
       </div>
 
       <StepIndicator steps={steps} currentStep={step} />
 
-      <div className="bg-white rounded-lg shadow-sm border border-island-blue/20 p-8">
+      <div className="ev-wizard-card">
         {step === 1 && <WelcomeStep events={events} onNext={() => setStep(2)} />}
         {step === 2 && <PersonalInfoStep form={form} update={update} events={events} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
         {step === 3 && (
@@ -158,32 +158,31 @@ export function DinnerWithStrangersPage() {
 function WelcomeStep({ events, onNext }: { events: Event[]; onNext: () => void }) {
   return (
     <div className="space-y-6">
-      <div className="text-center py-4">
-        <Sparkles size={48} className="mx-auto mb-4 text-island-blue" />
-        <h2 className="font-body text-2xl font-bold text-island-dark mb-4">Una cena que cambia perspectivas</h2>
-        <p className="font-body text-island-dark/70 text-lg leading-relaxed">
+      <div className="text-center py-2">
+        <Sparkles size={44} strokeWidth={1.5} className="mx-auto mb-4" style={{ color: 'var(--ev-blue)' }} />
+        <h2 className="ev-title" style={{ fontSize: 28 }}>Una cena que cambia perspectivas</h2>
+        <p className="ev-lead" style={{ margin: '0 auto' }}>
           Llegarás a cenar con <strong>5 personas que no conoces</strong> pero con quienes tienes más en común de lo que crees.
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+      <div className="ev-feature-grid">
         <FeatureBox Icon={Handshake} title="Conexiones reales" desc="Grupos formados por algoritmo de compatibilidad" />
         <FeatureBox Icon={Utensils} title="Cena completa" desc="Menú de 3 tiempos con maridaje de café" />
         <FeatureBox Icon={MessageCircle} title="Conversaciones" desc="Preguntas detonadores incluidas en la mesa" />
       </div>
       {events.length > 0 && (
-        <div className="bg-sand rounded-xl p-4">
-          <p className="text-sm font-body font-semibold text-island-dark mb-2">Próximas fechas disponibles:</p>
+        <div className="ev-info-box">
+          <p style={{ fontWeight: 800, color: 'var(--ev-dark)', marginBottom: 8 }}>Próximas fechas disponibles:</p>
           {events.map((e) => (
-            <div key={e._id} className="flex justify-between text-sm font-body">
+            <div key={e._id} className="ev-summary-row" style={{ padding: '4px 0' }}>
               <span>{formatDate(e.date)}</span>
-              <span className="text-island-dark/70">{e.maxCapacity - e.currentRegistrations} cupos</span>
-              <span className="font-medium text-island-dark">{formatCOP(e.pricePerPerson)}</span>
+              <span>{e.maxCapacity - e.currentRegistrations} cupos · {formatCOP(e.pricePerPerson)}</span>
             </div>
           ))}
         </div>
       )}
       <div className="flex justify-end">
-        <Button onClick={onNext} size="lg">Quiero participar</Button>
+        <button className="ev-btn-primary" onClick={onNext}>Quiero participar →</button>
       </div>
     </div>
   );
@@ -191,10 +190,10 @@ function WelcomeStep({ events, onNext }: { events: Event[]; onNext: () => void }
 
 function FeatureBox({ Icon, title, desc }: { Icon: LucideIcon; title: string; desc: string }) {
   return (
-    <div className="bg-sand rounded-xl p-4">
-      <Icon size={28} className="mx-auto mb-2 text-island-blue" />
-      <p className="font-body font-semibold text-island-dark text-sm">{title}</p>
-      <p className="font-body text-island-dark/70 text-xs mt-1">{desc}</p>
+    <div className="ev-feature-box">
+      <Icon size={26} strokeWidth={1.75} />
+      <p>{title}</p>
+      <p>{desc}</p>
     </div>
   );
 }
@@ -227,21 +226,19 @@ function PersonalInfoStep({ form, update, events, onNext, onBack }: {
 
   return (
     <div className="space-y-5">
-      <h2 className="font-body text-xl font-semibold text-island-dark">Cuéntanos sobre ti</h2>
+      <h2 className="ev-form-title" style={{ margin: 0 }}>Cuéntanos sobre ti</h2>
       <Input label="Nombre completo" value={form.name || ''} onChange={(e) => update({ name: e.target.value })} />
       <Input label="Email" type="email" value={form.email || ''} onChange={(e) => update({ email: e.target.value })} />
       <Input label="Teléfono" value={form.phone || ''} onChange={(e) => update({ phone: e.target.value })} />
 
       <div>
         <label className="text-sm font-medium text-island-dark font-body block mb-2">Rango de edad</label>
-        <div className="flex gap-2 flex-wrap">
+        <div className="ev-choice-row">
           {ageRanges.map((r) => (
             <button
               key={r.value}
               onClick={() => update({ ageRange: r.value })}
-              className={`px-4 py-2 rounded-xl font-body font-medium text-sm transition-all ${
-                form.ageRange === r.value ? 'bg-island-dark text-white' : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
-              }`}
+              className={`ev-choice-btn ${form.ageRange === r.value ? 'is-active' : ''}`}
             >
               {r.label}
             </button>
@@ -259,15 +256,13 @@ function PersonalInfoStep({ form, update, events, onNext, onBack }: {
               <button
                 key={e._id}
                 onClick={() => update({ eventId: e._id })}
-                className={`w-full flex justify-between items-center p-3 rounded-xl border-2 text-left transition-all ${
-                  form.eventId === e._id ? 'border-island-blue bg-island-blue bg-opacity-5' : 'border-island-blue/20 hover:border-island-blue/20'
-                }`}
+                className={`ev-choice-card ${form.eventId === e._id ? 'is-active' : ''}`}
               >
-                <span className="font-body font-medium text-island-dark">{formatDate(e.date)}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-island-dark/70 font-body">{e.maxCapacity - e.currentRegistrations} cupos</span>
-                  <span className="font-bold font-body text-island-dark">{formatCOP(e.pricePerPerson)}</span>
-                </div>
+                <span style={{ fontWeight: 700 }}>{formatDate(e.date)}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 14 }}>
+                  <span style={{ color: 'var(--ev-muted)' }}>{e.maxCapacity - e.currentRegistrations} cupos</span>
+                  <span style={{ fontWeight: 800 }}>{formatCOP(e.pricePerPerson)}</span>
+                </span>
               </button>
             ))}
           </div>
@@ -276,8 +271,8 @@ function PersonalInfoStep({ form, update, events, onNext, onBack }: {
 
       {err && <p className="text-error-ink text-sm font-body">{err}</p>}
       <div className="flex justify-between pt-2">
-        <Button variant="secondary" onClick={onBack}>Volver</Button>
-        <Button onClick={handleNext}>Continuar</Button>
+        <button className="ev-btn-outline" onClick={onBack}>Volver</button>
+        <button className="ev-btn-primary" onClick={handleNext}>Continuar</button>
       </div>
     </div>
   );
@@ -304,8 +299,10 @@ function QuestionnaireStep({ form, update, hobbies, toggleHobby, onNext, onBack 
 
   return (
     <div className="space-y-7">
-      <h2 className="font-body text-xl font-semibold text-island-dark">Cuestionario de compatibilidad</h2>
-      <p className="text-sm text-island-dark/70 font-body -mt-3">Tus respuestas nos ayudan a encontrar a las personas más afines a ti.</p>
+      <div>
+        <h2 className="ev-form-title" style={{ margin: 0 }}>Cuestionario de compatibilidad</h2>
+        <p className="ev-lead" style={{ marginTop: 4 }}>Tus respuestas nos ayudan a encontrar a las personas más afines a ti.</p>
+      </div>
 
       {/* Q1: Social Energy */}
       <Question label="¿Cómo describirías tu energía social?">
@@ -344,17 +341,13 @@ function QuestionnaireStep({ form, update, hobbies, toggleHobby, onNext, onBack 
 
       {/* Q4: Hobbies */}
       <Question label="¿Qué haces en tu tiempo libre? (elige hasta 3)">
-        <div className="flex flex-wrap gap-2">
+        <div className="ev-choice-row">
           {hobbyOptions.map((h) => (
             <button
               key={h.value}
               onClick={() => toggleHobby(h.value)}
               disabled={!hobbies.includes(h.value) && hobbies.length >= 3}
-              className={`px-3 py-1.5 rounded-full text-sm font-body font-medium transition-all ${
-                hobbies.includes(h.value)
-                  ? 'bg-island-dark text-white'
-                  : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark disabled:opacity-40 disabled:cursor-not-allowed'
-              }`}
+              className={`ev-choice-btn ${hobbies.includes(h.value) ? 'is-active' : ''}`}
             >
               {h.label}
             </button>
@@ -401,8 +394,8 @@ function QuestionnaireStep({ form, update, hobbies, toggleHobby, onNext, onBack 
 
       {err && <p className="text-error-ink text-sm font-body">{err}</p>}
       <div className="flex justify-between pt-2">
-        <Button variant="secondary" onClick={onBack}>Volver</Button>
-        <Button onClick={handleNext}>Ver resumen</Button>
+        <button className="ev-btn-outline" onClick={onBack}>Volver</button>
+        <button className="ev-btn-primary" onClick={handleNext}>Ver resumen</button>
       </div>
     </div>
   );
@@ -425,20 +418,18 @@ function ScaleSelector({ options, value, onChange, showLabelsOnly }: {
 }) {
   return (
     <div className="space-y-2">
-      <div className="flex gap-2">
+      <div className="ev-scale-row">
         {options.map((_, i) => (
           <button
             key={i}
             onClick={() => onChange(i + 1)}
-            className={`flex-1 py-3 rounded-xl font-body font-bold text-sm transition-all ${
-              value === i + 1 ? 'bg-island-blue text-white' : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
-            }`}
+            className={`ev-scale-btn ${value === i + 1 ? 'is-active' : ''}`}
           >
             {i + 1}
           </button>
         ))}
       </div>
-      <div className="flex justify-between text-xs text-island-dark/70 font-body px-1">
+      <div className="ev-scale-labels">
         <span>{options[0]}</span>
         <span>{options[options.length - 1]}</span>
       </div>
@@ -452,16 +443,12 @@ function OptionGrid({ options, value, onChange }: {
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <div className="ev-option-grid">
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`px-4 py-3 rounded-xl font-body text-sm text-left transition-all ${
-            value === opt.value
-              ? 'bg-island-dark text-white'
-              : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
-          }`}
+          className={`ev-option-btn ${value === opt.value ? 'is-active' : ''}`}
         >
           {opt.label}
         </button>
@@ -511,9 +498,9 @@ function ConfirmationStep({ form, events, onBack, onSubmit, loading }: {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-body text-xl font-semibold text-island-dark">Confirma tu registro</h2>
+      <h2 className="ev-form-title" style={{ margin: 0 }}>Confirma tu registro</h2>
 
-      <div className="bg-sand rounded-xl p-5 space-y-3 text-sm font-body">
+      <div className="ev-info-box space-y-3">
         <SummaryRow label="Nombre" value={form.name || ''} />
         <SummaryRow label="Email" value={form.email || ''} />
         <SummaryRow label="Fecha de la cena" value={selectedEvent ? formatDate(selectedEvent.date) : ''} />
@@ -525,19 +512,18 @@ function ConfirmationStep({ form, events, onBack, onSubmit, loading }: {
         <SummaryRow label="Personalidad" value={personalityLabels[form.personalityTag || ''] || ''} />
       </div>
 
-      <div className="bg-sand rounded-xl p-4 text-sm font-body text-island-dark/70">
-        <p className="font-medium text-island-dark mb-1">¿Cómo funciona la asignación de grupos?</p>
-        <p>Usamos un algoritmo de compatibilidad que analiza tus respuestas y te asigna automáticamente al grupo con el que tienes más afinidad. Recibirás los detalles de tu mesa por correo antes de la cena.</p>
+      <div className="ev-info-box">
+        <p style={{ fontWeight: 800, color: 'var(--ev-dark)', marginBottom: 6 }}>¿Cómo funciona la asignación de grupos?</p>
+        <p style={{ color: 'var(--ev-muted)', fontSize: 14, margin: 0 }}>
+          Usamos un algoritmo de compatibilidad que analiza tus respuestas y te asigna automáticamente al grupo con el que tienes más afinidad. Recibirás los detalles de tu mesa por correo antes de la cena.
+        </p>
       </div>
 
       <div className="flex justify-between pt-2">
-        <Button variant="secondary" onClick={onBack}>Volver</Button>
-        <Button onClick={onSubmit} loading={loading} size="lg">
-          <span className="inline-flex items-center gap-2">
-            Registrarme
-            <Sparkles size={16} />
-          </span>
-        </Button>
+        <button className="ev-btn-outline" onClick={onBack}>Volver</button>
+        <button className="ev-btn-primary" onClick={onSubmit} disabled={loading}>
+          {loading ? 'Enviando…' : 'Registrarme'} <Sparkles size={16} />
+        </button>
       </div>
     </div>
   );
@@ -545,9 +531,9 @@ function ConfirmationStep({ form, events, onBack, onSubmit, loading }: {
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4">
-      <span className="text-island-dark/70 shrink-0">{label}</span>
-      <span className="font-medium text-island-dark text-right">{value}</span>
+    <div className="ev-summary-row">
+      <span>{label}</span>
+      <span>{value}</span>
     </div>
   );
 }

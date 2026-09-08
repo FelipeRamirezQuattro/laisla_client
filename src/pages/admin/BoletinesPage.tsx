@@ -242,13 +242,13 @@ export function BoletinesPage() {
                 </p>
               </div>
               <div
-                className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${gmailStatus?.connected ? "bg-success-tint text-success" : "bg-sand text-island-dark/70"}`}
+                className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${gmailStatus?.connected ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
               >
                 {gmailStatus?.connected ? "Conectado" : "Sin conectar"}
               </div>
             </div>
 
-            <div className="rounded-lg border border-island-blue/20 bg-sand p-4">
+            <div className="rounded-lg border border-island-blue/20 bg-gray-100 p-4">
               <p className="font-body text-sm font-semibold text-island-dark">
                 {gmailStatus?.connected
                   ? gmailStatus.gmailEmail
@@ -300,7 +300,7 @@ export function BoletinesPage() {
                       </p>
                     </div>
                     <span
-                      className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${campaign.status === "sent" ? "bg-success-tint text-success" : "bg-sand text-island-dark/70"}`}
+                      className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${campaign.status === "sent" ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
                     >
                       {campaign.status === "sent" ? "Enviado" : "Borrador"}
                     </span>
@@ -368,7 +368,7 @@ function Metric({
 }) {
   return (
     <div className="card flex items-center gap-4">
-      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-sand text-island-dark">
+      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gray-100 text-island-dark">
         {icon}
       </div>
       <div>

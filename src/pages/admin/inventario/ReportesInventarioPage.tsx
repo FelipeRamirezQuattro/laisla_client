@@ -50,7 +50,7 @@ export function ReportesInventarioPage() {
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${period === p ? 'bg-island-dark text-white' : 'bg-sand text-island-dark hover:bg-sand'}`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${period === p ? 'bg-island-dark text-white' : 'bg-gray-100 text-island-dark hover:bg-gray-100'}`}
             >
               {p} días
             </button>

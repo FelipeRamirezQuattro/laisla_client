@@ -137,7 +137,7 @@ export function OrderDetailDrawer({
               {timeline.map((entry, index) => (
                 <div key={`${entry.status}-${entry.at}-${index}`} className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <span className="h-8 w-8 rounded-full bg-sand border border-island-blue/20 inline-flex items-center justify-center text-island-blue">
+                    <span className="h-8 w-8 rounded-full bg-gray-100 border border-island-blue/20 inline-flex items-center justify-center text-island-blue">
                       <Clock size={15} />
                     </span>
                     {index < timeline.length - 1 && <span className="w-px flex-1 bg-island-blue/20" />}
@@ -153,7 +153,7 @@ export function OrderDetailDrawer({
           </section>
 
           <section className="card p-0 overflow-hidden">
-            <div className="px-4 py-3 border-b border-island-blue/20 bg-sand">
+            <div className="px-4 py-3 border-b border-island-blue/20 bg-gray-100">
               <h3 className="font-body font-semibold text-island-dark">Ítems</h3>
             </div>
             <div className="divide-y divide-island-blue/20">
@@ -233,7 +233,7 @@ export function CancelOrderModal({
                 className={`rounded-lg border px-3 py-2 text-left font-body text-sm transition-colors ${
                   reason === item
                     ? 'border-island-dark bg-island-dark text-white'
-                    : 'border-island-blue/20 bg-white text-island-dark hover:bg-sand'
+                    : 'border-island-blue/20 bg-white text-island-dark hover:bg-gray-100'
                 }`}
               >
                 {item}
@@ -242,7 +242,7 @@ export function CancelOrderModal({
           </div>
         </div>
 
-        <div className="rounded-lg border border-island-blue/20 bg-sand p-3">
+        <div className="rounded-lg border border-island-blue/20 bg-gray-100 p-3">
           <label className="block text-sm font-medium text-island-dark font-body mb-2">Agregar otra opción</label>
           <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
             <input

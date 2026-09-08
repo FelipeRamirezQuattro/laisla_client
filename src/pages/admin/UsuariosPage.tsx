@@ -56,7 +56,7 @@ function roleBadge(role: UserRole) {
   const classes = {
     superadmin: 'bg-island-dark text-white',
     admin: 'bg-island-blue text-white',
-    user: 'bg-sun-yellow text-island-dark',
+    user: 'bg-gray-100 text-island-dark/70',
   }[role];
   return <span className={`badge ${classes}`}>{roleLabels[role]}</span>;
 }
@@ -217,7 +217,7 @@ export function UsuariosPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+        <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredUsers.length} de {users.length} usuarios
         </div>
       </div>
@@ -225,7 +225,7 @@ export function UsuariosPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-sand border-b border-island-blue/20">
+            <thead className="bg-gray-100 border-b border-island-blue/20">
               <tr>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Usuario</th>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Email</th>
@@ -239,7 +239,7 @@ export function UsuariosPage() {
               {filteredUsers.map((item) => {
                 const ownUser = userId(item) === currentId;
                 return (
-                  <tr key={userId(item)} className="hover:bg-sand transition-colors">
+                  <tr key={userId(item)} className="hover:bg-gray-100 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-island-dark text-white flex items-center justify-center text-sm font-semibold">

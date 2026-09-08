@@ -100,7 +100,7 @@ export function ProyectosPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+        <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredProjects.length} de {projects.length} proyectos
         </div>
       </div>
@@ -127,7 +127,7 @@ export function ProyectosPage() {
               <p className="mt-4 text-sm text-island-dark/70 min-h-[2.5rem]">{project.description || 'Sin descripción'}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {(Object.keys(statusLabels) as ProjectTaskStatus[]).map((status) => (
-                  <span key={status} className="badge bg-sand text-island-dark/70">
+                  <span key={status} className="badge bg-gray-100 text-island-dark/70">
                     {statusLabels[status]}: {project.taskCounts?.[status] ?? 0}
                   </span>
                 ))}

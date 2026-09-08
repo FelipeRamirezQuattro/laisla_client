@@ -21,7 +21,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-island-blue/20 hover:bg-sand disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-island-blue/20 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Página anterior"
       >
         <ChevronLeft size={16} />
@@ -33,7 +33,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
           className={`px-3 py-1.5 text-sm font-body rounded-lg transition-colors ${
             p === page
               ? 'bg-island-blue text-white'
-              : 'border border-island-blue/20 hover:bg-sand'
+              : 'border border-island-blue/20 hover:bg-gray-100'
           }`}
         >
           {p}
@@ -42,7 +42,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-island-blue/20 hover:bg-sand disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-island-blue/20 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Página siguiente"
       >
         <ChevronRight size={16} />

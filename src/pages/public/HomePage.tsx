@@ -3,7 +3,6 @@ import { publicApi } from "../../api/public";
 import { publicMenuApi } from "../../api/publicMenu";
 import type { Event, Recipe } from "../../types";
 import "./home/home.css";
-import { HomeHeader } from "./home/HomeHeader";
 import { HomeHero } from "./home/HomeHero";
 import { HomeReasons } from "./home/HomeReasons";
 import { HomeMenuPreview } from "./home/HomeMenuPreview";
@@ -54,7 +53,6 @@ export function HomePage() {
 
   return (
     <div className="li-home">
-      <HomeHeader />
       <main>
         <HomeHero />
         <HomeReasons />

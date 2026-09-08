@@ -92,7 +92,7 @@ export function MisTareasPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+        <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredTasks.length} de {tasks.length} tareas
         </div>
       </div>
@@ -110,8 +110,8 @@ export function MisTareasPage() {
                   <div>
                     <h3 className="font-semibold text-island-dark">{task.title}</h3>
                     <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                      <span className="badge bg-sand text-island-dark/70">{statusLabels[task.status]}</span>
-                      <span className="badge bg-sand text-island-dark/70">{task.priority}</span>
+                      <span className="badge bg-gray-100 text-island-dark/70">{statusLabels[task.status]}</span>
+                      <span className="badge bg-gray-100 text-island-dark/70">{task.priority}</span>
                       {task.dueDate && <span className="badge bg-warning-tint text-warning-ink">{formatShortDate(task.dueDate)}</span>}
                     </div>
                     {task.description && <p className="mt-2 text-sm text-island-dark/70">{task.description}</p>}

@@ -7,6 +7,7 @@ import { Event, EventType } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, formatTime } from '../../utils/formatDate';
 import { PageLoader } from '../../components/ui/Spinner';
+import './eventsPublic.css';
 
 const typeFilters: Array<{ value: string; label: string }> = [
   { value: '', label: 'Todos' },
@@ -40,23 +41,20 @@ export function EventsListPage() {
   }, [typeFilter]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <div className="mb-8">
-        <h1 className="font-body text-3xl font-bold text-island-dark">Eventos y Experiencias</h1>
-        <p className="font-body text-island-dark/70 mt-2">Descubre todo lo que está pasando en La Isla Café.</p>
+    <div className="ev-page max-w-5xl mx-auto px-4 py-12">
+      <div>
+        <p className="ev-kicker">Cartelera de la isla</p>
+        <h1 className="ev-title">Eventos y experiencias</h1>
+        <p className="ev-lead">Descubre todo lo que está pasando en La Isla Café.</p>
       </div>
 
       {/* Type Filters */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="ev-filters">
         {typeFilters.map((f) => (
           <button
             key={f.value}
             onClick={() => setTypeFilter(f.value)}
-            className={`px-4 py-2 rounded-full text-sm font-body font-medium transition-all ${
-              typeFilter === f.value
-                ? 'bg-island-dark text-white'
-                : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
-            }`}
+            className={`ev-filter-btn ${typeFilter === f.value ? 'is-active' : ''}`}
           >
             {f.label}
           </button>
@@ -66,13 +64,15 @@ export function EventsListPage() {
       {loading ? <PageLoader /> : (
         <>
           {events.length === 0 ? (
-            <div className="text-center py-20">
-              <Sparkles size={36} className="mx-auto mb-4 text-island-blue" />
-              <p className="font-body text-island-dark/70">No hay eventos disponibles por el momento.</p>
-              <p className="font-body text-island-dark/70 text-sm mt-2">Vuelve pronto, ¡siempre hay algo nuevo!</p>
+            <div className="ev-empty">
+              <span className="ev-empty-icon">
+                <Sparkles size={28} strokeWidth={2} />
+              </span>
+              <h2>No hay eventos por ahora</h2>
+              <p>Vuelve pronto, ¡siempre hay algo nuevo en la isla!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="ev-grid">
               {events.map((event) => (
                 <EventCard key={event._id} event={event} />
               ))}
@@ -92,43 +92,34 @@ function EventCard({ event }: { event: Event }) {
   return (
     <Link
       to={event.type === 'dinner-with-strangers' ? '/reservar/cena-con-desconocidos' : `/reservar/eventos/${event._id}`}
-      className="group bg-white rounded-lg shadow-sm border border-island-blue/20 overflow-hidden hover:shadow-md transition-all"
+      className="ev-card"
     >
-      {/* Image / Placeholder */}
-      <div className="h-44 bg-island-dark bg-opacity-90 flex items-center justify-center relative overflow-hidden">
+      <div className="ev-card-media">
         {event.imageUrl ? (
-          <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover" />
+          <img src={event.imageUrl} alt={event.title} />
         ) : (
-          <EventIcon size={56} className="text-white opacity-60" />
+          <EventIcon size={48} strokeWidth={1.5} />
         )}
         {!soldOut && (
-          <img
-            src="/images/brand/sello-color.png"
-            alt=""
-            className="absolute top-2 right-2 w-12 h-12 drop-shadow-md"
-          />
+          <img src="/images/brand/sello-color.png" alt="" className="ev-card-seal" />
         )}
         {soldOut && (
-          <div className="absolute inset-0 bg-island-dark bg-opacity-70 flex items-center justify-center">
-            <span className="text-white font-body font-bold text-sm bg-error px-3 py-1 rounded-full">Agotado</span>
+          <div className="ev-card-soldout">
+            <span>Agotado</span>
           </div>
         )}
       </div>
 
-      <div className="p-5">
-        <p className="text-xs font-body text-island-blue font-medium uppercase tracking-wide mb-1">
-          {formatDate(event.date)} · {formatTime(event.time)}
-        </p>
-        <h3 className="font-body text-lg font-semibold text-island-dark mb-2 group-hover:text-island-blue transition-colors line-clamp-2">
-          {event.title}
-        </h3>
-        <p className="font-body text-island-dark/70 text-sm line-clamp-2 mb-4">{event.description}</p>
+      <div className="ev-card-body">
+        <p className="ev-card-date">{formatDate(event.date)} · {formatTime(event.time)}</p>
+        <h3 className="ev-card-title">{event.title}</h3>
+        <p className="ev-card-desc">{event.description}</p>
 
-        <div className="flex items-center justify-between">
-          <span className="font-body font-bold text-island-dark">{formatCOP(event.pricePerPerson)} <span className="text-sm font-body font-normal text-island-dark/70">/ persona</span></span>
-          {!soldOut && (
-            <span className="text-xs font-body text-success-ink font-medium">{spotsLeft} cupos</span>
-          )}
+        <div className="ev-card-foot">
+          <span className="ev-card-price">
+            {formatCOP(event.pricePerPerson)} <span>/ persona</span>
+          </span>
+          {!soldOut && <span className="ev-card-spots">{spotsLeft} cupos</span>}
         </div>
       </div>
     </Link>

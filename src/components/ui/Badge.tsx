@@ -8,8 +8,8 @@ const variantClasses = {
   yellow: 'bg-warning-tint text-warning-ink',
   red:    'bg-error-tint text-error-ink',
   blue:   'bg-info-tint text-info-ink',
-  brown:  'bg-sand text-island-dark',
-  gray:   'bg-sand text-island-dark/70',
+  brown:  'bg-gray-100 text-island-dark',
+  gray:   'bg-gray-100 text-island-dark/70',
 };
 
 export function Badge({ label, variant = 'gray' }: BadgeProps) {

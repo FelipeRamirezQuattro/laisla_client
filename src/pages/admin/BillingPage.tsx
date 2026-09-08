@@ -180,7 +180,7 @@ export function BillingPage() {
       <div className="card overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-sm font-body">
-            <thead className="bg-sand border-b border-island-blue/20">
+            <thead className="bg-gray-100 border-b border-island-blue/20">
               <tr>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mesa</th>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Productos</th>
@@ -194,7 +194,7 @@ export function BillingPage() {
             </thead>
             <tbody className="divide-y divide-island-blue/20">
               {orders.map((order) => (
-                <tr key={order._id} className="hover:bg-sand transition-colors">
+                <tr key={order._id} className="hover:bg-gray-100 transition-colors">
                   <td className="px-4 py-3 font-medium text-island-dark">{tableName(order.tableId)}</td>
                   <td className="px-4 py-3 text-island-dark/70">{order.items.length} producto(s)</td>
                   <td className="px-4 py-3 text-right text-island-dark/70">{formatCOPDecimal(invoiceNet(order))}</td>
@@ -246,7 +246,7 @@ export function BillingPage() {
 
             <div className="border border-island-blue/20 rounded-xl overflow-hidden">
               <table className="w-full text-sm font-body">
-                <thead className="bg-sand border-b border-island-blue/20">
+                <thead className="bg-gray-100 border-b border-island-blue/20">
                   <tr>
                     <th className="text-left px-4 py-2 text-island-dark/70 font-medium">Producto</th>
                     <th className="text-center px-4 py-2 text-island-dark/70 font-medium">Cant.</th>
@@ -272,7 +272,7 @@ export function BillingPage() {
               </table>
             </div>
 
-            <div className="ml-auto w-full sm:w-80 rounded-xl bg-sand p-4 space-y-2 font-body text-sm">
+            <div className="ml-auto w-full sm:w-80 rounded-xl bg-gray-100 p-4 space-y-2 font-body text-sm">
               <div className="flex justify-between text-island-dark/70"><span>Base sin impuesto</span><span>{formatCOPDecimal(invoiceNet(selectedOrder))}</span></div>
               <div className="flex justify-between text-island-dark/70"><span>Impuesto incluido</span><span>{formatCOPDecimal(invoiceTax(selectedOrder))}</span></div>
               <div className="flex justify-between text-lg font-semibold text-island-dark border-t border-island-blue/20 pt-2"><span>Total</span><span>{formatCOP(selectedOrder.total)}</span></div>

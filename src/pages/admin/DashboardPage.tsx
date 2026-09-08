@@ -168,7 +168,7 @@ export function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {summary.upcomingEvents.map((event) => (
-                <div key={event._id} className="flex items-center gap-3 p-3 bg-sand rounded-lg">
+                <div key={event._id} className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg">
                   <Sparkles size={22} className="text-island-blue shrink-0" />
                   <div>
                     <p className="font-body font-medium text-island-dark text-sm">{event.title}</p>
@@ -188,10 +188,10 @@ export function DashboardPage() {
 
 function SummaryCard({ label, value, icon, color }: { label: string; value: string; icon: ReactNode; color: string }) {
   const colorClasses: Record<string, string> = {
-    blue: 'bg-sand text-island-dark',
-    sky: 'bg-sand text-island-dark',
-    yellow: 'bg-sand text-island-dark',
-    dark: 'bg-sand text-island-dark',
+    blue: 'bg-gray-100 text-island-dark',
+    sky: 'bg-gray-100 text-island-dark',
+    yellow: 'bg-gray-100 text-island-dark',
+    dark: 'bg-gray-100 text-island-dark',
   };
 
   return (
@@ -211,7 +211,7 @@ function QuickLink({ to, icon, label }: { to: string; icon: ReactNode; label: st
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-sand transition-colors group"
+      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors group"
     >
       <span className="text-island-dark/70 group-hover:text-island-blue transition-colors">{icon}</span>
       <span className="font-body text-sm text-island-dark group-hover:text-island-blue transition-colors">

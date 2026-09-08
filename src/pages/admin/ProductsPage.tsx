@@ -201,7 +201,7 @@ export function ProductsPage() {
               key={recipe._id}
               className="bg-white border border-island-blue/20 rounded-xl overflow-hidden shadow-sm"
             >
-              <div className="aspect-[16/9] bg-sand border-b border-island-blue/20 overflow-hidden">
+              <div className="aspect-[16/9] bg-gray-100 border-b border-island-blue/20 overflow-hidden">
                 {recipe.imageUrl ? (
                   <img
                     src={recipe.imageUrl}
@@ -236,13 +236,13 @@ export function ProductsPage() {
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 text-sm font-body">
-                  <div className="rounded-lg bg-sand px-3 py-2">
+                  <div className="rounded-lg bg-gray-100 px-3 py-2">
                     <span className="block text-xs text-island-dark/70">Precio</span>
                     <strong className="text-island-dark">
                       {priceLabel(recipe)}
                     </strong>
                   </div>
-                  <div className="rounded-lg bg-sand px-3 py-2">
+                  <div className="rounded-lg bg-gray-100 px-3 py-2">
                     <span className="block text-xs text-island-dark/70">
                       Variantes
                     </span>
@@ -338,7 +338,7 @@ export function ProductsPage() {
               }
             />
 
-            <div className="rounded-xl bg-sand p-4 space-y-3">
+            <div className="rounded-xl bg-gray-100 p-4 space-y-3">
               <p className="text-sm font-medium text-island-dark font-body">
                 Precios por variante
               </p>

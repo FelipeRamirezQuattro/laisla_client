@@ -8,10 +8,10 @@ import { publicApi } from '../../api/public';
 import { Event } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, formatTime } from '../../utils/formatDate';
-import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PageLoader } from '../../components/ui/Spinner';
 import { useToast } from '../../hooks/useToast';
+import './eventsPublic.css';
 
 const schema = z.object({
   name: z.string().min(2, 'Nombre requerido'),
@@ -69,9 +69,11 @@ export function EventDetailPage() {
 
   if (loading) return <PageLoader />;
   if (!event) return (
-    <div className="text-center py-20">
-      <p className="font-body text-island-dark/70">Evento no encontrado.</p>
-      <Link to="/reservar/eventos" className="text-island-blue font-body font-medium mt-2 inline-block">Ver todos los eventos</Link>
+    <div className="ev-page ev-empty">
+      <p>Evento no encontrado.</p>
+      <Link to="/reservar/eventos" className="ev-btn-outline" style={{ marginTop: 16 }}>
+        Ver todos los eventos
+      </Link>
     </div>
   );
 
@@ -79,93 +81,95 @@ export function EventDetailPage() {
 
   if (success) {
     return (
-      <div className="max-w-md mx-auto px-4 py-16 text-center">
-        <div className="w-20 h-20 rounded-full bg-success-tint flex items-center justify-center mx-auto mb-5">
-          <Check size={40} className="text-success" />
+      <div className="ev-page ev-success">
+        <div className="ev-success-icon">
+          <Check size={40} strokeWidth={2.5} />
         </div>
-        <h2 className="font-body text-2xl font-bold text-island-dark mb-3">¡Cupo reservado!</h2>
-        <p className="font-body text-island-dark/70 mb-6">Tu lugar para <strong>{event.title}</strong> está asegurado. Recibirás más información pronto.</p>
-        <Link to="/reservar/eventos" className="btn-primary inline-flex">Ver más eventos</Link>
+        <h2 className="ev-title" style={{ fontSize: 32 }}>¡Cupo reservado!</h2>
+        <p className="ev-lead" style={{ margin: '0 auto 26px' }}>
+          Tu lugar para <strong>{event.title}</strong> está asegurado. Recibirás más información pronto.
+        </p>
+        <Link to="/reservar/eventos" className="ev-btn-primary">Ver más eventos</Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <Link to="/reservar/eventos" className="text-sm font-body text-island-dark/70 hover:text-island-dark flex items-center gap-1 mb-6">
+    <div className="ev-page max-w-4xl mx-auto px-4 py-12">
+      <Link to="/reservar/eventos" className="ev-back-link">
         <ArrowLeft size={16} />
         Todos los eventos
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div className="ev-detail-grid">
         {/* Event Info */}
-        <div className="lg:col-span-3 space-y-5">
-          <div className="h-56 bg-island-dark rounded-lg flex items-center justify-center overflow-hidden">
+        <div className="space-y-5">
+          <div className="ev-detail-media">
             {event.imageUrl ? (
-              <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover rounded-lg" />
+              <img src={event.imageUrl} alt={event.title} />
             ) : (
-              <PartyPopper size={64} className="text-white opacity-50" />
+              <PartyPopper size={56} strokeWidth={1.5} className="text-white opacity-70" />
             )}
           </div>
           <div>
-            <p className="text-xs text-island-blue font-body uppercase tracking-widest font-medium mb-2">
-              {formatDate(event.date)} · {formatTime(event.time)}
-            </p>
-            <h1 className="font-body text-3xl font-bold text-island-dark mb-3">{event.title}</h1>
-            <p className="font-body text-island-dark/70 leading-relaxed">{event.description}</p>
+            <p className="ev-kicker">{formatDate(event.date)} · {formatTime(event.time)}</p>
+            <h1 className="ev-title" style={{ fontSize: 'clamp(30px, 4.5vw, 46px)' }}>{event.title}</h1>
+            <p className="ev-lead">{event.description}</p>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-sm font-body">
-            <div className="bg-sand rounded-xl p-4">
-              <p className="text-island-dark/70 text-xs mb-1">Precio por persona</p>
-              <p className="font-bold text-island-dark text-lg">{formatCOP(event.pricePerPerson)}</p>
+          <div className="ev-detail-stats">
+            <div className="ev-stat-box">
+              <p>Precio por persona</p>
+              <p>{formatCOP(event.pricePerPerson)}</p>
             </div>
-            <div className="bg-sand rounded-xl p-4">
-              <p className="text-island-dark/70 text-xs mb-1">Cupos disponibles</p>
-              <p className="font-bold text-island-dark text-lg">{spotsLeft} de {event.maxCapacity}</p>
+            <div className="ev-stat-box">
+              <p>Cupos disponibles</p>
+              <p>{spotsLeft} de {event.maxCapacity}</p>
             </div>
           </div>
         </div>
 
         {/* Booking Form */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg border border-island-blue/20 shadow-sm p-6 sticky top-6">
-            <h2 className="font-body text-xl font-semibold text-island-dark mb-4">Reservar mi cupo</h2>
-            {spotsLeft <= 0 ? (
-              <div className="text-center py-8">
-                <p className="font-body text-error-ink font-medium">Este evento está agotado.</p>
-                <Link to="/reservar/eventos" className="text-sm font-body text-island-blue mt-2 inline-block">Ver otros eventos</Link>
+        <div className="ev-form-card">
+          <h2 className="ev-form-title">Reservar mi cupo</h2>
+          {spotsLeft <= 0 ? (
+            <div className="text-center py-6">
+              <p className="font-body text-error-ink font-medium">Este evento está agotado.</p>
+              <Link to="/reservar/eventos" className="ev-btn-outline" style={{ marginTop: 14 }}>
+                Ver otros eventos
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <Input label="Nombre completo" error={errors.name?.message} {...register('name')} />
+              <Input label="Email" type="email" error={errors.email?.message} {...register('email')} />
+              <Input label="Teléfono" error={errors.phone?.message} {...register('phone')} />
+              <div>
+                <label className="text-sm font-medium text-island-dark font-body block mb-1">
+                  Número de entradas (máx. {Math.min(6, spotsLeft)})
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={Math.min(6, spotsLeft)}
+                  className="input-base"
+                  {...register('tickets')}
+                />
               </div>
-            ) : (
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <Input label="Nombre completo" error={errors.name?.message} {...register('name')} />
-                <Input label="Email" type="email" error={errors.email?.message} {...register('email')} />
-                <Input label="Teléfono" error={errors.phone?.message} {...register('phone')} />
-                <div>
-                  <label className="text-sm font-medium text-island-dark font-body block mb-1">
-                    Número de entradas (máx. {Math.min(6, spotsLeft)})
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={Math.min(6, spotsLeft)}
-                    className="input-base"
-                    {...register('tickets')}
-                  />
+              <div>
+                <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas (opcional)</label>
+                <textarea className="input-base h-16 resize-none" {...register('notes')} />
+              </div>
+              <div style={{ borderTop: '2px dashed var(--ev-rule)', paddingTop: 16 }}>
+                <div className="ev-form-total">
+                  <span className="text-island-dark/70">Total ({tickets} entrada{Number(tickets) > 1 ? 's' : ''})</span>
+                  <strong>{formatCOP(event.pricePerPerson * (Number(tickets) || 1))}</strong>
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas (opcional)</label>
-                  <textarea className="input-base h-16 resize-none" {...register('notes')} />
-                </div>
-                <div className="border-t border-island-blue/20 pt-4">
-                  <div className="flex justify-between text-sm font-body mb-4">
-                    <span className="text-island-dark/70">Total ({tickets} entrada{Number(tickets) > 1 ? 's' : ''})</span>
-                    <span className="font-bold text-island-dark">{formatCOP(event.pricePerPerson * (Number(tickets) || 1))}</span>
-                  </div>
-                  <Button type="submit" className="w-full" loading={isSubmitting} size="lg">Confirmar reserva</Button>
-                </div>
-              </form>
-            )}
-          </div>
+                <button type="submit" className="ev-btn-primary" style={{ width: '100%' }} disabled={isSubmitting}>
+                  {isSubmitting ? 'Enviando…' : 'Confirmar reserva'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>

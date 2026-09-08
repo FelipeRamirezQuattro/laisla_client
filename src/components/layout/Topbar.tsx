@@ -85,7 +85,7 @@ export function Topbar() {
           <button
             type="button"
             onClick={() => setNotificationsOpen((open) => !open)}
-            className="relative text-island-dark/70 hover:text-island-dark transition-colors p-1.5 rounded-lg hover:bg-sand"
+            className="relative text-island-dark/70 hover:text-island-dark transition-colors p-1.5 rounded-lg hover:bg-gray-100"
             aria-label="Ver notificaciones"
           >
             <Bell size={20} />
@@ -113,7 +113,7 @@ export function Topbar() {
                     key={notification._id}
                     type="button"
                     onClick={() => openNotification(notification)}
-                    className={`w-full text-left px-4 py-3 hover:bg-sand transition-colors ${notification.isRead ? 'bg-white' : 'bg-sand'}`}
+                    className={`w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors ${notification.isRead ? 'bg-white' : 'bg-gray-100'}`}
                   >
                     <div className="flex gap-3">
                       <span className={`${notification.isRead ? 'text-island-dark/70' : 'text-island-blue'} mt-0.5`}>
@@ -142,7 +142,7 @@ export function Topbar() {
               <button
                 type="button"
                 onClick={() => { setNotificationsOpen(false); navigate('/admin/notificaciones'); }}
-                className="w-full px-4 py-3 text-sm text-island-dark font-medium hover:bg-sand border-t border-island-blue/20"
+                className="w-full px-4 py-3 text-sm text-island-dark font-medium hover:bg-gray-100 border-t border-island-blue/20"
               >
                 Ver todas
               </button>

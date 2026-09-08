@@ -166,7 +166,7 @@ export function ReportsPage() {
               {[
                 { label: 'Efectivo', value: sales.revenueByMethod.cash, color: 'bg-success-tint text-success-ink' },
                 { label: 'Tarjeta', value: sales.revenueByMethod.card, color: 'bg-info-tint text-info-ink' },
-                { label: 'Transferencia', value: sales.revenueByMethod.transfer, color: 'bg-sand text-island-dark' },
+                { label: 'Transferencia', value: sales.revenueByMethod.transfer, color: 'bg-gray-100 text-island-dark' },
               ].map((m) => (
                 <div key={m.label} className={`rounded-xl p-4 text-center ${m.color}`}>
                   <p className="text-xs font-body uppercase tracking-wide mb-1">{m.label}</p>

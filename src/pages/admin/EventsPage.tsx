@@ -206,7 +206,7 @@ export function EventsPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+        <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredEvents.length} de {events.length} eventos
         </div>
       </div>
@@ -214,7 +214,7 @@ export function EventsPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-sand border-b border-island-blue/20">
+            <thead className="bg-gray-100 border-b border-island-blue/20">
               <tr>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Título</th>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Tipo</th>
@@ -228,7 +228,7 @@ export function EventsPage() {
             </thead>
             <tbody className="divide-y divide-island-blue/20">
               {filteredEvents.map((e) => (
-                <tr key={e._id} className="hover:bg-sand transition-colors">
+                <tr key={e._id} className="hover:bg-gray-100 transition-colors">
                   <td className="px-4 py-3 font-medium text-island-dark max-w-xs truncate">{e.title}</td>
                   <td className="px-4 py-3 text-island-dark/70">{typeLabels[e.type]}</td>
                   <td className="px-4 py-3 text-island-dark/70">
@@ -329,7 +329,7 @@ export function EventsPage() {
                 <h3 className="font-body font-semibold text-island-dark text-sm">Grupos generados</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {Object.entries(groupedGuests).filter(([g]) => Number(g) > 0).map(([grpNum, grpGuests]) => (
-                    <div key={grpNum} className="bg-sand rounded-lg p-3">
+                    <div key={grpNum} className="bg-gray-100 rounded-lg p-3">
                       <p className="text-xs font-bold text-island-dark font-body mb-2 uppercase tracking-wide">Grupo {grpNum}</p>
                       <div className="space-y-1">
                         {grpGuests.map((g) => (
@@ -350,7 +350,7 @@ export function EventsPage() {
               <h3 className="font-body font-semibold text-island-dark text-sm mb-2">Todos los invitados</h3>
               <div className="space-y-1 max-h-60 overflow-y-auto">
                 {guests.map((g) => (
-                  <div key={g._id} className="flex items-center justify-between text-sm font-body px-3 py-2 bg-sand rounded-lg">
+                  <div key={g._id} className="flex items-center justify-between text-sm font-body px-3 py-2 bg-gray-100 rounded-lg">
                     <div>
                       <span className="font-medium text-island-dark">{g.name}</span>
                       <span className="text-island-dark/70 ml-2 text-xs">{g.email}</span>

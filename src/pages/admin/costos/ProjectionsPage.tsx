@@ -135,7 +135,7 @@ export function ProjectionsPage() {
       {/* Monthly table */}
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm font-body">
-          <thead className="bg-sand border-b border-island-blue/20">
+          <thead className="bg-gray-100 border-b border-island-blue/20">
             <tr>
               <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mes</th>
               <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Tickets/día</th>
@@ -158,7 +158,7 @@ export function ProjectionsPage() {
               });
               const isEditing = editMonth === m.month;
               return (
-                <tr key={m.month} className={`hover:bg-sand transition-colors ${m.isManualOverride ? 'bg-warning-tint' : ''}`}>
+                <tr key={m.month} className={`hover:bg-gray-100 transition-colors ${m.isManualOverride ? 'bg-warning-tint' : ''}`}>
                   <td className="px-4 py-3 font-medium text-island-dark">
                     {MONTHS[m.month - 1]}
                     {m.isManualOverride && <Pencil size={12} className="ml-1 inline-block text-warning" />}

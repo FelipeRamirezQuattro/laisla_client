@@ -682,7 +682,7 @@ export function RecipeEditorPage() {
             </div>
 
             {/* Right: cost preview */}
-            <div className="bg-sand rounded-xl p-4 text-sm font-body h-fit">
+            <div className="bg-gray-100 rounded-xl p-4 text-sm font-body h-fit">
               <p className="font-body font-semibold text-island-dark mb-4">Vista previa de costos</p>
               {preview && params ? (
                 <div className="space-y-4">
@@ -962,7 +962,7 @@ export function RecipeEditorPage() {
                         type="button"
                         onClick={() => openIngredientDrawer(ing)}
                         disabled={!ing.ingredientRefId}
-                        className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2 text-xs font-body text-island-dark/70 hover:bg-sand hover:text-island-dark disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-island-dark/70"
+                        className="inline-flex h-9 items-center justify-center gap-1 rounded-lg px-2 text-xs font-body text-island-dark/70 hover:bg-gray-100 hover:text-island-dark disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-island-dark/70"
                         aria-label={ing.ingredientType === 'raw' ? 'Editar insumo' : 'Editar sub-receta'}
                         title={ing.ingredientType === 'raw' ? 'Editar insumo' : 'Editar sub-receta'}
                       >
@@ -1036,7 +1036,7 @@ export function RecipeEditorPage() {
               <button
                 type="button"
                 onClick={() => setDrawerTarget(null)}
-                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-sand hover:text-island-dark"
+                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-gray-100 hover:text-island-dark"
                 aria-label="Cerrar"
               >
                 <X size={20} />
@@ -1082,7 +1082,7 @@ export function RecipeEditorPage() {
                         Para paquetes, escribe cuántas unidades trae el paquete. En la receta usa UND para costear unidades sueltas.
                       </p>
                     )}
-                  <div className="rounded-xl bg-sand p-4">
+                  <div className="rounded-xl bg-gray-100 p-4">
                     <p className="mb-3 text-sm font-medium text-island-dark font-body">Niveles de inventario</p>
                     <div className="space-y-3">
                       <Input
@@ -1143,7 +1143,7 @@ export function RecipeEditorPage() {
                     onChange={(e) => setRecipeForm({ ...recipeForm, preparationTimeMinutes: +e.target.value })}
                     hint="Tiempo base de esta sub-receta. Las recetas que la usen decidirán si lo suman."
                   />
-                  <div className="space-y-3 rounded-xl bg-sand p-4">
+                  <div className="space-y-3 rounded-xl bg-gray-100 p-4">
                     <label className="flex items-center gap-2 text-sm font-body text-island-dark cursor-pointer">
                       <input
                         type="checkbox"
@@ -1309,7 +1309,7 @@ function SearchableSelect({
               <button
                 key={option.value}
                 type="button"
-                className={`block w-full px-3 py-2 text-left text-sm font-body hover:bg-sand ${
+                className={`block w-full px-3 py-2 text-left text-sm font-body hover:bg-gray-100 ${
                   option.value === value ? 'text-island-blue font-medium' : 'text-island-dark'
                 }`}
                 onMouseDown={(e) => {

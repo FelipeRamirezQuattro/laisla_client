@@ -378,13 +378,13 @@ export function InventoryPage() {
       <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
         <button
           onClick={() => setView('stock')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'stock' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'stock' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-gray-100'}`}
         >
           Stock
         </button>
         <button
           onClick={() => setView('alertas')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'alertas' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === 'alertas' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-gray-100'}`}
         >
           Alertas de compra
           {alertas.length > 0 && <span className="ml-2 rounded-full bg-error text-white px-1.5 py-0.5 text-xs font-bold">{alertas.length}</span>}
@@ -399,7 +399,7 @@ export function InventoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <label className="flex items-center gap-2 rounded-lg border border-island-blue/20 bg-sand px-4 py-2 text-sm font-body text-island-dark cursor-pointer whitespace-nowrap">
+            <label className="flex items-center gap-2 rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 text-sm font-body text-island-dark cursor-pointer whitespace-nowrap">
               <input
                 type="checkbox"
                 checked={showPendingOnly}
@@ -413,7 +413,7 @@ export function InventoryPage() {
           {loading ? <PageLoader /> : (
             <div className="card overflow-x-auto p-0">
               <table className="w-full text-sm font-body">
-                <thead className="bg-sand border-b border-island-blue/20">
+                <thead className="bg-gray-100 border-b border-island-blue/20">
                   <tr>
                     <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Insumo</th>
                     <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Stock aprobado</th>
@@ -426,7 +426,7 @@ export function InventoryPage() {
                 </thead>
                 <tbody className="divide-y divide-rule">
                   {filtered.map((item) => (
-                    <tr key={item.insumo._id} className={`hover:bg-sand transition-colors ${item.pendingCount > 0 ? 'bg-warning-tint' : ''}`}>
+                    <tr key={item.insumo._id} className={`hover:bg-gray-100 transition-colors ${item.pendingCount > 0 ? 'bg-warning-tint' : ''}`}>
                       <td className="px-4 py-3">
                         <button onClick={() => openDrawer(item)} className="text-left">
                           <p className="font-medium text-island-dark hover:text-island-blue">{item.insumo.nombre}</p>
@@ -487,7 +487,7 @@ export function InventoryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+            <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
               {filteredAlertas.length} de {alertas.length} alertas
             </div>
           </div>
@@ -536,7 +536,7 @@ export function InventoryPage() {
                           </div>
 
                           {alerta.insumo.nivelAgotado && (
-                            <p className="text-xs font-body text-island-dark/70 bg-sand rounded px-2 py-1">
+                            <p className="text-xs font-body text-island-dark/70 bg-gray-100 rounded px-2 py-1">
                               Nivel reorden: <strong>{alerta.insumo.nivelAgotado}</strong>
                             </p>
                           )}
@@ -657,7 +657,7 @@ export function InventoryPage() {
                       ))}
                     </select>
                   </label>
-                  <div className="sm:col-span-2 rounded-lg border border-island-blue/20 bg-sand p-3">
+                  <div className="sm:col-span-2 rounded-lg border border-island-blue/20 bg-gray-100 p-3">
                     <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
                       <Input
                         label="Nuevo proveedor"
@@ -689,7 +689,7 @@ export function InventoryPage() {
               </section>
 
               <section className="card p-0 overflow-hidden">
-                <div className="px-4 py-3 border-b border-island-blue/20 bg-sand">
+                <div className="px-4 py-3 border-b border-island-blue/20 bg-gray-100">
                   <h3 className="font-body font-semibold text-island-dark">Movimientos</h3>
                 </div>
                 <div className="divide-y divide-rule">
@@ -725,7 +725,7 @@ export function InventoryPage() {
         title="Nuevo insumo"
       >
         <div className="space-y-4">
-          <div className="rounded-lg border border-island-blue/20 bg-sand p-3 space-y-3">
+          <div className="rounded-lg border border-island-blue/20 bg-gray-100 p-3 space-y-3">
             <label className="block">
               <span className="block text-sm font-medium text-island-dark font-body mb-1">Categoría</span>
               <select

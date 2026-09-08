@@ -2,8 +2,8 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { publicApi } from "../../../api/public";
-import { InstagramIcon, TikTokIcon } from "./SocialIcons";
-import { contact, socialLinks } from "./helpers";
+import { InstagramIcon, TikTokIcon } from "../../../components/icons/SocialIcons";
+import { contact, socialLinks } from "../../../utils/siteInfo";
 
 export function HomeFooter() {
   const [newsletterEmail, setNewsletterEmail] = useState("");

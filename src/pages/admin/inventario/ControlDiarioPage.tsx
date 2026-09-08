@@ -216,7 +216,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
                 className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-body transition-all ${
                   turno === value
                     ? 'bg-island-dark text-white'
-                    : 'text-island-dark hover:bg-sand disabled:text-island-dark/70 disabled:hover:bg-transparent'
+                    : 'text-island-dark hover:bg-gray-100 disabled:text-island-dark/70 disabled:hover:bg-transparent'
                 }`}
               >
                 <Icon size={15} />
@@ -256,13 +256,13 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
       <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
         <button
           onClick={() => setActiveTab('control')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'control' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'control' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-gray-100'}`}
         >
           Revisión diaria
         </button>
         <button
           onClick={() => setActiveTab('historial')}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'historial' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-sand'}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${activeTab === 'historial' ? 'bg-island-dark text-white' : 'text-island-dark hover:bg-gray-100'}`}
         >
           Historial
         </button>
@@ -457,7 +457,7 @@ export function ControlDiarioPage({ initialTab = 'control' }: { initialTab?: 'co
           </p>
           <ul className="text-sm font-body text-island-dark max-h-48 overflow-y-auto space-y-1">
             {closeWarning?.itemNames.map((name) => (
-              <li key={name} className="px-2 py-1 bg-sand rounded text-xs">{name}</li>
+              <li key={name} className="px-2 py-1 bg-gray-100 rounded text-xs">{name}</li>
             ))}
           </ul>
           <p className="text-xs text-island-dark/70 font-body">¿Deseas cerrar la revisión de todos modos?</p>

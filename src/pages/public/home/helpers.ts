@@ -41,17 +41,6 @@ export const dinnerFeatures = [
 
 export const bookingHours = ["10:00", "12:30", "15:00", "17:30", "20:00"];
 
-export const socialLinks = {
-  instagram: "https://www.instagram.com/laislacafepicnic?stkn=dXNrNGlqb2Jqdms3",
-  tiktok: "https://www.tiktok.com/@laislacafepicnic?_r=1&_t=ZS-99ZGrZCYxAW",
-};
-
-export const contact = {
-  email: "hola@laislacafepicnic.com",
-  phone: "311 863 8163",
-  phoneHref: "tel:+573118638163",
-};
-
 export function publicPrice(variant: RecipeVariant) {
   return variant.finalPrice ?? variant.salePrice;
 }

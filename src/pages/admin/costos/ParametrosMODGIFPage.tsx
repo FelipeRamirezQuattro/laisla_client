@@ -112,7 +112,7 @@ export function ParametrosMODGIFPage() {
             <Input label="Clientes/mes" type="number" value={monthlyCustomers} onChange={(e) => setMonthlyCustomers(+e.target.value)} />
             <Input label="Productos/cliente" type="number" step="0.1" value={productsPerCustomer} onChange={(e) => setProductsPerCustomer(+e.target.value)} />
           </div>
-          <div className="bg-sand rounded-lg p-3 space-y-1 text-sm font-body">
+          <div className="bg-gray-100 rounded-lg p-3 space-y-1 text-sm font-body">
             <div className="flex justify-between text-island-dark/70">
               <span>Costo hora total</span>
               <span className="font-medium text-island-dark">{formatCOP(mod.totalHourlyWage)}</span>
@@ -165,7 +165,7 @@ export function ParametrosMODGIFPage() {
               </div>
             ))}
           </div>
-          <div className="bg-sand rounded-lg p-3 space-y-1 text-sm font-body">
+          <div className="bg-gray-100 rounded-lg p-3 space-y-1 text-sm font-body">
             <div className="flex justify-between text-island-dark/70">
               <span>Total mensual GIF</span>
               <span className="font-medium text-island-dark">{formatCOP(gif.totalMonthlyOverhead)}</span>

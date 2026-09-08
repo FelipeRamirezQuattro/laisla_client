@@ -36,7 +36,7 @@ export function ServiceQuickNav() {
               `inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 font-body text-sm font-medium transition-colors ${
                 isActive
                   ? 'bg-island-dark text-white shadow-sm'
-                  : 'border border-island-blue/20 bg-sand text-island-dark hover:border-island-blue/40 hover:bg-white'
+                  : 'border border-island-blue/20 bg-gray-100 text-island-dark hover:border-island-blue/40 hover:bg-white'
               }`
             }
           >

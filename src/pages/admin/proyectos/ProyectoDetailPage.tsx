@@ -35,11 +35,11 @@ const priorityClass: Record<TaskPriority, string> = {
   urgent: 'border-l-island-blue',
   high: 'border-l-sun-yellow',
   medium: 'border-l-[#FDCE7D]',
-  low: 'border-l-stone',
+  low: 'border-l-gray-300',
 };
 
 const statusClass: Record<ProjectTaskStatus, string> = {
-  pending: 'bg-sand text-island-dark/70',
+  pending: 'bg-gray-100 text-island-dark/70',
   'in-progress': 'bg-info-tint text-info-ink',
   review: 'bg-warning-tint text-warning-ink',
   done: 'bg-success-tint text-success-ink',
@@ -226,9 +226,9 @@ export function ProyectoDetailPage() {
           <h3 className="font-semibold text-island-dark truncate">{task.title}</h3>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
             <span className={`badge ${statusClass[task.status]}`}>{statusLabels[task.status]}</span>
-            <span className="badge bg-sand text-island-dark/70">{priorityLabels[task.priority]}</span>
+            <span className="badge bg-gray-100 text-island-dark/70">{priorityLabels[task.priority]}</span>
             {task.dueDate && (
-              <span className={`badge ${isOverdue(task) ? 'bg-error-tint text-error-ink' : dueSoon(task) ? 'bg-warning-tint text-warning-ink' : 'bg-sand text-island-dark/70'}`}>
+              <span className={`badge ${isOverdue(task) ? 'bg-error-tint text-error-ink' : dueSoon(task) ? 'bg-warning-tint text-warning-ink' : 'bg-gray-100 text-island-dark/70'}`}>
                 {formatShortDate(task.dueDate)}
               </span>
             )}
@@ -242,7 +242,7 @@ export function ProyectoDetailPage() {
               </span>
             ))}
             {task.assignedTo.length > 3 && (
-              <span className="h-8 w-8 rounded-full bg-sand text-island-dark/70 text-xs font-semibold flex items-center justify-center border-2 border-white">
+              <span className="h-8 w-8 rounded-full bg-gray-100 text-island-dark/70 text-xs font-semibold flex items-center justify-center border-2 border-white">
                 +{task.assignedTo.length - 3}
               </span>
             )}
@@ -331,7 +331,7 @@ export function ProyectoDetailPage() {
               {users.map((user) => {
                 const selected = draft.assignedTo.includes(userId(user));
                 return (
-                  <label key={userId(user)} className={`flex items-center gap-3 border rounded-lg px-3 py-2 ${selected ? 'border-island-blue bg-sand' : 'border-island-blue/20 bg-white'}`}>
+                  <label key={userId(user)} className={`flex items-center gap-3 border rounded-lg px-3 py-2 ${selected ? 'border-island-blue bg-gray-100' : 'border-island-blue/20 bg-white'}`}>
                     <input
                       type="checkbox"
                       className="h-4 w-4 accent-island-blue"

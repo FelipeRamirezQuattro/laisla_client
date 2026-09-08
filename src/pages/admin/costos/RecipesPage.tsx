@@ -189,7 +189,7 @@ export function RecipesPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-sand border-b border-island-blue/20">
+            <thead className="bg-gray-100 border-b border-island-blue/20">
               <tr>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Nombre</th>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Categoría</th>
@@ -209,7 +209,7 @@ export function RecipesPage() {
                 const profit = avgProfit(r);
                 const margin = avgMargin(r);
                 return (
-                  <tr key={r._id} className="hover:bg-sand transition-colors">
+                  <tr key={r._id} className="hover:bg-gray-100 transition-colors">
                     <td className="px-4 py-3">
                       <p className="font-medium text-island-dark">{r.name}</p>
                       {r.isSubRecipe && <span className="text-xs text-island-blue font-body">Sub-receta</span>}

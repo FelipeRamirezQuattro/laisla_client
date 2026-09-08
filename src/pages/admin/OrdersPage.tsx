@@ -295,7 +295,7 @@ export function OrdersPage() {
                   onClick={() => setSelectedCategory(category.value)}
                   className={`w-full rounded-lg border px-3 py-3 text-left transition-all ${
                     selected
-                      ? 'border-island-blue bg-sand text-island-dark'
+                      ? 'border-island-blue bg-gray-100 text-island-dark'
                       : 'border-island-blue/20 bg-white text-island-dark/70 hover:border-island-blue/40'
                   }`}
                 >
@@ -324,7 +324,7 @@ export function OrdersPage() {
                     <h3 className="font-body font-semibold text-island-dark">{recipe.name}</h3>
                     <p className="text-xs text-island-dark/70 font-body">{recipe.variants.length} variante(s)</p>
                   </div>
-                  <span className="text-xs rounded-full bg-sand px-2 py-1 text-island-dark font-body">
+                  <span className="text-xs rounded-full bg-gray-100 px-2 py-1 text-island-dark font-body">
                     {categoryLabel(recipe.category)}
                   </span>
                 </div>
@@ -334,7 +334,7 @@ export function OrdersPage() {
                       key={variant.size}
                       type="button"
                       onClick={() => addRecipeVariant(recipe, variant)}
-                      className="flex items-center justify-between rounded-lg border border-island-blue/20 bg-white px-3 py-2 text-left hover:border-island-dark hover:bg-sand transition-colors"
+                      className="flex items-center justify-between rounded-lg border border-island-blue/20 bg-white px-3 py-2 text-left hover:border-island-dark hover:bg-gray-100 transition-colors"
                     >
                       <span className="font-body font-medium text-island-dark">{variant.size}</span>
                       <span className="font-body text-sm text-island-dark">{formatCOP(finalVariantPrice(variant))}</span>
@@ -365,7 +365,7 @@ export function OrdersPage() {
             {cart.map((item) => {
               const key = itemKey(item);
               return (
-              <div key={key} className="rounded-lg bg-sand px-3 py-2">
+              <div key={key} className="rounded-lg bg-gray-100 px-3 py-2">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-body font-medium text-island-dark">{item.productName}</p>
@@ -408,7 +408,7 @@ export function OrdersPage() {
       </section>
 
       <section className="card p-0 overflow-hidden">
-        <div className="px-4 py-3 bg-sand border-b border-island-blue/20 flex items-center justify-between">
+        <div className="px-4 py-3 bg-gray-100 border-b border-island-blue/20 flex items-center justify-between">
           <div>
             <h2 className="font-body text-lg font-semibold text-island-dark">Pedidos abiertos</h2>
             <p className="text-xs text-island-dark/70 font-body">Edita pedidos vigentes si el cliente agrega productos o cambia de mesa.</p>
@@ -428,7 +428,7 @@ export function OrdersPage() {
             </thead>
             <tbody className="divide-y divide-island-blue/20">
               {openOrders.map((order) => (
-                <tr key={order._id} className="hover:bg-sand transition-colors">
+                <tr key={order._id} className="hover:bg-gray-100 transition-colors">
                   <td className="px-4 py-3 font-medium text-island-dark">{tableName(order.tableId)}</td>
                   <td className="px-4 py-3 text-island-dark/70">{order.items.length} ítem(s)</td>
                   <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(order.total)}</td>
@@ -452,11 +452,11 @@ export function OrdersPage() {
       <Modal isOpen={confirmOpen} onClose={() => setConfirmOpen(false)} title={editingOrderId ? 'Actualizar pedido' : 'Confirmar pedido'} size="lg">
         <div className="space-y-4">
           <div className="grid sm:grid-cols-2 gap-3 text-sm font-body">
-            <div className="rounded-lg bg-sand p-3">
+            <div className="rounded-lg bg-gray-100 p-3">
               <p className="text-island-dark/70">Mesa</p>
               <p className="font-semibold text-island-dark">{selectedTable?.name ?? 'Sin mesa'}</p>
             </div>
-            <div className="rounded-lg bg-sand p-3">
+            <div className="rounded-lg bg-gray-100 p-3">
               <p className="text-island-dark/70">Total</p>
               <p className="font-semibold text-island-dark">{formatCOP(cartTotal)}</p>
             </div>

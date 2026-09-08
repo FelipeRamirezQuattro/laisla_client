@@ -100,7 +100,7 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
         <div className="card p-0 overflow-hidden">
           <table className="w-full text-sm font-body">
             <thead>
-              <tr className="bg-sand text-island-dark/70 text-xs uppercase tracking-wide">
+              <tr className="bg-gray-100 text-island-dark/70 text-xs uppercase tracking-wide">
                 <th className="px-4 py-3 text-left">Fecha</th>
                 <th className="px-4 py-3 text-left">Turno</th>
                 <th className="px-4 py-3 text-left">Colaborador</th>
@@ -121,7 +121,7 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
             <tbody className="divide-y divide-rule">
               {items.map((item) => (
                 <>
-                  <tr key={item._id} className="hover:bg-sand cursor-pointer" onClick={() => toggleDetalle(item._id)}>
+                  <tr key={item._id} className="hover:bg-gray-100 cursor-pointer" onClick={() => toggleDetalle(item._id)}>
                     <td className="px-4 py-3 text-island-dark">
                       {new Date(item.fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
@@ -150,7 +150,7 @@ export function HistorialRevisionesPage({ hideHeader = false }: { hideHeader?: b
                   </tr>
                   {expanded === item._id && (
                     <tr key={`${item._id}-detail`}>
-                      <td colSpan={9} className="px-4 pb-4 bg-sand">
+                      <td colSpan={9} className="px-4 pb-4 bg-gray-100">
                         {loadingDetalle ? (
                           <p className="text-sm text-island-dark/70 py-2">Cargando detalle...</p>
                         ) : detalleData && (

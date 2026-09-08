@@ -109,7 +109,7 @@ export function ProvidersPage() {
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-sand border-b border-island-blue/20">
+            <thead className="bg-gray-100 border-b border-island-blue/20">
               <tr>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Nombre</th>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Contacto</th>
@@ -120,7 +120,7 @@ export function ProvidersPage() {
             </thead>
             <tbody className="divide-y divide-island-blue/20">
               {providers.map((p) => (
-                <tr key={p._id} className="hover:bg-sand transition-colors">
+                <tr key={p._id} className="hover:bg-gray-100 transition-colors">
                   <td className="px-4 py-3 font-medium text-island-dark">{p.name}</td>
                   <td className="px-4 py-3 text-island-dark/70">{p.contactName || '—'}</td>
                   <td className="px-4 py-3 text-island-dark/70">{p.category}</td>

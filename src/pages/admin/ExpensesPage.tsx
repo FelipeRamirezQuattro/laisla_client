@@ -240,7 +240,7 @@ export function ExpensesPage() {
               </thead>
               <tbody className="divide-y divide-island-blue/20">
                 {expenses.map((expense) => (
-                  <tr key={expense._id} className="hover:bg-sand">
+                  <tr key={expense._id} className="hover:bg-gray-100">
                     <td className="px-3 py-3">
                       <div className="flex items-center gap-2">
                         {expense.type === 'INSUMO' ? <PackagePlus size={16} className="text-island-blue" /> : <ReceiptText size={16} className="text-island-dark/70" />}
@@ -383,7 +383,7 @@ export function ExpensesPage() {
                 <button
                   type="button"
                   onClick={() => setHistoryOpen(false)}
-                  className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-sand hover:text-island-dark"
+                  className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-gray-100 hover:text-island-dark"
                   aria-label="Cerrar"
                 >
                   <X size={20} />
@@ -399,7 +399,7 @@ export function ExpensesPage() {
               </div>
             </div>
             <div className="space-y-4 px-6 py-5">
-              <div className="rounded-xl bg-sand p-4">
+              <div className="rounded-xl bg-gray-100 p-4">
                 <p className="text-xs text-island-dark/70 font-body">Total del periodo</p>
                 <p className="text-2xl font-body font-bold text-island-dark">{formatCOP(historyTotal)}</p>
               </div>

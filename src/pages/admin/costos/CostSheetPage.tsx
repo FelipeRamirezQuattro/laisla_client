@@ -71,7 +71,7 @@ export function CostSheetPage() {
         </div>
 
         {/* Params summary */}
-        <div className="px-8 py-4 bg-sand border-b border-island-blue/20 grid grid-cols-5 gap-4 text-sm font-body">
+        <div className="px-8 py-4 bg-gray-100 border-b border-island-blue/20 grid grid-cols-5 gap-4 text-sm font-body">
           <Kpi label="MOD/ítem" value={formatCOPDecimal(params.laborPerItem)} />
           <Kpi label="MOD/min" value={formatCOPDecimal(laborCostPerMinute)} />
           <Kpi label="GIF/ítem" value={formatCOPDecimal(params.overheadPerItem)} />
@@ -174,7 +174,7 @@ export function CostSheetPage() {
         ))}
 
         {/* Footer */}
-        <div className="px-8 py-4 bg-sand text-xs text-island-dark/70 font-body flex justify-between">
+        <div className="px-8 py-4 bg-gray-100 text-xs text-island-dark/70 font-body flex justify-between">
           <span>La Isla Café Picnic — Ibagué, Colombia</span>
           <span>Documento interno — No distribuir</span>
         </div>

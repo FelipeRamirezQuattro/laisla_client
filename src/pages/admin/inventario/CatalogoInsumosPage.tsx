@@ -195,7 +195,7 @@ function InlineCell({
       <span
         onClick={() => !disabled && setEditing(true)}
         className={`block px-2 py-1 rounded text-sm font-body min-w-[60px] ${
-          disabled ? "" : "hover:bg-sand cursor-pointer"
+          disabled ? "" : "hover:bg-gray-100 cursor-pointer"
         } ${val ? "text-island-dark" : "text-island-dark/70 italic"}`}
       >
         {displayValue || "—"}
@@ -734,19 +734,19 @@ export function CatalogoInsumosPage() {
       <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
         <button
           onClick={() => setView("insumos")}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "insumos" ? "bg-island-dark text-white" : "text-island-dark hover:bg-sand"}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "insumos" ? "bg-island-dark text-white" : "text-island-dark hover:bg-gray-100"}`}
         >
           Insumos
         </button>
         <button
           onClick={() => setView("categorias")}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "categorias" ? "bg-island-dark text-white" : "text-island-dark hover:bg-sand"}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "categorias" ? "bg-island-dark text-white" : "text-island-dark hover:bg-gray-100"}`}
         >
           Categorías
         </button>
         <button
           onClick={() => setView("costos")}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "costos" ? "bg-island-dark text-white" : "text-island-dark hover:bg-sand"}`}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "costos" ? "bg-island-dark text-white" : "text-island-dark hover:bg-gray-100"}`}
         >
           Costos
         </button>
@@ -760,7 +760,7 @@ export function CatalogoInsumosPage() {
               value={insumoSearch}
               onChange={(e) => setInsumoSearch(e.target.value)}
             />
-            <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+            <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
               {visibleGrupos.reduce((sum, grupo) => sum + grupo.insumos.length, 0)} resultados
             </div>
           </div>
@@ -769,7 +769,7 @@ export function CatalogoInsumosPage() {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setActiveCat("all")}
-              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === "all" ? "bg-island-dark text-white" : "bg-sand text-island-dark hover:bg-sand"}`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === "all" ? "bg-island-dark text-white" : "bg-gray-100 text-island-dark hover:bg-gray-100"}`}
             >
               Todos
             </button>
@@ -777,7 +777,7 @@ export function CatalogoInsumosPage() {
               <button
                 key={cat._id}
                 onClick={() => setActiveCat(cat._id)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === cat._id ? "bg-island-dark text-white" : "bg-sand text-island-dark hover:bg-sand"}`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-body transition-all ${activeCat === cat._id ? "bg-island-dark text-white" : "bg-gray-100 text-island-dark hover:bg-gray-100"}`}
               >
                 {cat.nombre}
               </button>
@@ -785,7 +785,7 @@ export function CatalogoInsumosPage() {
             {isAdmin && (
               <button
                 onClick={openCreateCategory}
-                className="px-3 py-1.5 rounded-lg text-sm font-body text-island-dark border border-dashed border-island-dark/30 hover:bg-sand"
+                className="px-3 py-1.5 rounded-lg text-sm font-body text-island-dark border border-dashed border-island-dark/30 hover:bg-gray-100"
               >
                 <Plus size={14} className="inline mr-1" /> Categoría
               </button>
@@ -816,13 +816,13 @@ export function CatalogoInsumosPage() {
               key={grupo.categoria._id}
               className="rounded-xl overflow-hidden shadow-sm border border-island-blue/20"
             >
-              <div className="px-4 py-3 font-body font-bold text-island-dark text-sm tracking-wide bg-sand border-b border-island-blue/20">
+              <div className="px-4 py-3 font-body font-bold text-island-dark text-sm tracking-wide bg-gray-100 border-b border-island-blue/20">
                 {grupo.categoria.nombre}
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm font-body">
                   <thead>
-                    <tr className="bg-sand text-island-dark/70 text-xs uppercase tracking-wide">
+                    <tr className="bg-gray-100 text-island-dark/70 text-xs uppercase tracking-wide">
                       {isAdmin && <th className="px-3 py-2 w-8"></th>}
                       <th className="px-3 py-2 text-left">
                         <SortableHeader
@@ -984,7 +984,7 @@ export function CatalogoInsumosPage() {
                     {grupo.insumos.map((insumo) => (
                       <tr
                         key={insumo._id}
-                        className={`${!insumo.activo ? "opacity-40" : ""} hover:bg-sand`}
+                        className={`${!insumo.activo ? "opacity-40" : ""} hover:bg-gray-100`}
                       >
                         {isAdmin && (
                           <td className="px-3 py-2">
@@ -1102,7 +1102,7 @@ export function CatalogoInsumosPage() {
       {view === "categorias" && (
         <div className="card overflow-x-auto p-0">
           <table className="w-full text-sm font-body">
-            <thead className="bg-sand border-b border-island-blue/20">
+            <thead className="bg-gray-100 border-b border-island-blue/20">
               <tr>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
                   Categoría
@@ -1123,7 +1123,7 @@ export function CatalogoInsumosPage() {
                 return (
                   <tr
                     key={cat._id}
-                    className="hover:bg-sand transition-colors"
+                    className="hover:bg-gray-100 transition-colors"
                   >
                     <td className="px-4 py-3 font-medium text-island-dark">
                       {cat.nombre}
@@ -1194,7 +1194,7 @@ export function CatalogoInsumosPage() {
           ) : (
             <div className="card overflow-x-auto p-0">
               <table className="w-full text-sm font-body">
-                <thead className="bg-sand border-b border-island-blue/20">
+                <thead className="bg-gray-100 border-b border-island-blue/20">
                   <tr>
                     <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
                       Nombre
@@ -1225,7 +1225,7 @@ export function CatalogoInsumosPage() {
                   {costItems.map((item) => (
                     <tr
                       key={item._id}
-                      className="hover:bg-sand transition-colors"
+                      className="hover:bg-gray-100 transition-colors"
                     >
                       <td className="px-4 py-3 font-medium text-island-dark">
                         {item.name}

@@ -152,14 +152,14 @@ export function ActiveOrdersPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+        <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredOrders.length} de {orders.length} pedidos
         </div>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_22rem] gap-4">
         <section className="card p-0 overflow-hidden">
-          <div className="px-4 py-3 bg-sand border-b border-island-blue/20">
+          <div className="px-4 py-3 bg-gray-100 border-b border-island-blue/20">
             <h2 className="font-body font-semibold text-island-dark">Lista de espera</h2>
           </div>
           <div className="overflow-x-auto">
@@ -176,7 +176,7 @@ export function ActiveOrdersPage() {
               </thead>
               <tbody className="divide-y divide-rule">
                 {filteredOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-sand">
+                  <tr key={order._id} className="hover:bg-gray-100">
                     <td className="px-4 py-3 font-medium text-island-dark">
                       {!order.tableId ? 'Sin mesa / Mostrador' : typeof order.tableId === 'object' ? order.tableId.name : order.tableId}
                     </td>

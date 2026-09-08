@@ -70,7 +70,7 @@ export function NotificacionesPage() {
                 key={notification._id}
                 type="button"
                 onClick={() => openNotification(notification)}
-                className={`w-full text-left px-5 py-4 transition-colors hover:bg-sand ${notification.isRead ? 'bg-white' : 'bg-sand'}`}
+                className={`w-full text-left px-5 py-4 transition-colors hover:bg-gray-100 ${notification.isRead ? 'bg-white' : 'bg-gray-100'}`}
               >
                 <div className="flex gap-3">
                   <div className={`mt-1 ${notification.isRead ? 'text-island-dark/70' : 'text-island-blue'}`}>

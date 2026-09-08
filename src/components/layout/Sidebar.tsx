@@ -1,18 +1,40 @@
-import { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Coffee, Grid3X3, ClipboardList, Users, Truck,
-  CalendarDays, Calendar, Banknote, BarChart2,
-  TrendingUp, SlidersHorizontal, ChefHat,
-  PackageOpen, LineChart, Wallet, Archive, ChevronDown, ChevronUp,
-  CircleDollarSign, ClipboardCheck, Package, ReceiptText, X,
+  LayoutDashboard,
+  Coffee,
+  Grid3X3,
+  ClipboardList,
+  Users,
+  Truck,
+  CalendarDays,
+  Calendar,
+  Banknote,
+  BarChart2,
+  TrendingUp,
+  SlidersHorizontal,
+  ChefHat,
+  PackageOpen,
+  LineChart,
+  Wallet,
+  Archive,
+  ChevronDown,
+  ChevronUp,
+  CircleDollarSign,
+  ClipboardCheck,
+  Package,
+  ReceiptText,
+  X,
   HandCoins,
-  FolderOpen, ListChecks, UserCog, Mail,
-} from 'lucide-react';
-import { alertasInvApi } from '../../api/inventario';
-import { useUiStore } from '../../store/uiStore';
-import { useAuthStore } from '../../store/authStore';
-import type { LucideIcon } from 'lucide-react';
+  FolderOpen,
+  ListChecks,
+  UserCog,
+  Mail,
+} from "lucide-react";
+import { alertasInvApi } from "../../api/inventario";
+import { useUiStore } from "../../store/uiStore";
+import { useAuthStore } from "../../store/authStore";
+import type { LucideIcon } from "lucide-react";
 
 interface NavItemDef {
   to: string;
@@ -22,48 +44,76 @@ interface NavItemDef {
 }
 
 const navItems: NavItemDef[] = [
-  { to: '/admin', label: 'Dashboard', Icon: LayoutDashboard, end: true },
-  { to: '/admin/products', label: 'Productos', Icon: Coffee },
-  { to: '/admin/tables', label: 'Mesas', Icon: Grid3X3 },
-  { to: '/admin/orders', label: 'Pedidos', Icon: ClipboardList, end: true },
-  { to: '/admin/orders/active', label: 'Pedidos activos', Icon: ClipboardCheck },
-  { to: '/admin/billing', label: 'Facturación', Icon: ReceiptText },
-  { to: '/admin/mis-tareas', label: 'Mis tareas', Icon: ListChecks },
-  { to: '/admin/expenses', label: 'Gastos', Icon: HandCoins },
-  { to: '/admin/cashflow', label: 'Caja / Cierre', Icon: Banknote },
-  { to: '/admin/reservations', label: 'Reservaciones', Icon: Calendar },
+  { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, end: true },
+  { to: "/admin/products", label: "Productos", Icon: Coffee },
+  { to: "/admin/tables", label: "Mesas", Icon: Grid3X3 },
+  { to: "/admin/orders", label: "Pedidos", Icon: ClipboardList, end: true },
+  {
+    to: "/admin/orders/active",
+    label: "Pedidos activos",
+    Icon: ClipboardCheck,
+  },
+  { to: "/admin/billing", label: "Facturación", Icon: ReceiptText },
+  { to: "/admin/mis-tareas", label: "Mis tareas", Icon: ListChecks },
+  { to: "/admin/expenses", label: "Gastos", Icon: HandCoins },
+  { to: "/admin/cashflow", label: "Caja / Cierre", Icon: Banknote },
+  { to: "/admin/reservations", label: "Reservaciones", Icon: Calendar },
 ];
 
 const inventarioItems: NavItemDef[] = [
-  { to: '/admin/inventario/control', label: 'Control Diario', Icon: ClipboardCheck },
-  { to: '/admin/inventario/catalogo', label: 'Catálogo', Icon: Package },
-  { to: '/admin/inventario/recetas', label: 'Recetas', Icon: ChefHat },
-  { to: '/admin/inventario/packs-desechables', label: 'Packs Desechables', Icon: PackageOpen },
-  { to: '/admin/inventario/stock', label: 'Inventario', Icon: Archive },
-  { to: '/admin/inventario/reportes', label: 'Reportes', Icon: BarChart2 },
+  {
+    to: "/admin/inventario/control",
+    label: "Control Diario",
+    Icon: ClipboardCheck,
+  },
+  { to: "/admin/inventario/catalogo", label: "Catálogo", Icon: Package },
+  { to: "/admin/inventario/recetas", label: "Recetas", Icon: ChefHat },
+  {
+    to: "/admin/inventario/packs-desechables",
+    label: "Packs Desechables",
+    Icon: PackageOpen,
+  },
+  { to: "/admin/inventario/stock", label: "Inventario", Icon: Archive },
+  { to: "/admin/inventario/reportes", label: "Reportes", Icon: BarChart2 },
 ];
 
 const costItems: NavItemDef[] = [
-  { to: '/admin/costos/dashboard', label: 'Dashboard Costos', Icon: TrendingUp },
-  { to: '/admin/costos/parametros', label: 'Parámetros MOD/GIF', Icon: SlidersHorizontal },
-  { to: `/admin/costos/proyecciones/${new Date().getFullYear()}`, label: 'Proyecciones', Icon: LineChart },
-  { to: `/admin/costos/resultados/${new Date().getFullYear()}`, label: 'Resultados P&L', Icon: Wallet },
+  {
+    to: "/admin/costos/dashboard",
+    label: "Dashboard Costos",
+    Icon: TrendingUp,
+  },
+  {
+    to: "/admin/costos/parametros",
+    label: "Parámetros MOD/GIF",
+    Icon: SlidersHorizontal,
+  },
+  {
+    to: `/admin/costos/proyecciones/${new Date().getFullYear()}`,
+    label: "Proyecciones",
+    Icon: LineChart,
+  },
+  {
+    to: `/admin/costos/resultados/${new Date().getFullYear()}`,
+    label: "Resultados P&L",
+    Icon: Wallet,
+  },
 ];
 
 const gestionItems: NavItemDef[] = [
-  { to: '/admin/clients', label: 'Clientes', Icon: Users },
-  { to: '/admin/providers', label: 'Proveedores', Icon: Truck },
-  { to: '/admin/events', label: 'Eventos', Icon: CalendarDays },
-  { to: '/admin/boletines', label: 'Boletines', Icon: Mail },
-  { to: '/admin/reports', label: 'Reportes', Icon: BarChart2 },
+  { to: "/admin/clients", label: "Clientes", Icon: Users },
+  { to: "/admin/providers", label: "Proveedores", Icon: Truck },
+  { to: "/admin/events", label: "Eventos", Icon: CalendarDays },
+  { to: "/admin/boletines", label: "Boletines", Icon: Mail },
+  { to: "/admin/reports", label: "Reportes", Icon: BarChart2 },
 ];
 
 const projectItems: NavItemDef[] = [
-  { to: '/admin/proyectos', label: 'Proyectos', Icon: FolderOpen },
+  { to: "/admin/proyectos", label: "Proyectos", Icon: FolderOpen },
 ];
 
 const configItems: NavItemDef[] = [
-  { to: '/admin/usuarios', label: 'Usuarios', Icon: UserCog },
+  { to: "/admin/usuarios", label: "Usuarios", Icon: UserCog },
 ];
 
 function NavItem({ to, label, Icon, end }: NavItemDef) {
@@ -74,8 +124,8 @@ function NavItem({ to, label, Icon, end }: NavItemDef) {
       className={({ isActive }) =>
         `flex items-center gap-3 px-6 py-2.5 text-sm font-body transition-all duration-200 ${
           isActive
-            ? 'bg-white text-island-dark font-medium'
-            : 'text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10'
+            ? "bg-white text-island-dark font-medium"
+            : "text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10"
         }`
       }
     >
@@ -89,20 +139,31 @@ export function Sidebar() {
   const { sidebarOpen } = useUiStore();
   const { isAdmin, isSuperAdmin } = useAuthStore();
   const location = useLocation();
-  const isCostRoute = location.pathname.startsWith('/admin/costos');
-  const isInventarioRoute = location.pathname.startsWith('/admin/inventario');
-  const isGestionRoute = gestionItems.some((item) => location.pathname.startsWith(item.to));
+  const isCostRoute = location.pathname.startsWith("/admin/costos");
+  const isInventarioRoute = location.pathname.startsWith("/admin/inventario");
+  const isGestionRoute = gestionItems.some((item) =>
+    location.pathname.startsWith(item.to),
+  );
   const [costOpen, setCostOpen] = useState(isCostRoute);
   const [inventarioOpen, setInventarioOpen] = useState(isInventarioRoute);
   const [gestionOpen, setGestionOpen] = useState(isGestionRoute);
-  const [projectOpen, setProjectOpen] = useState(location.pathname.startsWith('/admin/proyectos'));
-  const [configOpen, setConfigOpen] = useState(location.pathname.startsWith('/admin/usuarios'));
+  const [projectOpen, setProjectOpen] = useState(
+    location.pathname.startsWith("/admin/proyectos"),
+  );
+  const [configOpen, setConfigOpen] = useState(
+    location.pathname.startsWith("/admin/usuarios"),
+  );
   const [agotadoCount, setAgotadoCount] = useState(0);
 
   useEffect(() => {
     if (!isAdmin) return;
-    alertasInvApi.getAll()
-      .then((res) => setAgotadoCount(res.data.filter((a) => a.detalle.nivel === 'AGOTADO').length))
+    alertasInvApi
+      .getAll()
+      .then((res) =>
+        setAgotadoCount(
+          res.data.filter((a) => a.detalle.nivel === "AGOTADO").length,
+        ),
+      )
       .catch(() => {});
   }, [location.pathname, isAdmin]);
 
@@ -110,26 +171,31 @@ export function Sidebar() {
     <>
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-island-dark bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 z-20 lg:hidden"
           onClick={() => useUiStore.getState().setSidebarOpen(false)}
         />
       )}
 
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 shrink-0 bg-island-dark text-white z-30 flex flex-col
+          fixed top-0 left-0 h-full w-64 shrink-0 bg-gray-900 text-white z-30 flex flex-col
           transition-transform duration-300
-          ${sidebarOpen ? 'translate-x-0 lg:static' : '-translate-x-full lg:hidden'}
+          ${sidebarOpen ? "translate-x-0 lg:static" : "-translate-x-full lg:hidden"}
           shadow-xl lg:shadow-none
         `}
       >
         {/* Logo */}
         <div className="px-6 py-6 border-b border-white border-opacity-10 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <img src="/images/brand/icono-blanco.png" alt="" className="h-8 w-8 shrink-0" />
+            <img
+              src="/images/brand/icono-blanco.png"
+              alt=""
+              className="h-12 w-12 shrink-0"
+            />
             <div>
-              <h1 className="font-body text-xl font-bold text-white">La Isla Café</h1>
-              <p className="text-xs text-white text-opacity-60 font-body mt-0.5">Panel de Administración</p>
+              <h1 className="font-body text-xl font-bold text-white">
+                La Isla
+              </h1>
             </div>
           </div>
           <button
@@ -160,10 +226,11 @@ export function Sidebar() {
               <Users size={16} strokeWidth={1.75} />
               Gestión del negocio
             </span>
-            {gestionOpen
-              ? <ChevronUp size={14} className="opacity-60" />
-              : <ChevronDown size={14} className="opacity-60" />
-            }
+            {gestionOpen ? (
+              <ChevronUp size={14} className="opacity-60" />
+            ) : (
+              <ChevronDown size={14} className="opacity-60" />
+            )}
           </button>
 
           {gestionOpen && (
@@ -184,12 +251,18 @@ export function Sidebar() {
                   <FolderOpen size={16} strokeWidth={1.75} />
                   Gestión de Proyecto
                 </span>
-                {projectOpen ? <ChevronUp size={14} className="opacity-60" /> : <ChevronDown size={14} className="opacity-60" />}
+                {projectOpen ? (
+                  <ChevronUp size={14} className="opacity-60" />
+                ) : (
+                  <ChevronDown size={14} className="opacity-60" />
+                )}
               </button>
 
               {projectOpen && (
                 <div className="pl-4">
-                  {projectItems.map((item) => <NavItem key={item.to} {...item} />)}
+                  {projectItems.map((item) => (
+                    <NavItem key={item.to} {...item} />
+                  ))}
                 </div>
               )}
 
@@ -207,10 +280,11 @@ export function Sidebar() {
                     </span>
                   )}
                 </span>
-                {inventarioOpen
-                  ? <ChevronUp size={14} className="opacity-60" />
-                  : <ChevronDown size={14} className="opacity-60" />
-                }
+                {inventarioOpen ? (
+                  <ChevronUp size={14} className="opacity-60" />
+                ) : (
+                  <ChevronDown size={14} className="opacity-60" />
+                )}
               </button>
 
               {inventarioOpen && (
@@ -222,8 +296,8 @@ export function Sidebar() {
                       className={({ isActive }) =>
                         `flex items-center justify-between px-6 py-2.5 text-sm font-body transition-all duration-200 ${
                           isActive
-                            ? 'bg-white text-island-dark font-medium'
-                            : 'text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10'
+                            ? "bg-white text-island-dark font-medium"
+                            : "text-white text-opacity-70 hover:text-white hover:bg-white hover:bg-opacity-10"
                         }`
                       }
                     >
@@ -231,7 +305,7 @@ export function Sidebar() {
                         <item.Icon size={16} strokeWidth={1.75} />
                         {item.label}
                       </span>
-                      {item.to.includes('stock') && agotadoCount > 0 && (
+                      {item.to.includes("stock") && agotadoCount > 0 && (
                         <span className="bg-error text-white text-xs font-bold rounded-full px-1.5 py-0.5 leading-none">
                           {agotadoCount}
                         </span>
@@ -250,10 +324,11 @@ export function Sidebar() {
                   <CircleDollarSign size={16} strokeWidth={1.75} />
                   Costos &amp; Finanzas
                 </span>
-                {costOpen
-                  ? <ChevronUp size={14} className="opacity-60" />
-                  : <ChevronDown size={14} className="opacity-60" />
-                }
+                {costOpen ? (
+                  <ChevronUp size={14} className="opacity-60" />
+                ) : (
+                  <ChevronDown size={14} className="opacity-60" />
+                )}
               </button>
 
               {costOpen && (
@@ -276,12 +351,18 @@ export function Sidebar() {
                   <UserCog size={16} strokeWidth={1.75} />
                   Configuración
                 </span>
-                {configOpen ? <ChevronUp size={14} className="opacity-60" /> : <ChevronDown size={14} className="opacity-60" />}
+                {configOpen ? (
+                  <ChevronUp size={14} className="opacity-60" />
+                ) : (
+                  <ChevronDown size={14} className="opacity-60" />
+                )}
               </button>
 
               {configOpen && (
                 <div className="pl-4">
-                  {configItems.map((item) => <NavItem key={item.to} {...item} />)}
+                  {configItems.map((item) => (
+                    <NavItem key={item.to} {...item} />
+                  ))}
                 </div>
               )}
             </>
@@ -290,8 +371,12 @@ export function Sidebar() {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-white border-opacity-10">
-          <p className="text-xs text-white text-opacity-40 font-body">La Isla Café Picnic © {new Date().getFullYear()}</p>
-          <p className="text-xs text-white text-opacity-30 font-body">Ibagué, Colombia</p>
+          <p className="text-xs text-white text-opacity-40 font-body">
+            La Isla Café Picnic © {new Date().getFullYear()}
+          </p>
+          <p className="text-xs text-white text-opacity-30 font-body">
+            Ibagué, Colombia
+          </p>
         </div>
       </aside>
     </>

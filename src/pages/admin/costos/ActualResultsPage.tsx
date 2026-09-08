@@ -140,7 +140,7 @@ export function ActualResultsPage() {
 
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm font-body">
-          <thead className="bg-sand border-b border-island-blue/20">
+          <thead className="bg-gray-100 border-b border-island-blue/20">
             <tr>
               <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mes</th>
               <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Ventas</th>
@@ -153,7 +153,7 @@ export function ActualResultsPage() {
           </thead>
           <tbody className="divide-y divide-rule">
             {results.map((r) => (
-              <tr key={r._id} className="hover:bg-sand transition-colors">
+              <tr key={r._id} className="hover:bg-gray-100 transition-colors">
                 <td className="px-4 py-3 font-medium text-island-dark">{MONTHS[r.month - 1]}</td>
                 <td className="px-4 py-3 text-right text-island-dark">{formatCOP(r.totalSales)}</td>
                 <td className="px-4 py-3 text-right text-island-dark/70">
@@ -245,7 +245,7 @@ export function ActualResultsPage() {
           </div>
 
           {/* Live preview */}
-          <div className="bg-sand rounded-lg p-4 grid grid-cols-3 gap-3 text-sm font-body">
+          <div className="bg-gray-100 rounded-lg p-4 grid grid-cols-3 gap-3 text-sm font-body">
             <div>
               <p className="text-island-dark/70 text-xs">Margen bruto</p>
               <p className="font-medium text-island-dark">{formatCOP(grossMargin)}</p>

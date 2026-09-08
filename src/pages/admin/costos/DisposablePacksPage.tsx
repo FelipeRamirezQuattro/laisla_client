@@ -176,7 +176,7 @@ export function DisposablePacksPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-2 font-body text-sm text-island-dark/70">
+        <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredPacks.length} de {packs.length} packs
         </div>
       </div>
@@ -236,7 +236,7 @@ export function DisposablePacksPage() {
               <button
                 type="button"
                 onClick={closeDrawer}
-                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-sand hover:text-island-dark"
+                className="rounded-lg p-1 text-island-dark/70 transition-colors hover:bg-gray-100 hover:text-island-dark"
                 aria-label="Cerrar"
               >
                 <X size={20} />
@@ -266,7 +266,7 @@ export function DisposablePacksPage() {
                     onChange={(e) => updateCategoryFilter(e.target.value)}
                   />
 
-                  <div className="rounded-lg border border-island-blue/20 bg-sand px-4 py-3 flex items-center justify-between">
+                  <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-3 flex items-center justify-between">
                     <span className="text-sm font-body text-island-dark/70">Costo estimado</span>
                     <span className="font-body text-lg font-semibold text-island-dark">{formatCOPDecimal(packPreviewCost)}</span>
                   </div>

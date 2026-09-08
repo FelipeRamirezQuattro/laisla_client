@@ -17,7 +17,6 @@ export function HomeHero() {
       <div className="li-hero-overlay" aria-hidden="true" />
       <div className="li-hero-inner li-reveal" ref={revealRef}>
         <div className="li-hero-copy">
-          <p className="li-pill">04°26′N · 75°14′W · Ibagué</p>
           <h1 className="li-hero-title">
             Baja el
             <br />

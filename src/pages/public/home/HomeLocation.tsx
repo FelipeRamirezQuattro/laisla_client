@@ -1,6 +1,6 @@
 import { Clock, MapPin, Phone } from "lucide-react";
 import { useScrollReveal } from "./useScrollReveal";
-import { contact } from "./helpers";
+import { contact } from "../../../utils/siteInfo";
 
 const ADDRESS = "Cra 4C # 41-25, Barrio La Macarena Parte Baja, Ibagué, Tolima";
 const encodedAddress = encodeURIComponent(ADDRESS);
