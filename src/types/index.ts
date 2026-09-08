@@ -327,12 +327,6 @@ export interface PaginatedResponse<T> {
 
 export type MeasurementUnit = 'KG' | 'GR' | 'LT' | 'ML' | 'UND' | 'PAQ';
 export type RecipeIngredientUnit = MeasurementUnit;
-export type RawMaterialCategory =
-  | 'LACTEOS' | 'BASES_POLVO' | 'JARABES_SALSAS' | 'CONCENTRADOS'
-  | 'TE_INFUSIONES' | 'CAFE' | 'AGUA' | 'VASOS_CARTON' | 'VASOS_PLASTICO'
-  | 'EXTRAS' | 'SUPLEMENTOS' | 'AZUCAR' | 'POLVOS' | 'FRUTAS_VERDURAS'
-  | 'UNTABLES' | 'HIELO' | 'MODIFICADORES' | 'POLLO' | 'SYRUPS' | 'PERLAS'
-  | 'MATERIALES_PICNIC' | 'DECORACION';
 
 export type RecipeCategory = string;
 
@@ -344,23 +338,6 @@ export interface RecipeCategoryOption {
 }
 
 export type VariantSize = '6OZ' | '8OZ' | '12OZ' | '16OZ' | '20OZ' | 'UND';
-
-export interface RawMaterial {
-  _id: string;
-  category: RawMaterialCategory;
-  name: string;
-  presentation: string;
-  purchaseUnit: MeasurementUnit;
-  quantityPerPresentation: number;
-  totalPrice: number;
-  pricePerUnit: number;
-  supplier: string;
-  notes: string;
-  minStock: number;
-  importedFromExcel: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface DisposablePackItem {
   rawMaterialId: string;
@@ -506,19 +483,6 @@ export interface ActualResult {
   netProfitPct: number;
   variationVsPrevMonth: Record<string, number>;
   insights: string[];
-}
-
-export interface InventoryStatus {
-  rawMaterial: RawMaterial;
-  closingStock: number;
-  unit: MeasurementUnit;
-  belowMin: boolean;
-  lastPeriod: string | null;
-}
-
-export interface CascadePreview {
-  affectedPacks: number;
-  affectedRecipes: number;
 }
 
 // ─── Inventario Diario ────────────────────────────────────────────────────────

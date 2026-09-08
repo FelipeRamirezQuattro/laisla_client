@@ -1,22 +1,8 @@
 import api from './axios';
 import type {
-  RawMaterial, DisposablePack, LaborAndOverheadParams,
-  Recipe, RecipeCategoryOption, Projection, ActualResult, InventoryStatus, CascadePreview,
+  DisposablePack, LaborAndOverheadParams,
+  Recipe, RecipeCategoryOption, Projection, ActualResult,
 } from '../types';
-
-// ── Raw Materials ─────────────────────────────────────────────────────────────
-export const rawMaterialsApi = {
-  getAll: (params?: Record<string, string>) =>
-    api.get<RawMaterial[]>('/admin/raw-materials', { params }),
-  getOne: (id: string) => api.get<RawMaterial>(`/admin/raw-materials/${id}`),
-  cascadePreview: (id: string) =>
-    api.get<CascadePreview>(`/admin/raw-materials/${id}/cascade-preview`),
-  create: (data: Partial<RawMaterial>) =>
-    api.post<RawMaterial>('/admin/raw-materials', data),
-  update: (id: string, data: Partial<RawMaterial>) =>
-    api.put<RawMaterial>(`/admin/raw-materials/${id}`, data),
-  delete: (id: string) => api.delete(`/admin/raw-materials/${id}`),
-};
 
 // ── Disposable Packs ──────────────────────────────────────────────────────────
 export const disposablePacksApi = {
@@ -77,17 +63,4 @@ export const actualResultsApi = {
   create: (data: Partial<ActualResult>) => api.post<ActualResult>('/admin/results', data),
   update: (id: string, data: Partial<ActualResult>) =>
     api.put<ActualResult>(`/admin/results/${id}`, data),
-};
-
-// ── Inventory ─────────────────────────────────────────────────────────────────
-export const inventoryApi = {
-  getCurrent: () => api.get<InventoryStatus[]>('/admin/inventory'),
-  getHistory: (rawMaterialId: string) =>
-    api.get(`/admin/inventory/${rawMaterialId}/history`),
-  createMovement: (data: {
-    rawMaterialId: string; purchases?: number; consumed?: number;
-    unit: string; period?: string;
-  }) => api.post('/admin/inventory/movements', data),
-  getAlerts: () => api.get<InventoryStatus[]>('/admin/inventory/alerts'),
-  getReorderReport: () => api.get('/admin/inventory/reorder-report'),
 };

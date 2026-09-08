@@ -9,63 +9,27 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { insumosInvApi } from "../../../api/inventario";
-import { rawMaterialsApi } from "../../../api/costs";
 import { useAuth } from "../../../hooks/useAuth";
 import { useToast } from "../../../hooks/useToast";
 import { PageLoader } from "../../../components/ui/Spinner";
 import { Modal } from "../../../components/ui/Modal";
-import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
-import { Select } from "../../../components/ui/Select";
-import { CascadeWarningModal } from "../../../components/costos/CascadeWarningModal";
-import { formatCOPDecimal, formatNumber } from "../../../utils/formatCurrency";
+import { formatNumber } from "../../../utils/formatCurrency";
 import {
-  formatMeasurementUnit,
   MEASUREMENT_UNITS,
 } from "../../../utils/measurementUnits";
 import type {
   CategoriaConInsumos,
   InsumoCategoria,
   Insumo,
-  RawMaterial,
-  RawMaterialCategory,
   MeasurementUnit,
 } from "../../../types";
-
-const COST_CATEGORIES: { value: RawMaterialCategory; label: string }[] = [
-  { value: "LACTEOS", label: "Lácteos" },
-  { value: "BASES_POLVO", label: "Bases en polvo" },
-  { value: "JARABES_SALSAS", label: "Jarabes y salsas" },
-  { value: "CONCENTRADOS", label: "Concentrados" },
-  { value: "TE_INFUSIONES", label: "Té e infusiones" },
-  { value: "CAFE", label: "Café" },
-  { value: "AGUA", label: "Agua" },
-  { value: "VASOS_CARTON", label: "Vasos de cartón" },
-  { value: "VASOS_PLASTICO", label: "Vasos plástico" },
-  { value: "EXTRAS", label: "Extras" },
-  { value: "SUPLEMENTOS", label: "Suplementos" },
-  { value: "AZUCAR", label: "Azúcar" },
-  { value: "POLVOS", label: "Polvos" },
-  { value: "FRUTAS_VERDURAS", label: "Frutas y verduras" },
-  { value: "UNTABLES", label: "Untables" },
-  { value: "HIELO", label: "Hielo" },
-  { value: "MODIFICADORES", label: "Modificadores" },
-  { value: "POLLO", label: "Pollo" },
-  { value: "SYRUPS", label: "Syrups" },
-  { value: "PERLAS", label: "Perlas" },
-  { value: "MATERIALES_PICNIC", label: "Materiales picnic" },
-  { value: "DECORACION", label: "Decoración" },
-];
 
 const UNIT_OPTIONS = MEASUREMENT_UNITS.map((u) => ({
   value: u.value,
   label: u.label,
 }));
-
-const costCategoryLabel = (c: RawMaterialCategory) =>
-  COST_CATEGORIES.find((x) => x.value === c)?.label ?? c;
 
 type InsumoSortKey =
   | "orden"
@@ -149,18 +113,6 @@ function SortableHeader({
   );
 }
 
-interface CostFormData {
-  category: RawMaterialCategory;
-  name: string;
-  presentation: string;
-  purchaseUnit: MeasurementUnit;
-  quantityPerPresentation: number;
-  totalPrice: number;
-  supplier: string;
-  notes: string;
-  minStock: number;
-}
-
 function InlineCell({
   value,
   onSave,
@@ -242,7 +194,7 @@ export function CatalogoInsumosPage() {
 
   const [grupos, setGrupos] = useState<CategoriaConInsumos[]>([]);
   const [categorias, setCategorias] = useState<InsumoCategoria[]>([]);
-  const [view, setView] = useState<"insumos" | "categorias" | "costos">(
+  const [view, setView] = useState<"insumos" | "categorias">(
     "insumos",
   );
   const [activeCat, setActiveCat] = useState<string>("all");
@@ -250,7 +202,6 @@ export function CatalogoInsumosPage() {
   const [insumoSort, setInsumoSort] = useState<InsumoSort>(defaultInsumoSort);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [costLoading, setCostLoading] = useState(true);
   const [newRow, setNewRow] = useState<{
     nombre: string;
     unidad: MeasurementUnit;
@@ -261,27 +212,7 @@ export function CatalogoInsumosPage() {
     useState<InsumoCategoria | null>(null);
   const [categoryName, setCategoryName] = useState("");
   const [categorySaving, setCategorySaving] = useState(false);
-  const [costItems, setCostItems] = useState<RawMaterial[]>([]);
-  const [costSearch, setCostSearch] = useState("");
-  const [costCatFilter, setCostCatFilter] = useState("");
-  const [costModalOpen, setCostModalOpen] = useState(false);
-  const [editingCost, setEditingCost] = useState<RawMaterial | null>(null);
-  const [cascadeModal, setCascadeModal] = useState<{
-    id: string;
-    packs: number;
-    recipes: number;
-  } | null>(null);
-  const [pendingCostData, setPendingCostData] = useState<CostFormData | null>(
-    null,
-  );
-  const [cascadeLoading, setCascadeLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const {
-    register: registerCost,
-    handleSubmit: handleCostSubmit,
-    reset: resetCost,
-    formState: { errors: costErrors, isSubmitting: costSubmitting },
-  } = useForm<CostFormData>();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -302,25 +233,6 @@ export function CatalogoInsumosPage() {
   useEffect(() => {
     load();
   }, [load]);
-
-  const loadCostItems = useCallback(async () => {
-    setCostLoading(true);
-    try {
-      const params: Record<string, string> = {};
-      if (costSearch) params.search = costSearch;
-      if (costCatFilter) params.category = costCatFilter;
-      const res = await rawMaterialsApi.getAll(params);
-      setCostItems(res.data);
-    } catch {
-      toast.error("Error al cargar datos de costos");
-    } finally {
-      setCostLoading(false);
-    }
-  }, [costSearch, costCatFilter]);
-
-  useEffect(() => {
-    loadCostItems();
-  }, [loadCostItems]);
 
   const save = async (id: string, field: keyof Insumo, value: string) => {
     try {
@@ -403,104 +315,6 @@ export function CatalogoInsumosPage() {
       toast.success("Categoría eliminada");
     } catch {
       toast.error("Error al eliminar categoría");
-    }
-  };
-
-  const openCreateCostItem = () => {
-    setEditingCost(null);
-    resetCost({
-      category: "CAFE",
-      purchaseUnit: "KG",
-      quantityPerPresentation: 1,
-      totalPrice: 0,
-      minStock: 0,
-      supplier: "",
-      notes: "",
-    });
-    setCostModalOpen(true);
-  };
-
-  const openEditCostItem = (item: RawMaterial) => {
-    setEditingCost(item);
-    resetCost({
-      category: item.category,
-      name: item.name,
-      presentation: item.presentation,
-      purchaseUnit: item.purchaseUnit,
-      quantityPerPresentation: item.quantityPerPresentation,
-      totalPrice: item.totalPrice,
-      supplier: item.supplier,
-      notes: item.notes,
-      minStock: item.minStock,
-    });
-    setCostModalOpen(true);
-  };
-
-  const saveCostItem = async (data: CostFormData) => {
-    if (editingCost) {
-      try {
-        const preview = await rawMaterialsApi.cascadePreview(editingCost._id);
-        const { affectedPacks, affectedRecipes } = preview.data;
-        if (affectedPacks > 0 || affectedRecipes > 0) {
-          setPendingCostData(data);
-          setCascadeModal({
-            id: editingCost._id,
-            packs: affectedPacks,
-            recipes: affectedRecipes,
-          });
-          return;
-        }
-        await rawMaterialsApi.update(editingCost._id, data);
-        toast.success("Datos de costo actualizados");
-        setCostModalOpen(false);
-        loadCostItems();
-      } catch {
-        toast.error("Error al actualizar datos de costo");
-      }
-    } else {
-      try {
-        await rawMaterialsApi.create(data);
-        toast.success("Insumo de costo creado");
-        setCostModalOpen(false);
-        loadCostItems();
-      } catch {
-        toast.error("Error al crear insumo de costo");
-      }
-    }
-  };
-
-  const confirmCostCascade = async () => {
-    if (!cascadeModal || !pendingCostData) return;
-    setCascadeLoading(true);
-    try {
-      await rawMaterialsApi.update(cascadeModal.id, pendingCostData);
-      toast.success("Datos actualizados y costos recalculados");
-      setCostModalOpen(false);
-      setCascadeModal(null);
-      setPendingCostData(null);
-      loadCostItems();
-    } catch {
-      toast.error("Error al guardar datos de costo");
-    } finally {
-      setCascadeLoading(false);
-    }
-  };
-
-  const deleteCostItem = async (item: RawMaterial) => {
-    if (
-      !window.confirm(
-        `¿Eliminar el insumo de costo "${item.name}"? Esta acción no se puede deshacer.`,
-      )
-    )
-      return;
-    try {
-      await rawMaterialsApi.delete(item._id);
-      toast.success("Insumo de costo eliminado");
-      loadCostItems();
-    } catch {
-      toast.error(
-        "No se pudo eliminar. Revisa si está usado en recetas o packs.",
-      );
     }
   };
 
@@ -719,14 +533,6 @@ export function CatalogoInsumosPage() {
                 <Plus size={15} /> Nueva categoría
               </button>
             )}
-            {view === "costos" && (
-              <button
-                onClick={openCreateCostItem}
-                className="btn-primary flex items-center gap-2 text-sm"
-              >
-                <Plus size={15} /> Nuevo costo
-              </button>
-            )}
           </div>
         )}
       </div>
@@ -743,12 +549,6 @@ export function CatalogoInsumosPage() {
           className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "categorias" ? "bg-island-dark text-white" : "text-island-dark hover:bg-gray-100"}`}
         >
           Categorías
-        </button>
-        <button
-          onClick={() => setView("costos")}
-          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "costos" ? "bg-island-dark text-white" : "text-island-dark hover:bg-gray-100"}`}
-        >
-          Costos
         </button>
       </div>
 
@@ -1171,119 +971,6 @@ export function CatalogoInsumosPage() {
         </div>
       )}
 
-      {view === "costos" && (
-        <div className="space-y-4">
-          <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
-            <Input
-              placeholder="Buscar por nombre, proveedor o presentación..."
-              value={costSearch}
-              onChange={(e) => setCostSearch(e.target.value)}
-            />
-            <Select
-              options={[
-                { value: "", label: "Todas las categorías" },
-                ...COST_CATEGORIES,
-              ]}
-              value={costCatFilter}
-              onChange={(e) => setCostCatFilter(e.target.value)}
-            />
-          </div>
-
-          {costLoading ? (
-            <PageLoader />
-          ) : (
-            <div className="card overflow-x-auto p-0">
-              <table className="w-full text-sm font-body">
-                <thead className="bg-gray-100 border-b border-island-blue/20">
-                  <tr>
-                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
-                      Nombre
-                    </th>
-                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
-                      Categoría
-                    </th>
-                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
-                      Presentación
-                    </th>
-                    <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
-                      Precio total
-                    </th>
-                    <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
-                      Precio/unidad
-                    </th>
-                    <th className="text-left px-4 py-3 text-island-dark/70 font-medium">
-                      Proveedor
-                    </th>
-                    {isAdmin && (
-                      <th className="text-right px-4 py-3 text-island-dark/70 font-medium">
-                        Acciones
-                      </th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-rule">
-                  {costItems.map((item) => (
-                    <tr
-                      key={item._id}
-                      className="hover:bg-gray-100 transition-colors"
-                    >
-                      <td className="px-4 py-3 font-medium text-island-dark">
-                        {item.name}
-                      </td>
-                      <td className="px-4 py-3 text-island-dark/70">
-                        {costCategoryLabel(item.category)}
-                      </td>
-                      <td className="px-4 py-3 text-island-dark/70">
-                        {item.quantityPerPresentation}{" "}
-                        {formatMeasurementUnit(item.purchaseUnit)} -{" "}
-                        {item.presentation}
-                      </td>
-                      <td className="px-4 py-3 text-right text-island-dark">
-                        {formatCOPDecimal(item.totalPrice)}
-                      </td>
-                      <td className="px-4 py-3 text-right text-island-dark font-medium">
-                        {formatCOPDecimal(item.pricePerUnit)}
-                      </td>
-                      <td className="px-4 py-3 text-island-dark/70">{item.supplier}</td>
-                      {isAdmin && (
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openEditCostItem(item)}
-                            >
-                              Editar
-                            </Button>
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() => deleteCostItem(item)}
-                            >
-                              Eliminar
-                            </Button>
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                  {costItems.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={isAdmin ? 7 : 6}
-                        className="text-center py-10 text-island-dark/70"
-                      >
-                        No se encontraron datos de costo.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
       <Modal
         isOpen={categoryModal}
         onClose={() => setCategoryModal(false)}
@@ -1324,103 +1011,6 @@ export function CatalogoInsumosPage() {
           </div>
         </form>
       </Modal>
-
-      <Modal
-        isOpen={costModalOpen}
-        onClose={() => setCostModalOpen(false)}
-        title={editingCost ? "Editar datos de costo" : "Nuevo insumo de costo"}
-        size="lg"
-      >
-        <form onSubmit={handleCostSubmit(saveCostItem)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Categoría"
-              options={COST_CATEGORIES}
-              error={costErrors.category?.message}
-              {...registerCost("category", { required: true })}
-            />
-            <Select
-              label="Unidad de compra"
-              options={UNIT_OPTIONS}
-              error={costErrors.purchaseUnit?.message}
-              {...registerCost("purchaseUnit", { required: true })}
-            />
-          </div>
-          <Input
-            label="Nombre del insumo"
-            error={costErrors.name?.message}
-            {...registerCost("name", { required: "Requerido" })}
-          />
-          <Input
-            label="Presentación (ej: Bolsa 1KG)"
-            error={costErrors.presentation?.message}
-            {...registerCost("presentation", { required: "Requerido" })}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Cantidad por presentación"
-              type="number"
-              step="0.001"
-              error={costErrors.quantityPerPresentation?.message}
-              {...registerCost("quantityPerPresentation", {
-                required: true,
-                valueAsNumber: true,
-                min: 0.001,
-              })}
-            />
-            <Input
-              label="Precio total (COP)"
-              type="number"
-              step="0.01"
-              error={costErrors.totalPrice?.message}
-              {...registerCost("totalPrice", {
-                required: true,
-                valueAsNumber: true,
-                min: 0,
-              })}
-            />
-          </div>
-          <Input label="Proveedor" {...registerCost("supplier")} />
-          <Input
-            label="Stock mínimo"
-            type="number"
-            {...registerCost("minStock", { valueAsNumber: true })}
-          />
-          <div>
-            <label className="text-sm font-medium text-island-dark font-body block mb-1">
-              Notas
-            </label>
-            <textarea
-              className="input-base h-16 resize-none"
-              {...registerCost("notes")}
-            />
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => setCostModalOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" loading={costSubmitting}>
-              {editingCost ? "Actualizar" : "Crear"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      <CascadeWarningModal
-        isOpen={!!cascadeModal}
-        affectedPacks={cascadeModal?.packs ?? 0}
-        affectedRecipes={cascadeModal?.recipes ?? 0}
-        loading={cascadeLoading}
-        onConfirm={confirmCostCascade}
-        onCancel={() => {
-          setCascadeModal(null);
-          setPendingCostData(null);
-        }}
-      />
     </div>
   );
 }
