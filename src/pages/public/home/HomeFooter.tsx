@@ -4,7 +4,10 @@ import { Link } from "react-router-dom";
 import "./home.css";
 import { publicApi } from "../../../api/public";
 import { InstagramIcon, TikTokIcon } from "../../../components/icons/SocialIcons";
+import { TurnstileWidget } from "../../../components/TurnstileWidget";
 import { contact, socialLinks } from "../../../utils/siteInfo";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
 export function HomeFooter() {
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -12,20 +15,37 @@ export function HomeFooter() {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [newsletterMessage, setNewsletterMessage] = useState("");
+  const [honeypot, setHoneypot] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileKey, setTurnstileKey] = useState(0);
 
   const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setNewsletterStatus("error");
+      setNewsletterMessage("Espera a que se cargue la verificación de seguridad.");
+      return;
+    }
+
     setNewsletterStatus("loading");
     setNewsletterMessage("");
 
     try {
-      await publicApi.subscribeNewsletter({ email: newsletterEmail });
+      await publicApi.subscribeNewsletter({
+        email: newsletterEmail,
+        turnstileToken,
+        company: honeypot,
+      });
       setNewsletterStatus("success");
       setNewsletterMessage("Listo. Te apuntamos al boletín mensual.");
       setNewsletterEmail("");
     } catch {
       setNewsletterStatus("error");
       setNewsletterMessage("No pudimos registrar el correo. Inténtalo de nuevo.");
+    } finally {
+      setTurnstileToken("");
+      setTurnstileKey((key) => key + 1);
     }
   };
 
@@ -70,10 +90,37 @@ export function HomeFooter() {
               disabled={newsletterStatus === "loading"}
               required
             />
+            {/* Honeypot: invisible to real visitors, bots that fill every field don't know that. */}
+            <input
+              type="text"
+              name="company"
+              value={honeypot}
+              onChange={(event) => setHoneypot(event.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                width: 1,
+                height: 1,
+                opacity: 0,
+                pointerEvents: "none",
+                left: "-9999px",
+              }}
+            />
             <button type="submit" disabled={newsletterStatus === "loading"}>
               {newsletterStatus === "loading" ? "Enviando" : "Apuntarme"}
             </button>
           </form>
+          {TURNSTILE_SITE_KEY && (
+            <TurnstileWidget
+              key={turnstileKey}
+              siteKey={TURNSTILE_SITE_KEY}
+              onVerify={setTurnstileToken}
+              onExpire={() => setTurnstileToken("")}
+              className="li-turnstile"
+            />
+          )}
           {newsletterMessage && (
             <span className="li-newsletter-message">{newsletterMessage}</span>
           )}
