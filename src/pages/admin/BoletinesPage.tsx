@@ -55,6 +55,7 @@ export function BoletinesPage() {
   const [saving, setSaving] = useState(false);
   const [gmailBusy, setGmailBusy] = useState(false);
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [detailCampaign, setDetailCampaign] = useState<NewsletterCampaign | null>(null);
   const toast = useToast();
 
   const fetchData = async () => {
@@ -344,22 +345,32 @@ export function BoletinesPage() {
                         {campaign.status === "sent" ? "Enviado" : "Borrador"}
                       </span>
                     </div>
-                    {campaign.status === "sent" ? (
+                    {campaign.status === "sent" && (
                       <p className="mt-3 text-xs text-island-dark/70">
                         {campaign.sentCount} enviados · {campaign.failedCount}{" "}
                         fallidos
                       </p>
-                    ) : (
+                    )}
+                    <div className="mt-3 flex gap-2">
                       <Button
                         type="button"
+                        variant="ghost"
                         size="sm"
-                        className="mt-3"
-                        loading={sendingId === campaign._id}
-                        onClick={() => sendCampaign(campaign._id)}
+                        onClick={() => setDetailCampaign(campaign)}
                       >
-                        Enviar ahora
+                        Ver detalle
                       </Button>
-                    )}
+                      {campaign.status !== "sent" && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          loading={sendingId === campaign._id}
+                          onClick={() => sendCampaign(campaign._id)}
+                        >
+                          Enviar ahora
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 {campaigns.length === 0 && (
@@ -372,7 +383,104 @@ export function BoletinesPage() {
       )}
 
       {view === "suscriptores" && <SubscribersManager onChange={fetchData} />}
+
+      <CampaignDetailModal
+        campaign={detailCampaign}
+        onClose={() => setDetailCampaign(null)}
+      />
     </div>
+  );
+}
+
+function CampaignDetailModal({
+  campaign,
+  onClose,
+}: {
+  campaign: NewsletterCampaign | null;
+  onClose: () => void;
+}) {
+  return (
+    <Modal isOpen={!!campaign} onClose={onClose} title={campaign?.subject || "Boletín"} size="lg">
+      {campaign && (
+        <div className="space-y-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${campaign.status === "sent" ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
+            >
+              {campaign.status === "sent" ? "Enviado" : "Borrador"}
+            </span>
+            <span className="text-xs text-island-dark/70">
+              {campaign.status === "sent"
+                ? `Enviado ${campaign.sentAt ? formatDateTime(campaign.sentAt) : ""}`
+                : `Creado ${formatDateTime(campaign.createdAt)}`}
+            </span>
+          </div>
+
+          {campaign.status === "sent" && (
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-lg border border-island-blue/20 bg-gray-100 p-3 text-center">
+                <p className="text-lg font-body font-bold text-island-dark">{campaign.recipientsCount}</p>
+                <p className="text-xs text-island-dark/70">Destinatarios</p>
+              </div>
+              <div className="rounded-lg border border-island-blue/20 bg-success-tint p-3 text-center">
+                <p className="text-lg font-body font-bold text-success">{campaign.sentCount}</p>
+                <p className="text-xs text-island-dark/70">Enviados</p>
+              </div>
+              <div className={`rounded-lg border p-3 text-center ${campaign.failedCount > 0 ? "border-error/30 bg-error-tint" : "border-island-blue/20 bg-gray-100"}`}>
+                <p className={`text-lg font-body font-bold ${campaign.failedCount > 0 ? "text-error-ink" : "text-island-dark"}`}>
+                  {campaign.failedCount}
+                </p>
+                <p className="text-xs text-island-dark/70">Fallidos</p>
+              </div>
+            </div>
+          )}
+
+          {campaign.preheader && (
+            <div>
+              <p className="text-xs font-body font-semibold uppercase tracking-wide text-island-dark/70 mb-1">
+                Preheader
+              </p>
+              <p className="text-sm text-island-dark">{campaign.preheader}</p>
+            </div>
+          )}
+
+          <div>
+            <p className="text-xs font-body font-semibold uppercase tracking-wide text-island-dark/70 mb-1">
+              Contenido
+            </p>
+            <div className="rounded-lg border border-island-blue/20 bg-white p-4 text-sm text-island-dark whitespace-pre-wrap max-h-64 overflow-y-auto">
+              {campaign.body}
+            </div>
+          </div>
+
+          {campaign.status === "sent" && campaign.failedCount > 0 && (
+            <div>
+              <p className="text-xs font-body font-semibold uppercase tracking-wide text-island-dark/70 mb-1">
+                Suscriptores fallidos
+              </p>
+              {campaign.failedRecipients && campaign.failedRecipients.length > 0 ? (
+                <div className="divide-y divide-island-blue/20 rounded-lg border border-island-blue/20 bg-white max-h-48 overflow-y-auto">
+                  {campaign.failedRecipients.map((recipient) => (
+                    <div key={recipient.email} className="p-3">
+                      <p className="text-sm font-medium text-island-dark">{recipient.email}</p>
+                      <p className="text-xs text-error-ink mt-0.5">{recipient.error}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-island-dark/70">
+                  No se guardó el detalle de los fallos (boletín enviado antes de que esta función existiera).
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2">
+            <Button variant="secondary" onClick={onClose}>Cerrar</Button>
+          </div>
+        </div>
+      )}
+    </Modal>
   );
 }
 

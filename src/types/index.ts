@@ -278,6 +278,11 @@ export interface NewsletterSubscriber {
   createdAt: string;
 }
 
+export interface NewsletterFailedRecipient {
+  email: string;
+  error: string;
+}
+
 export interface NewsletterCampaign {
   _id: string;
   subject: string;
@@ -287,6 +292,7 @@ export interface NewsletterCampaign {
   recipientsCount: number;
   sentCount: number;
   failedCount: number;
+  failedRecipients?: NewsletterFailedRecipient[];
   sentAt?: string;
   createdAt: string;
 }

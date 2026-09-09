@@ -30,8 +30,8 @@ export function HomeBooking() {
             sombra
           </h2>
           <p className="li-booking-desc">
-            Elige día, hora y cuántos son. Te guardamos la mesa 15 minutos
-            y, si vienen a trabajar, te sentamos cerca del enchufe.
+            Elige día, hora y cuántos son. Te guardamos la mesa 15 minutos y, si
+            vienen a trabajar, te sentamos cerca del enchufe.
           </p>
           <div className="li-booking-tags">
             <span>Patio con sombra</span>
@@ -98,9 +98,7 @@ export function HomeBooking() {
           <button type="submit" className="li-booking-submit">
             Continuar con la reserva →
           </button>
-          <p className="li-booking-summary">
-            {bookingSummary} · sin anticipo, confirmamos por WhatsApp.
-          </p>
+          <p className="li-booking-summary">{bookingSummary}</p>
         </form>
       </div>
     </section>
