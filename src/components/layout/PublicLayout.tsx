@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { PublicNavbar } from "./PublicNavbar";
 import { HomeFooter } from "../../pages/public/home/HomeFooter";
+import { WhatsAppButton } from "../WhatsAppButton";
 
 export function PublicLayout() {
   return (
@@ -17,6 +18,8 @@ export function PublicLayout() {
       <div className="li-home">
         <HomeFooter />
       </div>
+
+      <WhatsAppButton />
     </div>
   );
 }

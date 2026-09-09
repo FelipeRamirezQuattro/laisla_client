@@ -7,4 +7,7 @@ export const contact = {
   email: "hola@laislacafepicnic.com",
   phone: "311 863 8163",
   phoneHref: "tel:+573118638163",
+  whatsappHref:
+    "https://wa.me/573118638163?text=" +
+    encodeURIComponent("¡Hola! Quiero saber más sobre La Isla Café Picnic."),
 };
