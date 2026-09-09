@@ -25,9 +25,8 @@ export function HomeHero() {
             <span>de la ciudad</span>
           </h1>
           <p className="li-hero-desc">
-            Café de especialidad, mesas largas, patio con sombra y planes
-            para conocer gente. Una isla de tres cuadras en pleno barrio
-            Belén.
+            Café de especialidad, mesas largas, patio con sombra y planes para
+            conocer gente.
           </p>
           <div className="li-hero-actions">
             <Link to="/reservar/mesa" className="li-btn-primary">
