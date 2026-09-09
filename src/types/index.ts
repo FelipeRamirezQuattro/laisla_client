@@ -636,6 +636,14 @@ export interface ReporteInsumoCritico {
 
 export type ProjectTaskStatus = 'pending' | 'in-progress' | 'review' | 'done' | 'cancelled';
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly' | 'custom';
+
+export interface TaskRecurrence {
+  frequency: RecurrenceFrequency;
+  interval?: number;
+  daysOfWeek?: number[];
+  dayOfMonth?: number;
+}
 
 export interface Project {
   _id: string;
@@ -673,6 +681,9 @@ export interface ProjectTask {
   attachments: TaskAttachment[];
   tags: string[];
   order: number;
+  isRecurring: boolean;
+  recurrence?: TaskRecurrence;
+  nextOccurrenceAt?: string;
   createdAt: string;
   updatedAt: string;
 }

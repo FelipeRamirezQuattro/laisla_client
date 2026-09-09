@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Plus, Repeat, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { projectsApi } from '../../../api/projects';
@@ -7,12 +7,13 @@ import { usersApi } from '../../../api/users';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Modal } from '../../../components/ui/Modal';
+import { MultiSelectDropdown } from '../../../components/ui/MultiSelectDropdown';
 import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
 import { useToast } from '../../../hooks/useToast';
 import { useConfirm } from '../../../hooks/useConfirm';
 import { formatShortDate } from '../../../utils/formatDate';
-import type { Project, ProjectTask, ProjectTaskStatus, TaskPriority, User } from '../../../types';
+import type { Project, ProjectTask, ProjectTaskStatus, RecurrenceFrequency, TaskPriority, User } from '../../../types';
 
 const statusOptions = [
   { value: 'pending', label: 'Pendiente' },
@@ -47,6 +48,35 @@ const statusClass: Record<ProjectTaskStatus, string> = {
   cancelled: 'bg-error-tint text-error-ink',
 };
 
+const frequencyOptions: { value: RecurrenceFrequency; label: string }[] = [
+  { value: 'daily', label: 'Diaria' },
+  { value: 'weekly', label: 'Semanal' },
+  { value: 'monthly', label: 'Mensual' },
+  { value: 'custom', label: 'Personalizada (cada N días)' },
+];
+
+const weekDayOptions = [
+  { value: 0, label: 'Dom' },
+  { value: 1, label: 'Lun' },
+  { value: 2, label: 'Mar' },
+  { value: 3, label: 'Mié' },
+  { value: 4, label: 'Jue' },
+  { value: 5, label: 'Vie' },
+  { value: 6, label: 'Sáb' },
+];
+
+function recurrenceSummary(task: ProjectTask): string {
+  if (!task.recurrence) return 'Recurrente';
+  const { frequency, daysOfWeek, dayOfMonth, interval } = task.recurrence;
+  if (frequency === 'daily') return 'Diaria';
+  if (frequency === 'weekly') {
+    const days = (daysOfWeek || []).map((day) => weekDayOptions.find((opt) => opt.value === day)?.label).filter(Boolean);
+    return `Semanal (${days.join(', ') || '—'})`;
+  }
+  if (frequency === 'monthly') return `Mensual (día ${dayOfMonth ?? '—'})`;
+  return `Cada ${interval ?? 1} día(s)`;
+}
+
 function userId(user: User) {
   return user._id || user.id;
 }
@@ -75,6 +105,11 @@ interface TaskDraft {
   notes: string;
   tagsText: string;
   order: number;
+  isRecurring: boolean;
+  recurrenceFrequency: RecurrenceFrequency;
+  recurrenceDaysOfWeek: number[];
+  recurrenceDayOfMonth: number;
+  recurrenceInterval: number;
 }
 
 export function ProyectoDetailPage() {
@@ -146,6 +181,11 @@ export function ProyectoDetailPage() {
       notes: task.notes || '',
       tagsText: task.tags?.join(', ') || '',
       order: task.order || 0,
+      isRecurring: task.isRecurring || false,
+      recurrenceFrequency: task.recurrence?.frequency || 'daily',
+      recurrenceDaysOfWeek: task.recurrence?.daysOfWeek || [],
+      recurrenceDayOfMonth: task.recurrence?.dayOfMonth || 1,
+      recurrenceInterval: task.recurrence?.interval || 1,
     });
     setAttachment({ filename: '', url: '' });
     setModalOpen(true);
@@ -168,6 +208,13 @@ export function ProyectoDetailPage() {
         notes: draft.notes,
         tags: draft.tagsText.split(',').map((tag) => tag.trim()).filter(Boolean),
         order: Number(draft.order) || 0,
+        isRecurring: draft.isRecurring,
+        recurrence: draft.isRecurring ? {
+          frequency: draft.recurrenceFrequency,
+          ...(draft.recurrenceFrequency === 'weekly' ? { daysOfWeek: draft.recurrenceDaysOfWeek } : {}),
+          ...(draft.recurrenceFrequency === 'monthly' ? { dayOfMonth: draft.recurrenceDayOfMonth } : {}),
+          ...(draft.recurrenceFrequency === 'custom' ? { interval: draft.recurrenceInterval } : {}),
+        } : undefined,
       };
       if (editing) {
         await tasksApi.update(editing._id, payload);
@@ -232,6 +279,12 @@ export function ProyectoDetailPage() {
             {task.dueDate && (
               <span className={`badge ${isOverdue(task) ? 'bg-error-tint text-error-ink' : dueSoon(task) ? 'bg-warning-tint text-warning-ink' : 'bg-gray-100 text-island-dark/70'}`}>
                 {formatShortDate(task.dueDate)}
+              </span>
+            )}
+            {task.isRecurring && (
+              <span className="badge bg-info-tint text-info-ink inline-flex items-center gap-1">
+                <Repeat size={12} /> {recurrenceSummary(task)}
+                {task.nextOccurrenceAt && ` · próxima: ${formatShortDate(task.nextOccurrenceAt)}`}
               </span>
             )}
           </div>
@@ -327,30 +380,81 @@ export function ProyectoDetailPage() {
             <Input label="Fecha límite" type="date" value={draft.dueDate} onChange={(e) => setDraft({ ...draft, dueDate: e.target.value })} />
             <Input label="Orden" type="number" value={draft.order} onChange={(e) => setDraft({ ...draft, order: Number(e.target.value) })} />
           </div>
-          <div>
-            <label className="text-sm font-medium text-island-dark font-body block mb-2">Asignados</label>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {users.map((user) => {
-                const selected = draft.assignedTo.includes(userId(user));
-                return (
-                  <label key={userId(user)} className={`flex items-center gap-3 border rounded-lg px-3 py-2 ${selected ? 'border-island-blue bg-gray-100' : 'border-island-blue/20 bg-white'}`}>
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 accent-island-blue"
-                      checked={selected}
-                      onChange={(e) => setDraft({
-                        ...draft,
-                        assignedTo: e.target.checked
-                          ? [...draft.assignedTo, userId(user)]
-                          : draft.assignedTo.filter((id) => id !== userId(user)),
+          <MultiSelectDropdown
+            label="Asignados"
+            placeholder="Sin asignar"
+            searchPlaceholder="Buscar colaborador..."
+            options={users.map((user) => ({ value: userId(user), label: user.name }))}
+            value={draft.assignedTo}
+            onChange={(assignedTo) => setDraft({ ...draft, assignedTo })}
+          />
+
+          <div className="rounded-lg border border-island-blue/20 p-4 space-y-3">
+            <label className="flex items-center gap-3 text-sm font-medium text-island-dark font-body">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-island-blue"
+                checked={draft.isRecurring}
+                onChange={(e) => setDraft({ ...draft, isRecurring: e.target.checked })}
+              />
+              <Repeat size={15} /> Tarea recurrente
+            </label>
+            {draft.isRecurring && (
+              <div className="space-y-3 pl-7">
+                <Select
+                  label="Frecuencia"
+                  options={frequencyOptions}
+                  value={draft.recurrenceFrequency}
+                  onChange={(e) => setDraft({ ...draft, recurrenceFrequency: e.target.value as RecurrenceFrequency })}
+                />
+                {draft.recurrenceFrequency === 'weekly' && (
+                  <div>
+                    <label className="text-sm font-medium text-island-dark font-body block mb-2">Días de la semana</label>
+                    <div className="flex flex-wrap gap-2">
+                      {weekDayOptions.map((day) => {
+                        const selected = draft.recurrenceDaysOfWeek.includes(day.value);
+                        return (
+                          <button
+                            key={day.value}
+                            type="button"
+                            onClick={() => setDraft({
+                              ...draft,
+                              recurrenceDaysOfWeek: selected
+                                ? draft.recurrenceDaysOfWeek.filter((d) => d !== day.value)
+                                : [...draft.recurrenceDaysOfWeek, day.value],
+                            })}
+                            className={`px-3 py-1.5 rounded-lg text-sm border ${selected ? 'border-island-blue bg-island-blue text-white' : 'border-island-blue/20 bg-white text-island-dark'}`}
+                          >
+                            {day.label}
+                          </button>
+                        );
                       })}
-                    />
-                    <span className="text-sm text-island-dark">{user.name}</span>
-                  </label>
-                );
-              })}
-            </div>
+                    </div>
+                  </div>
+                )}
+                {draft.recurrenceFrequency === 'monthly' && (
+                  <Input
+                    label="Día del mes"
+                    type="number"
+                    min={1}
+                    max={31}
+                    value={draft.recurrenceDayOfMonth}
+                    onChange={(e) => setDraft({ ...draft, recurrenceDayOfMonth: Number(e.target.value) || 1 })}
+                  />
+                )}
+                {draft.recurrenceFrequency === 'custom' && (
+                  <Input
+                    label="Repetir cada (días)"
+                    type="number"
+                    min={1}
+                    value={draft.recurrenceInterval}
+                    onChange={(e) => setDraft({ ...draft, recurrenceInterval: Number(e.target.value) || 1 })}
+                  />
+                )}
+              </div>
+            )}
           </div>
+
           <Input label="Tags" hint="Separados por coma" value={draft.tagsText} onChange={(e) => setDraft({ ...draft, tagsText: e.target.value })} />
           <div>
             <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas</label>
@@ -399,6 +503,11 @@ function emptyDraft(): TaskDraft {
     notes: '',
     tagsText: '',
     order: 0,
+    isRecurring: false,
+    recurrenceFrequency: 'daily',
+    recurrenceDaysOfWeek: [],
+    recurrenceDayOfMonth: 1,
+    recurrenceInterval: 1,
   };
 }
 

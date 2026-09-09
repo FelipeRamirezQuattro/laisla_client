@@ -1,13 +1,14 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Bell, ClipboardList, FolderOpen, LogOut, Menu } from 'lucide-react';
+import { Bell, ChevronDown, ClipboardList, FolderOpen, KeyRound, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNotifications } from '../../hooks/useNotifications';
 import { buildBreadcrumbMap } from '../../config/adminNav';
+import { ChangePasswordModal } from './ChangePasswordModal';
 import type { Notification } from '../../types';
 
 const breadcrumbMap = buildBreadcrumbMap();
@@ -24,7 +25,20 @@ export function Topbar() {
   const { toggleSidebar } = useUiStore();
   const navigate = useNavigate();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications(10);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -132,22 +146,47 @@ export function Topbar() {
             </div>
           )}
         </div>
-        <div className="text-right hidden sm:block">
-          <p className="text-sm font-medium text-island-dark font-body">{user?.name}</p>
-          <p className="text-xs text-island-dark/70 font-body capitalize">{user?.role}</p>
+        <div className="relative" ref={userMenuRef}>
+          <button
+            type="button"
+            onClick={() => setUserMenuOpen((open) => !open)}
+            className="flex items-center gap-2 rounded-lg p-1 hover:bg-gray-100 transition-colors"
+            aria-label="Menú de usuario"
+          >
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-medium text-island-dark font-body">{user?.name}</p>
+              <p className="text-xs text-island-dark/70 font-body capitalize">{user?.role}</p>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-island-dark flex items-center justify-center text-white text-sm font-medium font-body">
+              {user?.avatarInitials || user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <ChevronDown size={16} className={`hidden sm:block text-island-dark/50 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {userMenuOpen && (
+            <div className="absolute right-0 mt-3 w-56 bg-white border border-island-blue/20 rounded-lg shadow-xl z-40 overflow-hidden">
+              <div className="px-4 py-3 border-b border-island-blue/20">
+                <p className="text-sm font-medium text-island-dark truncate">{user?.name}</p>
+                <p className="text-xs text-island-dark/70 truncate">{user?.email}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setUserMenuOpen(false); setPasswordModalOpen(true); }}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-island-dark hover:bg-gray-100 transition-colors"
+              >
+                <KeyRound size={16} /> Cambiar contraseña
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-error-ink hover:bg-error-tint transition-colors"
+              >
+                <LogOut size={16} /> Cerrar sesión
+              </button>
+            </div>
+          )}
         </div>
-        <div className="w-8 h-8 rounded-full bg-island-dark flex items-center justify-center text-white text-sm font-medium font-body">
-          {user?.name?.charAt(0).toUpperCase()}
-        </div>
-        <button
-          onClick={handleLogout}
-          className="text-island-dark/70 hover:text-error-ink transition-colors p-1.5 rounded-lg hover:bg-error-tint"
-          title="Cerrar sesión"
-          aria-label="Cerrar sesión"
-        >
-          <LogOut size={20} />
-        </button>
       </div>
+      <ChangePasswordModal isOpen={passwordModalOpen} onClose={() => setPasswordModalOpen(false)} />
     </header>
   );
 }

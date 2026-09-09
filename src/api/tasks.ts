@@ -1,5 +1,5 @@
 import api from './axios';
-import type { ProjectTask, ProjectTaskStatus, TaskPriority } from '../types';
+import type { ProjectTask, ProjectTaskStatus, TaskPriority, TaskRecurrence } from '../types';
 
 export interface TaskPayload {
   projectId?: string;
@@ -13,6 +13,8 @@ export interface TaskPayload {
   attachments?: unknown[];
   tags?: string[];
   order?: number;
+  isRecurring?: boolean;
+  recurrence?: TaskRecurrence;
 }
 
 export const tasksApi = {
