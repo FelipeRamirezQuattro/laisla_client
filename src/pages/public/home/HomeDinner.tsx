@@ -1,9 +1,20 @@
 import { Link } from "react-router-dom";
-import { Check, Heart, MessageCircle, Users, UtensilsCrossed } from "lucide-react";
+import {
+  Check,
+  Heart,
+  MessageCircle,
+  Users,
+  UtensilsCrossed,
+} from "lucide-react";
 import type { Event } from "../../../types";
 import { ProgressiveImage } from "./ProgressiveImage";
 import { useScrollReveal } from "./useScrollReveal";
-import { dinnerFeatures, eventDateTimeLabel, eventPriceLabel, homeImages } from "./helpers";
+import {
+  dinnerFeatures,
+  eventDateTimeLabel,
+  eventPriceLabel,
+  homeImages,
+} from "./helpers";
 
 type HomeDinnerProps = {
   dinnerEvent: Event | null;
@@ -29,7 +40,7 @@ export function HomeDinner({ dinnerEvent }: HomeDinnerProps) {
               </span>
               <span>
                 <strong>laislacafepicnic</strong>
-                <span>Ibagué · Barrio Belén</span>
+                <span>Ibagué</span>
               </span>
             </div>
             <div className="li-dinner-photo li-duotone">
@@ -45,7 +56,9 @@ export function HomeDinner({ dinnerEvent }: HomeDinnerProps) {
             <div className="li-dinner-card-icons" aria-hidden="true">
               <Heart size={22} strokeWidth={2} />
               <MessageCircle size={22} strokeWidth={2} />
-              <span className="li-dinner-card-stat">1.248 personas guardaron esta mesa</span>
+              <span className="li-dinner-card-stat">
+                1.248 personas guardaron esta mesa
+              </span>
             </div>
             <p className="li-dinner-caption">
               Seis desconocidos, tres tiempos y cero apellidos.{" "}
@@ -74,8 +87,8 @@ export function HomeDinner({ dinnerEvent }: HomeDinnerProps) {
           </h2>
           <p className="li-dinner-desc">
             Seis sillas, una mesa larga y ningún nombre por adelantado.
-            Contestas un cuestionario de compatibilidad, nosotros armamos
-            el grupo y tú apareces a las 7:30 pm sin saber nada más.
+            Contestas un cuestionario de compatibilidad, nosotros armamos el
+            grupo y tú apareces a las 7:30 pm sin saber nada más.
           </p>
           <ul className="li-dinner-features">
             {dinnerFeatures.map((feature) => (
@@ -88,7 +101,10 @@ export function HomeDinner({ dinnerEvent }: HomeDinnerProps) {
             ))}
           </ul>
           <div className="li-hero-actions">
-            <Link to="/reservar/cena-con-desconocidos" className="li-btn-primary">
+            <Link
+              to="/reservar/cena-con-desconocidos"
+              className="li-btn-primary"
+            >
               Contestar el cuestionario →
             </Link>
           </div>

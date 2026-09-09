@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { Link, Mail, Send, Users } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Link, Mail, Plus, Send, Users } from "lucide-react";
 import { gmailApi, type GmailStatus } from "../../api/gmail";
 import { newslettersApi } from "../../api/newsletters";
 import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { Select } from "../../components/ui/Select";
+import { Modal } from "../../components/ui/Modal";
+import { Pagination } from "../../components/ui/Pagination";
 import { PageLoader } from "../../components/ui/Spinner";
 import { useToast } from "../../hooks/useToast";
+import { useConfirm } from "../../hooks/useConfirm";
 import { formatDateTime } from "../../utils/formatDate";
 import type {
   NewsletterCampaign,
@@ -19,10 +27,28 @@ const initialForm = {
   body: "",
 };
 
+const subscriberSchema = z.object({
+  email: z.string().email("Email inválido"),
+  name: z.string().default(""),
+  status: z.enum(["active", "unsubscribed"]).default("active"),
+});
+
+type SubscriberFormData = z.infer<typeof subscriberSchema>;
+
+const statusLabel: Record<NewsletterSubscriber["status"], string> = {
+  active: "Activo",
+  unsubscribed: "Dado de baja",
+};
+
+const sourceLabel: Record<NewsletterSubscriber["source"], string> = {
+  homepage: "Página web",
+  admin: "Manual",
+};
+
 export function BoletinesPage() {
+  const [view, setView] = useState<"boletines" | "suscriptores">("boletines");
   const [summary, setSummary] = useState<NewsletterSummary | null>(null);
   const [campaigns, setCampaigns] = useState<NewsletterCampaign[]>([]);
-  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [form, setForm] = useState(initialForm);
   const [gmailStatus, setGmailStatus] = useState<GmailStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,16 +60,13 @@ export function BoletinesPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [summaryRes, campaignsRes, subscribersRes, gmailRes] =
-        await Promise.all([
-          newslettersApi.getSummary(),
-          newslettersApi.getCampaigns({ page: 1, limit: 8 }),
-          newslettersApi.getSubscribers({ page: 1, limit: 8 }),
-          gmailApi.status(),
-        ]);
+      const [summaryRes, campaignsRes, gmailRes] = await Promise.all([
+        newslettersApi.getSummary(),
+        newslettersApi.getCampaigns({ page: 1, limit: 8 }),
+        gmailApi.status(),
+      ]);
       setSummary(summaryRes.data);
       setCampaigns(campaignsRes.data.campaigns);
-      setSubscribers(subscribersRes.data.subscribers);
       setGmailStatus(gmailRes.data);
     } catch {
       toast.error("Error al cargar boletines");
@@ -153,206 +176,407 @@ export function BoletinesPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)] gap-6">
-        <section className="card space-y-4">
-          <div>
-            <h2 className="font-body text-lg font-semibold text-island-dark">
-              Nuevo boletin
-            </h2>
-            <p className="text-island-dark/70 font-body text-sm mt-1">
-              El contenido acepta saltos de linea; se renderiza dentro de la
-              plantilla de marca.
-            </p>
-          </div>
+      <div className="inline-flex rounded-lg border border-island-blue/20 bg-white p-1 shadow-sm">
+        <button
+          onClick={() => setView("boletines")}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "boletines" ? "bg-island-dark text-white" : "text-island-dark hover:bg-gray-100"}`}
+        >
+          Boletines
+        </button>
+        <button
+          onClick={() => setView("suscriptores")}
+          className={`px-3 py-1.5 rounded-md text-sm font-body transition-all ${view === "suscriptores" ? "bg-island-dark text-white" : "text-island-dark hover:bg-gray-100"}`}
+        >
+          Suscriptores
+        </button>
+      </div>
 
-          <label className="block">
-            <span className="block text-sm font-body font-medium text-island-dark mb-1">
-              Asunto
-            </span>
-            <input
-              className="w-full rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
-              value={form.subject}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, subject: event.target.value }))
-              }
-              placeholder="Cena, cata y nuevas pausas de junio"
-            />
-          </label>
-
-          <label className="block">
-            <span className="block text-sm font-body font-medium text-island-dark mb-1">
-              Preheader
-            </span>
-            <input
-              className="w-full rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
-              value={form.preheader}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, preheader: event.target.value }))
-              }
-              placeholder="Una vez al mes, sin ruido."
-            />
-          </label>
-
-          <label className="block">
-            <span className="block text-sm font-body font-medium text-island-dark mb-1">
-              Contenido
-            </span>
-            <textarea
-              className="min-h-[260px] w-full resize-y rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
-              value={form.body}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, body: event.target.value }))
-              }
-              placeholder={"Hola,\n\nEste mes en La Isla tendremos..."}
-            />
-          </label>
-
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              loading={saving && !sendingId}
-              disabled={!form.subject || !form.body || saving}
-              onClick={() => createCampaign(false)}
-            >
-              Guardar borrador
-            </Button>
-            <Button
-              type="button"
-              icon={<Send size={16} />}
-              loading={saving && Boolean(sendingId)}
-              disabled={!form.subject || !form.body || saving}
-              onClick={() => createCampaign(true)}
-            >
-              Guardar y enviar
-            </Button>
-          </div>
-        </section>
-
-        <aside className="space-y-6">
+      {view === "boletines" && (
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)] gap-6">
           <section className="card space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="font-body text-lg font-semibold text-island-dark">
-                  Cuenta remitente
-                </h2>
-                <p className="text-island-dark/70 font-body text-sm mt-1">
-                  Conecta Gmail para enviar boletines desde tu cuenta
-                  autorizada.
-                </p>
-              </div>
-              <div
-                className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${gmailStatus?.connected ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
-              >
-                {gmailStatus?.connected ? "Conectado" : "Sin conectar"}
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-island-blue/20 bg-gray-100 p-4">
-              <p className="font-body text-sm font-semibold text-island-dark">
-                {gmailStatus?.connected
-                  ? gmailStatus.gmailEmail
-                  : "No hay Gmail conectado"}
+            <div>
+              <h2 className="font-body text-lg font-semibold text-island-dark">
+                Nuevo boletin
+              </h2>
+              <p className="text-island-dark/70 font-body text-sm mt-1">
+                El contenido acepta saltos de linea; se renderiza dentro de la
+                plantilla de marca.
               </p>
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <label className="block">
+              <span className="block text-sm font-body font-medium text-island-dark mb-1">
+                Asunto
+              </span>
+              <input
+                className="w-full rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
+                value={form.subject}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, subject: event.target.value }))
+                }
+                placeholder="Cena, cata y nuevas pausas de junio"
+              />
+            </label>
+
+            <label className="block">
+              <span className="block text-sm font-body font-medium text-island-dark mb-1">
+                Preheader
+              </span>
+              <input
+                className="w-full rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
+                value={form.preheader}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, preheader: event.target.value }))
+                }
+                placeholder="Una vez al mes, sin ruido."
+              />
+            </label>
+
+            <label className="block">
+              <span className="block text-sm font-body font-medium text-island-dark mb-1">
+                Contenido
+              </span>
+              <textarea
+                className="min-h-[260px] w-full resize-y rounded-lg border border-island-blue/20 bg-white px-3 py-2 font-body text-sm text-island-dark outline-none focus:border-island-blue focus:ring-2 focus:ring-island-blue/20"
+                value={form.body}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, body: event.target.value }))
+                }
+                placeholder={"Hola,\n\nEste mes en La Isla tendremos..."}
+              />
+            </label>
+
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 type="button"
-                icon={<Link size={16} />}
-                onClick={connectGmail}
-                loading={gmailBusy}
+                variant="secondary"
+                loading={saving && !sendingId}
+                disabled={!form.subject || !form.body || saving}
+                onClick={() => createCampaign(false)}
               >
-                {gmailStatus?.connected ? "Reconectar Gmail" : "Conectar Gmail"}
+                Guardar borrador
               </Button>
-              {gmailStatus?.connected && (
+              <Button
+                type="button"
+                icon={<Send size={16} />}
+                loading={saving && Boolean(sendingId)}
+                disabled={!form.subject || !form.body || saving}
+                onClick={() => createCampaign(true)}
+              >
+                Guardar y enviar
+              </Button>
+            </div>
+          </section>
+
+          <aside className="space-y-6">
+            <section className="card space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-body text-lg font-semibold text-island-dark">
+                    Cuenta remitente
+                  </h2>
+                  <p className="text-island-dark/70 font-body text-sm mt-1">
+                    Conecta Gmail para enviar boletines desde tu cuenta
+                    autorizada.
+                  </p>
+                </div>
+                <div
+                  className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${gmailStatus?.connected ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
+                >
+                  {gmailStatus?.connected ? "Conectado" : "Sin conectar"}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-island-blue/20 bg-gray-100 p-4">
+                <p className="font-body text-sm font-semibold text-island-dark">
+                  {gmailStatus?.connected
+                    ? gmailStatus.gmailEmail
+                    : "No hay Gmail conectado"}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
                   type="button"
-                  variant="secondary"
-                  onClick={disconnectGmail}
+                  icon={<Link size={16} />}
+                  onClick={connectGmail}
                   loading={gmailBusy}
                 >
-                  Desconectar
+                  {gmailStatus?.connected ? "Reconectar Gmail" : "Conectar Gmail"}
                 </Button>
-              )}
-            </div>
-          </section>
+                {gmailStatus?.connected && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={disconnectGmail}
+                    loading={gmailBusy}
+                  >
+                    Desconectar
+                  </Button>
+                )}
+              </div>
+            </section>
 
-          <section className="card">
-            <h2 className="font-body text-lg font-semibold text-island-dark mb-4">
-              Campanas recientes
-            </h2>
-            <div className="space-y-3">
-              {campaigns.map((campaign) => (
-                <div
-                  key={campaign._id}
-                  className="rounded-lg border border-island-blue/20 bg-white p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-body text-sm font-semibold text-island-dark">
-                        {campaign.subject}
-                      </h3>
-                      <p className="mt-1 text-xs text-island-dark/70">
-                        {campaign.status === "sent"
-                          ? `Enviado ${campaign.sentAt ? formatDateTime(campaign.sentAt) : ""}`
-                          : `Borrador · ${formatDateTime(campaign.createdAt)}`}
-                      </p>
+            <section className="card">
+              <h2 className="font-body text-lg font-semibold text-island-dark mb-4">
+                Campanas recientes
+              </h2>
+              <div className="space-y-3">
+                {campaigns.map((campaign) => (
+                  <div
+                    key={campaign._id}
+                    className="rounded-lg border border-island-blue/20 bg-white p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-body text-sm font-semibold text-island-dark">
+                          {campaign.subject}
+                        </h3>
+                        <p className="mt-1 text-xs text-island-dark/70">
+                          {campaign.status === "sent"
+                            ? `Enviado ${campaign.sentAt ? formatDateTime(campaign.sentAt) : ""}`
+                            : `Borrador · ${formatDateTime(campaign.createdAt)}`}
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${campaign.status === "sent" ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
+                      >
+                        {campaign.status === "sent" ? "Enviado" : "Borrador"}
+                      </span>
                     </div>
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${campaign.status === "sent" ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
-                    >
-                      {campaign.status === "sent" ? "Enviado" : "Borrador"}
-                    </span>
+                    {campaign.status === "sent" ? (
+                      <p className="mt-3 text-xs text-island-dark/70">
+                        {campaign.sentCount} enviados · {campaign.failedCount}{" "}
+                        fallidos
+                      </p>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="mt-3"
+                        loading={sendingId === campaign._id}
+                        onClick={() => sendCampaign(campaign._id)}
+                      >
+                        Enviar ahora
+                      </Button>
+                    )}
                   </div>
-                  {campaign.status === "sent" ? (
-                    <p className="mt-3 text-xs text-island-dark/70">
-                      {campaign.sentCount} enviados · {campaign.failedCount}{" "}
-                      fallidos
-                    </p>
-                  ) : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="mt-3"
-                      loading={sendingId === campaign._id}
-                      onClick={() => sendCampaign(campaign._id)}
-                    >
-                      Enviar ahora
-                    </Button>
-                  )}
-                </div>
-              ))}
-              {campaigns.length === 0 && (
-                <p className="text-sm text-island-dark/70">Aun no hay boletines.</p>
-              )}
-            </div>
-          </section>
+                ))}
+                {campaigns.length === 0 && (
+                  <p className="text-sm text-island-dark/70">Aun no hay boletines.</p>
+                )}
+              </div>
+            </section>
+          </aside>
+        </div>
+      )}
 
-          <section className="card">
-            <h2 className="font-body text-lg font-semibold text-island-dark mb-4">
-              Ultimos suscriptores
-            </h2>
-            <div className="divide-y divide-island-blue/20">
+      {view === "suscriptores" && <SubscribersManager onChange={fetchData} />}
+    </div>
+  );
+}
+
+function SubscribersManager({ onChange }: { onChange: () => void }) {
+  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<NewsletterSubscriber | null>(null);
+  const toast = useToast();
+  const confirm = useConfirm();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<SubscriberFormData>({ resolver: zodResolver(subscriberSchema) });
+
+  const fetchSubscribers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await newslettersApi.getSubscribers({
+        page,
+        limit: 20,
+        search,
+        status: statusFilter,
+      });
+      setSubscribers(res.data.subscribers);
+      setTotal(res.data.total);
+      setTotalPages(res.data.totalPages);
+    } catch {
+      toast.error("Error al cargar suscriptores");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, search, statusFilter]);
+
+  useEffect(() => {
+    fetchSubscribers();
+  }, [fetchSubscribers]);
+
+  const openCreate = () => {
+    setEditing(null);
+    reset({ email: "", name: "", status: "active" });
+    setModalOpen(true);
+  };
+
+  const openEdit = (subscriber: NewsletterSubscriber) => {
+    setEditing(subscriber);
+    reset({
+      email: subscriber.email,
+      name: subscriber.name || "",
+      status: subscriber.status,
+    });
+    setModalOpen(true);
+  };
+
+  const onSubmit = async (data: SubscriberFormData) => {
+    try {
+      if (editing) {
+        await newslettersApi.updateSubscriber(editing._id, data);
+        toast.success("Suscriptor actualizado");
+      } else {
+        await newslettersApi.createSubscriber(data);
+        toast.success("Suscriptor creado");
+      }
+      setModalOpen(false);
+      fetchSubscribers();
+      onChange();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || "No se pudo guardar el suscriptor");
+    }
+  };
+
+  const handleDelete = async (subscriber: NewsletterSubscriber) => {
+    if (!(await confirm(`¿Eliminar al suscriptor "${subscriber.email}"?`))) return;
+    try {
+      await newslettersApi.deleteSubscriber(subscriber._id);
+      toast.success("Suscriptor eliminado");
+      fetchSubscribers();
+      onChange();
+    } catch {
+      toast.error("Error al eliminar suscriptor");
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-island-dark/70 font-body text-sm">
+          {total} suscriptor{total === 1 ? "" : "es"}
+        </p>
+        <Button onClick={openCreate} icon={<Plus size={15} />}>
+          Nuevo suscriptor
+        </Button>
+      </div>
+
+      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem]">
+        <Input
+          placeholder="Buscar por email o nombre..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+        <Select
+          options={[
+            { value: "", label: "Todos los estados" },
+            { value: "active", label: "Activos" },
+            { value: "unsubscribed", label: "Dados de baja" },
+          ]}
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+        />
+      </div>
+
+      {loading ? (
+        <PageLoader />
+      ) : (
+        <div className="card overflow-x-auto p-0">
+          <table className="w-full text-sm font-body">
+            <thead className="bg-gray-100 border-b border-island-blue/20">
+              <tr>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Email</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Nombre</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Estado</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Origen</th>
+                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Desde</th>
+                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-island-blue/20">
               {subscribers.map((subscriber) => (
-                <div key={subscriber._id} className="py-3">
-                  <p className="font-body text-sm font-medium text-island-dark">
-                    {subscriber.email}
-                  </p>
-                  <p className="text-xs text-island-dark/70">
-                    {formatDateTime(subscriber.createdAt)}
-                  </p>
-                </div>
+                <tr key={subscriber._id} className="hover:bg-gray-100 transition-colors">
+                  <td className="px-4 py-3 font-medium text-island-dark">{subscriber.email}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{subscriber.name || "—"}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-body font-semibold ${subscriber.status === "active" ? "bg-success-tint text-success" : "bg-gray-100 text-island-dark/70"}`}
+                    >
+                      {statusLabel[subscriber.status]}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-island-dark/70">{sourceLabel[subscriber.source]}</td>
+                  <td className="px-4 py-3 text-island-dark/70">{formatDateTime(subscriber.subscribedAt)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(subscriber)}>Editar</Button>
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(subscriber)}>Eliminar</Button>
+                    </div>
+                  </td>
+                </tr>
               ))}
               {subscribers.length === 0 && (
-                <p className="text-sm text-island-dark/70">
-                  No hay suscriptores todavia.
-                </p>
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-island-dark/70">
+                    No se encontraron suscriptores.
+                  </td>
+                </tr>
               )}
-            </div>
-          </section>
-        </aside>
-      </div>
+            </tbody>
+          </table>
+          <div className="p-4">
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          </div>
+        </div>
+      )}
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? "Editar suscriptor" : "Nuevo suscriptor"}
+      >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Input label="Email" type="email" error={errors.email?.message} {...register("email")} />
+          <Input label="Nombre" error={errors.name?.message} {...register("name")} />
+          <Select
+            label="Estado"
+            options={[
+              { value: "active", label: "Activo" },
+              { value: "unsubscribed", label: "Dado de baja" },
+            ]}
+            error={errors.status?.message}
+            {...register("status")}
+          />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="secondary" type="button" onClick={() => setModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              {editing ? "Actualizar" : "Crear"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
