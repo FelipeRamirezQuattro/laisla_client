@@ -953,6 +953,9 @@ export interface PrintConfig {
   openDrawerOnCash: boolean;
   headerText: string;
   footerText: string;
+  businessNit: string;
+  businessPhone: string;
+  businessSocial: string;
   createdAt: string;
   updatedAt: string;
 }

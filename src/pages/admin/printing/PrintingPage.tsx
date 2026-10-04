@@ -462,6 +462,9 @@ function ConfigTab({ hasActiveBarraPrinter }: { hasActiveBarraPrinter: boolean }
         openDrawerOnCash: config.openDrawerOnCash,
         headerText: config.headerText,
         footerText: config.footerText,
+        businessNit: config.businessNit,
+        businessPhone: config.businessPhone,
+        businessSocial: config.businessSocial,
       });
       setConfig(res.data);
       toast.success('Configuración de impresión actualizada');
@@ -514,6 +517,19 @@ function ConfigTab({ hasActiveBarraPrinter }: { hasActiveBarraPrinter: boolean }
 
       <div className="card space-y-4">
         <Input label="Encabezado del ticket" value={config.headerText} onChange={(e) => update({ headerText: e.target.value })} />
+        <div className="grid sm:grid-cols-3 gap-3">
+          <Input label="NIT" value={config.businessNit ?? ''} onChange={(e) => update({ businessNit: e.target.value })} />
+          <Input label="Teléfono" value={config.businessPhone ?? ''} onChange={(e) => update({ businessPhone: e.target.value })} />
+          <Input
+            label="Redes sociales"
+            value={config.businessSocial ?? ''}
+            onChange={(e) => update({ businessSocial: e.target.value })}
+            placeholder="@laislacafepicnic"
+          />
+        </div>
+        <p className="text-xs text-island-dark/70 font-body -mt-2">
+          Se imprimen en el encabezado de cada ticket, aunque la facturación electrónica (DIAN) esté desactivada.
+        </p>
         <div>
           <label className="text-sm font-medium text-island-dark font-body block mb-1">Pie del ticket</label>
           <textarea
