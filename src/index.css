@@ -89,3 +89,13 @@
   border-radius: 3px;
   opacity: 0.5;
 }
+
+/* Printing (e.g. BillingPage invoice) */
+@media print {
+  body {
+    background: white;
+  }
+  #invoice-print-area {
+    box-shadow: none !important;
+  }
+}
