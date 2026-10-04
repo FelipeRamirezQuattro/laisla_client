@@ -38,7 +38,7 @@ export function HomePage() {
         name: recipe.name,
         desc:
           recipe.description ||
-          `${recipe.variants.length} variante(s) disponibles en barra`,
+          `${recipe.variants.length} presentación(es) disponibles en barra`,
         price: recipePriceLabel(recipe),
       })),
     [menuRecipes],

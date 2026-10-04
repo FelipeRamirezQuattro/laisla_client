@@ -244,7 +244,7 @@ export function ProductsPage() {
                   </div>
                   <div className="rounded-lg bg-gray-100 px-3 py-2">
                     <span className="block text-xs text-island-dark/70">
-                      Variantes
+                      Presentaciones
                     </span>
                     <strong className="text-island-dark">
                       {recipe.variants.length}
@@ -340,7 +340,7 @@ export function ProductsPage() {
 
             <div className="rounded-xl bg-gray-100 p-4 space-y-3">
               <p className="text-sm font-medium text-island-dark font-body">
-                Precios por variante
+                Precios por presentación
               </p>
               <div className="grid sm:grid-cols-2 gap-3">
                 {editing.variants.map((variant, index) => {

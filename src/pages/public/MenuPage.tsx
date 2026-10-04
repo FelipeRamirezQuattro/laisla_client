@@ -115,7 +115,7 @@ export function MenuPage() {
                       <h3>{recipe.name}</h3>
                       <p>
                         {recipe.description ||
-                          `${recipe.variants.length} variante(s) disponibles`}
+                          `${recipe.variants.length} presentación(es) disponibles`}
                       </p>
                       {recipe.variants.length > 1 && (
                         <div className="variant-list">

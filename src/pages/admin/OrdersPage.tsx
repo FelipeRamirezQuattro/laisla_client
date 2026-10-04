@@ -1,22 +1,19 @@
-import { Check, Minus, Plus, ShoppingCart, X } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
 import { recipesApi } from '../../api/costs';
 import { CafeTable, Order, OrderItem, Recipe, RecipeCategoryOption, RecipeVariant } from '../../types';
-import { formatCOP, formatCOPDecimal } from '../../utils/formatCurrency';
-import { formatShortDate, todayLocal } from '../../utils/formatDate';
+import { formatCOP } from '../../utils/formatCurrency';
+import { todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
-import { OrderStatusBadge, TableStatusBadge } from '../../components/ui/Badge';
 import { PageLoader } from '../../components/ui/Spinner';
-
-const tableBorder: Record<CafeTable['status'], string> = {
-  available: 'border-l-success',
-  occupied: 'border-l-error',
-  reserved: 'border-l-warning',
-};
+import { TableSelector, TableSummary } from '../../components/orders/TableStep';
+import { RecipeStep } from '../../components/orders/RecipeStep';
+import { CartPanel, itemKey } from '../../components/orders/CartPanel';
+import { OpenOrdersTab } from '../../components/orders/OpenOrdersTab';
 
 const WALK_IN_ID = 'walk-in';
 const walkInTable: CafeTable = {
@@ -37,10 +34,6 @@ function itemTaxAmount(unitPrice: number, taxRate = 0) {
   return unitPrice - unitPrice / (1 + taxRate);
 }
 
-function itemKey(item: OrderItem) {
-  return `${item.productId}:${item.variantSize ?? ''}`;
-}
-
 function isOpenOrder(order: Order) {
   return !['delivered', 'billed', 'cancelled'].includes(order.status);
 }
@@ -51,9 +44,12 @@ export function OrdersPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<RecipeCategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'new' | 'open'>('new');
+  const [wizardStep, setWizardStep] = useState<'table' | 'recipe'>('table');
   const [selectedTableId, setSelectedTableId] = useState('');
   const [selectedDate, setSelectedDate] = useState(todayLocal());
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [recipeSearch, setRecipeSearch] = useState('');
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [editingOrderId, setEditingOrderId] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -95,7 +91,6 @@ export function OrdersPage() {
     () => categories.filter((category) => recipes.some((recipe) => recipe.category === category.value)),
     [categories, recipes]
   );
-  const visibleRecipes = recipes.filter((recipe) => recipe.category === selectedCategory);
 
   const categoryLabel = (value: string) =>
     categories.find((category) => category.value === value)?.label ?? value.replace(/_/g, ' ');
@@ -113,6 +108,11 @@ export function OrdersPage() {
   const cartTotal = cart.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   const cartTax = cart.reduce((sum, item) => sum + item.quantity * (item.taxAmount ?? 0), 0);
   const cartNet = cartTotal - cartTax;
+
+  const handleSelectTable = (tableId: string) => {
+    setSelectedTableId(tableId);
+    setWizardStep('recipe');
+  };
 
   const addRecipeVariant = (recipe: Recipe, variant: RecipeVariant) => {
     const unitPrice = finalVariantPrice(variant);
@@ -164,12 +164,17 @@ export function OrdersPage() {
     setCart([]);
     setEditingOrderId('');
     setConfirmOpen(false);
+    setWizardStep('table');
+    setRecipeSearch('');
   };
 
   const startEditOrder = (order: Order) => {
     setEditingOrderId(order._id);
     setSelectedTableId(tableIdOf(order.tableId));
     setCart(order.items.map((item) => ({ ...item })));
+    setActiveTab('new');
+    setWizardStep('recipe');
+    setRecipeSearch('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -214,7 +219,9 @@ export function OrdersPage() {
         <div>
           <h1 className="font-body text-2xl font-bold text-island-dark">Pedidos</h1>
           <p className="text-island-dark/70 font-body text-sm">
-            {editingOrderId ? `Editando pedido de ${editingOrder ? tableName(editingOrder.tableId) : 'mesa'}` : 'Selección rápida por mesa, categoría y receta.'}
+            {editingOrderId
+              ? `Editando pedido de ${editingOrder ? tableName(editingOrder.tableId) : 'mesa'}`
+              : 'Elige la mesa y luego busca o filtra las recetas para agregar.'}
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -227,227 +234,93 @@ export function OrdersPage() {
               className="mt-1 w-full bg-transparent font-body font-semibold text-island-dark outline-none"
             />
           </div>
-        <div className="card px-4 py-3 flex items-center gap-3">
-          <ShoppingCart size={18} className="text-island-blue" />
-          <div>
-            <p className="text-xs text-island-dark/70 font-body">Pedido actual</p>
-            <p className="font-body font-semibold text-island-dark">{cart.length} producto(s) · {formatCOP(cartTotal)}</p>
+          <div className="card px-4 py-3 flex items-center gap-3">
+            <ShoppingCart size={18} className="text-island-blue" />
+            <div>
+              <p className="text-xs text-island-dark/70 font-body">Pedido actual</p>
+              <p className="font-body font-semibold text-island-dark">{cart.length} producto(s) · {formatCOP(cartTotal)}</p>
+            </div>
+            <Button
+              size="sm"
+              disabled={!selectedTableId || cart.length === 0}
+              onClick={() => setConfirmOpen(true)}
+            >
+              {editingOrderId ? 'Actualizar' : 'Confirmar'}
+            </Button>
+            {editingOrderId && (
+              <Button variant="secondary" size="sm" onClick={resetOrderForm}>Cancelar edición</Button>
+            )}
           </div>
-          <Button
-            size="sm"
-            disabled={!selectedTableId || cart.length === 0}
-            onClick={() => setConfirmOpen(true)}
-          >
-            {editingOrderId ? 'Actualizar' : 'Confirmar'}
-          </Button>
-          {editingOrderId && (
-            <Button variant="secondary" size="sm" onClick={resetOrderForm}>Cancelar edición</Button>
-          )}
-        </div>
         </div>
       </div>
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-body text-lg font-semibold text-island-dark">1. Mesa</h2>
-          {selectedTable && (
-            <span className="text-sm font-body text-island-dark/70">Seleccionada: <strong className="text-island-dark">{selectedTable.name}</strong></span>
+      <div className="flex gap-1 border-b border-island-blue/20">
+        <button
+          type="button"
+          onClick={() => setActiveTab('new')}
+          className={`px-4 py-2.5 font-body text-sm font-medium border-b-2 -mb-px transition-colors ${
+            activeTab === 'new' ? 'border-island-blue text-island-blue' : 'border-transparent text-island-dark/70 hover:text-island-dark'
+          }`}
+        >
+          Nuevo pedido
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('open')}
+          className={`px-4 py-2.5 font-body text-sm font-medium border-b-2 -mb-px transition-colors ${
+            activeTab === 'open' ? 'border-island-blue text-island-blue' : 'border-transparent text-island-dark/70 hover:text-island-dark'
+          }`}
+        >
+          Pedidos abiertos{openOrders.length > 0 && (
+            <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-xs text-island-dark/70">{openOrders.length}</span>
           )}
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {tableOptions.map((table) => {
-            const isEditingCurrentTable = editingOrderId && editingOrder && table._id === tableIdOf(editingOrder.tableId);
-            const disabled = table._id !== WALK_IN_ID && (table.status === 'occupied' || !!table.currentOrderId) && !isEditingCurrentTable;
-            const selected = selectedTableId === table._id;
-            return (
-              <button
-                key={table._id}
-                type="button"
-                disabled={disabled}
-                onClick={() => setSelectedTableId(table._id)}
-                className={`bg-white border border-island-blue/20 border-l-4 ${tableBorder[table.status]} rounded-xl p-4 text-left transition-all disabled:opacity-55 disabled:cursor-not-allowed ${
-                  selected ? 'ring-2 ring-island-blue shadow-sm' : 'hover:border-island-blue/40 hover:shadow-sm'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="font-body font-semibold text-island-dark">{table.name}</span>
-                  {selected && <Check size={16} className="text-island-blue" />}
-                </div>
-                <p className="text-xs text-island-dark/70 font-body mt-1">{table._id === WALK_IN_ID ? 'Cliente sin mesa' : `${table.capacity} personas`}</p>
-                <div className="mt-3"><TableStatusBadge status={table.status} /></div>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+        </button>
+      </div>
 
-      <section className="grid xl:grid-cols-[15rem_minmax(0,1fr)_22rem] gap-4 items-start">
-        <div className="card p-3">
-          <h2 className="font-body text-lg font-semibold text-island-dark px-1 mb-3">2. Categoría</h2>
-          <div className="space-y-2">
-            {activeCategories.map((category) => {
-              const count = recipes.filter((recipe) => recipe.category === category.value).length;
-              const selected = selectedCategory === category.value;
-              return (
-                <button
-                  key={category.value}
-                  type="button"
-                  onClick={() => setSelectedCategory(category.value)}
-                  className={`w-full rounded-lg border px-3 py-3 text-left transition-all ${
-                    selected
-                      ? 'border-island-blue bg-gray-100 text-island-dark'
-                      : 'border-island-blue/20 bg-white text-island-dark/70 hover:border-island-blue/40'
-                  }`}
-                >
-                  <span className="block font-body font-semibold">{category.label}</span>
-                  <span className="text-xs font-body opacity-75">{count} receta(s)</span>
-                </button>
-              );
-            })}
+      {activeTab === 'open' ? (
+        <OpenOrdersTab openOrders={openOrders} tableName={tableName} onEdit={startEditOrder} />
+      ) : wizardStep === 'table' ? (
+        <section className="space-y-3">
+          <h2 className="font-body text-lg font-semibold text-island-dark">1. Mesa</h2>
+          <TableSelector
+            tableOptions={tableOptions}
+            selectedTableId={selectedTableId}
+            editingOrder={editingOrder}
+            walkInId={WALK_IN_ID}
+            tableIdOf={tableIdOf}
+            onSelect={handleSelectTable}
+          />
+        </section>
+      ) : (
+        <section className="grid xl:grid-cols-[minmax(0,1fr)_22rem] gap-4 items-start">
+          <div className="space-y-4">
+            <TableSummary table={selectedTable} onChange={() => setWizardStep('table')} />
+            <RecipeStep
+              recipes={recipes}
+              activeCategories={activeCategories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              search={recipeSearch}
+              onSearchChange={setRecipeSearch}
+              categoryLabel={categoryLabel}
+              onAddVariant={addRecipeVariant}
+            />
           </div>
-        </div>
-
-        <div className="card p-4">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div>
-              <h2 className="font-body text-lg font-semibold text-island-dark">3. Recetas</h2>
-              <p className="text-xs text-island-dark/70 font-body">{categoryLabel(selectedCategory)}</p>
-            </div>
-            <span className="text-xs text-island-dark/70 font-body">Click para agregar</span>
-          </div>
-
-          <div className="grid sm:grid-cols-2 2xl:grid-cols-3 gap-3">
-            {visibleRecipes.map((recipe) => (
-              <div key={recipe._id} className="border border-island-blue/20 rounded-xl bg-white p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-body font-semibold text-island-dark">{recipe.name}</h3>
-                    <p className="text-xs text-island-dark/70 font-body">{recipe.variants.length} variante(s)</p>
-                  </div>
-                  <span className="text-xs rounded-full bg-gray-100 px-2 py-1 text-island-dark font-body">
-                    {categoryLabel(recipe.category)}
-                  </span>
-                </div>
-                <div className="mt-4 grid gap-2">
-                  {recipe.variants.map((variant) => (
-                    <button
-                      key={variant.size}
-                      type="button"
-                      onClick={() => addRecipeVariant(recipe, variant)}
-                      className="flex items-center justify-between rounded-lg border border-island-blue/20 bg-white px-3 py-2 text-left hover:border-island-dark hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-body font-medium text-island-dark">{variant.size}</span>
-                      <span className="font-body text-sm text-island-dark">{formatCOP(finalVariantPrice(variant))}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-            {visibleRecipes.length === 0 && (
-              <div className="border border-dashed border-island-blue/20 rounded-xl p-6 text-center text-island-dark/70 font-body sm:col-span-2">
-                No hay recetas activas en esta categoría.
-              </div>
-            )}
-          </div>
-        </div>
-
-        <aside className="card p-4 sticky top-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-body text-lg font-semibold text-island-dark">Pedido</h2>
-            {cart.length > 0 && (
-              <button type="button" className="text-xs text-error-ink font-body" onClick={() => setCart([])}>
-                Limpiar
-              </button>
-            )}
-          </div>
-          <div className="space-y-2">
-            {!selectedTable && <p className="text-sm text-island-dark/70 font-body">Selecciona una mesa para empezar.</p>}
-            {cart.map((item) => {
-              const key = itemKey(item);
-              return (
-              <div key={key} className="rounded-lg bg-gray-100 px-3 py-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-body font-medium text-island-dark">{item.productName}</p>
-                    <p className="text-xs text-island-dark/70 font-body">{formatCOP(item.unitPrice)} c/u</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(key)}
-                    className="text-error-ink hover:text-error"
-                    aria-label="Eliminar producto"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <button type="button" onClick={() => changeQty(key, -1)} className="h-7 w-7 rounded-md bg-white text-island-dark/70 inline-flex items-center justify-center">
-                      <Minus size={14} />
-                    </button>
-                    <span className="w-7 text-center text-sm font-body text-island-dark">{item.quantity}</span>
-                    <button type="button" onClick={() => changeQty(key, 1)} className="h-7 w-7 rounded-md bg-white text-island-dark/70 inline-flex items-center justify-center">
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                  <span className="font-body font-semibold text-island-dark">{formatCOP(item.quantity * item.unitPrice)}</span>
-                </div>
-              </div>
-              );
-            })}
-          </div>
-          <div className="border-t border-island-blue/20 mt-4 pt-3 space-y-1 text-sm font-body">
-            <div className="flex justify-between text-island-dark/70"><span>Base aprox.</span><span>{formatCOPDecimal(cartNet)}</span></div>
-            <div className="flex justify-between text-island-dark/70"><span>Impuesto incluido</span><span>{formatCOPDecimal(cartTax)}</span></div>
-            <div className="flex justify-between font-semibold text-island-dark text-base"><span>Total</span><span>{formatCOP(cartTotal)}</span></div>
-          </div>
-          <Button className="w-full mt-4" disabled={!selectedTableId || cart.length === 0} onClick={() => setConfirmOpen(true)}>
-            {editingOrderId ? 'Actualizar pedido' : 'Confirmar pedido'}
-          </Button>
-        </aside>
-      </section>
-
-      <section className="card p-0 overflow-hidden">
-        <div className="px-4 py-3 bg-gray-100 border-b border-island-blue/20 flex items-center justify-between">
-          <div>
-            <h2 className="font-body text-lg font-semibold text-island-dark">Pedidos abiertos</h2>
-            <p className="text-xs text-island-dark/70 font-body">Edita pedidos vigentes si el cliente agrega productos o cambia de mesa.</p>
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm font-body">
-            <thead className="border-b border-island-blue/20">
-              <tr>
-                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Mesa</th>
-                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Items</th>
-                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Total</th>
-                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Estado</th>
-                <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Fecha</th>
-                <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-island-blue/20">
-              {openOrders.map((order) => (
-                <tr key={order._id} className="hover:bg-gray-100 transition-colors">
-                  <td className="px-4 py-3 font-medium text-island-dark">{tableName(order.tableId)}</td>
-                  <td className="px-4 py-3 text-island-dark/70">{order.items.length} ítem(s)</td>
-                  <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(order.total)}</td>
-                  <td className="px-4 py-3 text-center"><OrderStatusBadge status={order.status} /></td>
-                  <td className="px-4 py-3 text-island-dark/70">{formatShortDate(order.createdAt)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Button variant="secondary" size="sm" onClick={() => startEditOrder(order)}>
-                      Editar
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {openOrders.length === 0 && (
-                <tr><td colSpan={6} className="text-center py-8 text-island-dark/70">No hay pedidos abiertos.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+          <CartPanel
+            cart={cart}
+            cartTotal={cartTotal}
+            cartTax={cartTax}
+            cartNet={cartNet}
+            hasTable={!!selectedTable}
+            editingOrderId={editingOrderId}
+            onClear={() => setCart([])}
+            onChangeQty={changeQty}
+            onRemoveItem={removeItem}
+            onConfirm={() => setConfirmOpen(true)}
+            disabled={!selectedTableId || cart.length === 0}
+          />
+        </section>
+      )}
 
       <Modal isOpen={confirmOpen} onClose={() => setConfirmOpen(false)} title={editingOrderId ? 'Actualizar pedido' : 'Confirmar pedido'} size="lg">
         <div className="space-y-4">

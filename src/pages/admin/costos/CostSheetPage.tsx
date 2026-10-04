@@ -83,7 +83,7 @@ export function CostSheetPage() {
         {recipe.variants.map((v) => (
           <div key={v.size} className="px-8 py-6 border-b border-island-blue/20 last:border-0">
             <h2 className="font-body text-lg font-semibold text-island-dark mb-4">
-              Variante {v.size}
+              Presentación {v.size}
               {v.salePrice > 0 && (
                 <span className="ml-3 text-sm font-body text-island-dark/70 font-normal">
                   {v.taxIncluded ?? true ? 'Precio final' : 'Precio base'}: {formatCOP(v.salePrice)}

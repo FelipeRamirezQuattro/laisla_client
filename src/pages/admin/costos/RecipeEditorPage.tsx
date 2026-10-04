@@ -580,7 +580,7 @@ export function RecipeEditorPage() {
                 <button
                   onClick={addVariant}
                   className="px-3 py-2 text-sm font-body text-island-blue hover:opacity-80"
-                >+ Variante</button>
+                >+ Presentación</button>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -675,7 +675,7 @@ export function RecipeEditorPage() {
               {variants.length > 1 && (
                 <div className="flex justify-end">
                   <Button variant="danger" size="sm" onClick={() => removeVariant(activeTab)}>
-                    Eliminar variante {v.size}
+                    Eliminar presentación {v.size}
                   </Button>
                 </div>
               )}
@@ -697,7 +697,7 @@ export function RecipeEditorPage() {
                     <Row
                       label="Materiales directos"
                       value={formatCOPDecimal(preview.directMaterialCost)}
-                      tooltip="Ingredientes, sub-recetas y pack desechable seleccionado para esta variante."
+                      tooltip="Ingredientes, sub-recetas y pack desechable seleccionado para esta presentación."
                     />
                     {isFoodCostMethod ? (
                       <Row
@@ -770,7 +770,7 @@ export function RecipeEditorPage() {
                         <Row
                           label={`${v.taxType === 'CONSUMO_8' ? 'Impoconsumo' : 'IVA'} (${(v.taxRate * 100).toFixed(0)}%)`}
                           value={formatCOPDecimal(preview.taxAmount)}
-                          tooltip="Parte del precio que corresponde al impuesto configurado para esta variante."
+                          tooltip="Parte del precio que corresponde al impuesto configurado para esta presentación."
                         />
                         <Row
                           label="Precio final al cliente"
@@ -811,7 +811,7 @@ export function RecipeEditorPage() {
 	                      tooltip={
                           isFoodCostMethod
                             ? 'Calcula el precio necesario para alcanzar el food cost objetivo configurado.'
-                            : 'Calcula el precio necesario para alcanzar el margen objetivo configurado en esta variante.'
+                            : 'Calcula el precio necesario para alcanzar el margen objetivo configurado en esta presentación.'
                         }
 	                    >
 	                      <Row
@@ -842,7 +842,7 @@ export function RecipeEditorPage() {
                         <Row
                           label="Precio sugerido final"
                           value={formatCOPDecimal(suggestedFinalPrice)}
-                          tooltip="Precio al cliente para alcanzar el margen objetivo. No se suma impuesto porque la variante está configurada sin impuesto."
+                          tooltip="Precio al cliente para alcanzar el margen objetivo. No se suma impuesto porque la presentación está configurada sin impuesto."
                           bold
                         />
                       )}
@@ -1178,7 +1178,7 @@ export function RecipeEditorPage() {
                     </label>
                   </div>
                   <div className="space-y-3">
-                    <p className="text-sm font-medium text-island-dark font-body">Variantes</p>
+                    <p className="text-sm font-medium text-island-dark font-body">Presentaciones</p>
                     {recipeForm.variants.map((variant, idx) => (
                       <div key={`${variant.size}-${idx}`} className="rounded-xl border border-island-blue/20 p-4">
                         <div className="grid grid-cols-2 gap-3">

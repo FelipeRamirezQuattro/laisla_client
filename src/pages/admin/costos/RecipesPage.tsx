@@ -178,7 +178,7 @@ export function RecipesPage() {
 
       <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
         <Input
-          placeholder="Buscar por nombre, categoría, variante o estado..."
+          placeholder="Buscar por nombre, categoría, presentación o estado..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -196,7 +196,7 @@ export function RecipesPage() {
               <tr>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Nombre</th>
                 <th className="text-left px-4 py-3 text-island-dark/70 font-medium">Categoría</th>
-                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Variantes</th>
+                <th className="text-center px-4 py-3 text-island-dark/70 font-medium">Presentaciones</th>
                 <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Precio venta</th>
                 <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Costo prom.</th>
                 <th className="text-right px-4 py-3 text-island-dark/70 font-medium">Utilidad prom.</th>
