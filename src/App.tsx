@@ -16,10 +16,13 @@ import { ActiveOrdersPage } from './pages/admin/ActiveOrdersPage';
 import { BillingPage } from './pages/admin/BillingPage';
 import { ClientsPage } from './pages/admin/ClientsPage';
 import { ProvidersPage } from './pages/admin/ProvidersPage';
+import { PrintingPage } from './pages/admin/printing/PrintingPage';
 import { EventsPage } from './pages/admin/EventsPage';
 import { ReservationsPage } from './pages/admin/ReservationsPage';
 import { ExpensesPage } from './pages/admin/ExpensesPage';
-import { CashFlowPage } from './pages/admin/CashFlowPage';
+import { ShiftDashboardPage } from './pages/admin/caja/ShiftDashboardPage';
+import { ShiftHistoryPage } from './pages/admin/caja/ShiftHistoryPage';
+import { ShiftPrintView } from './pages/admin/caja/ShiftPrintView';
 import { ReportsPage } from './pages/admin/ReportsPage';
 import { UsuariosPage } from './pages/admin/UsuariosPage';
 import { NotificacionesPage } from './pages/admin/NotificacionesPage';
@@ -43,6 +46,10 @@ import { DisposablePacksPage } from './pages/admin/costos/DisposablePacksPage';
 import { ProjectionsPage } from './pages/admin/costos/ProjectionsPage';
 import { ActualResultsPage } from './pages/admin/costos/ActualResultsPage';
 import { InventoryPage } from './pages/admin/costos/InventoryPage';
+
+// Fiscal module pages
+import { DocumentosFiscalesPage } from './pages/admin/fiscal/DocumentosFiscalesPage';
+import { ConfiguracionFiscalPage } from './pages/admin/fiscal/ConfiguracionFiscalPage';
 
 // Public pages
 import { HomePage } from './pages/public/HomePage';
@@ -77,12 +84,16 @@ function AppRoutes() {
             <Route path="/admin/orders" element={<OrdersPage />} />
             <Route path="/admin/orders/active" element={<ActiveOrdersPage />} />
             <Route path="/admin/billing" element={<BillingPage />} />
+            <Route path="/admin/printing" element={<RoleGuard roles={['admin', 'superadmin']}><PrintingPage /></RoleGuard>} />
             <Route path="/admin/clients" element={<ClientsPage />} />
             <Route path="/admin/providers" element={<ProvidersPage />} />
             <Route path="/admin/events" element={<EventsPage />} />
             <Route path="/admin/reservations" element={<ReservationsPage />} />
             <Route path="/admin/expenses" element={<ExpensesPage />} />
-            <Route path="/admin/cashflow" element={<CashFlowPage />} />
+            <Route path="/admin/caja" element={<ShiftDashboardPage />} />
+            <Route path="/admin/caja/historial" element={<ShiftHistoryPage />} />
+            <Route path="/admin/caja/shifts/:id/print" element={<ShiftPrintView />} />
+            <Route path="/admin/cashflow" element={<Navigate to="/admin/caja" replace />} />
             <Route path="/admin/reports" element={<ReportsPage />} />
             <Route path="/admin/mis-tareas" element={<MisTareasPage />} />
             <Route path="/admin/notificaciones" element={<NotificacionesPage />} />
@@ -104,6 +115,8 @@ function AppRoutes() {
             <Route path="/admin/costos/inventario/catalogo" element={<RoleGuard roles={['admin', 'superadmin']}><CatalogoInsumosPage /></RoleGuard>} />
             <Route path="/admin/costos/inventario/stock" element={<RoleGuard roles={['admin', 'superadmin']}><InventoryPage /></RoleGuard>} />
             <Route path="/admin/costos/inventario/reportes" element={<RoleGuard roles={['admin', 'superadmin']}><ReportesInventarioPage /></RoleGuard>} />
+            <Route path="/admin/fiscal/documentos" element={<RoleGuard roles={['superadmin']}><DocumentosFiscalesPage /></RoleGuard>} />
+            <Route path="/admin/fiscal/configuracion" element={<RoleGuard roles={['superadmin']}><ConfiguracionFiscalPage /></RoleGuard>} />
 
             {/* Legacy redirects — kept temporarily so old bookmarks/links keep working */}
             <Route path="/admin/inventario/control" element={<Navigate to="/admin/costos/inventario/control" replace />} />

@@ -11,6 +11,7 @@ import { formatDate, formatTime } from '../../utils/formatDate';
 import { Input } from '../../components/ui/Input';
 import { PageLoader } from '../../components/ui/Spinner';
 import { useToast } from '../../hooks/useToast';
+import { EventImage } from './EventImage';
 import './eventsPublic.css';
 
 const schema = z.object({
@@ -105,11 +106,18 @@ export function EventDetailPage() {
         {/* Event Info */}
         <div className="space-y-5">
           <div className="ev-detail-media">
-            {event.imageUrl ? (
-              <img src={event.imageUrl} alt={event.title} />
-            ) : (
-              <PartyPopper size={56} strokeWidth={1.5} className="text-white opacity-70" />
-            )}
+            <EventImage
+              src={event.imageUrl}
+              alt={event.title}
+              fallback={(
+                <PartyPopper
+                  size={56}
+                  strokeWidth={1.5}
+                  className="text-white opacity-70"
+                  aria-label="Imagen no disponible"
+                />
+              )}
+            />
           </div>
           <div>
             <p className="ev-kicker">{formatDate(event.date)} · {formatTime(event.time)}</p>

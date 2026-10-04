@@ -1,8 +1,9 @@
-import { Eye, ReceiptText, Trash2 } from 'lucide-react';
+import { AlertTriangle, Eye, Printer as PrinterIcon, ReceiptText, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
-import { CafeTable, Order, OrderItem, PaymentMethod } from '../../types';
+import { useShiftStore } from '../../store/shiftStore';
+import { CafeTable, Client, FiscalOrderTicket, Order, OrderItem, PaymentMethod, PrintJob } from '../../types';
 import { formatCOP, formatCOPDecimal } from '../../utils/formatCurrency';
 import { formatShortDate, todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
@@ -10,13 +11,17 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
-import { OrderStatusBadge } from '../../components/ui/Badge';
+import { FiscalDocumentStatusBadge, OrderStatusBadge, PrintJobStatusBadge } from '../../components/ui/Badge';
 import { PageLoader } from '../../components/ui/Spinner';
 import { CancelOrderModal, OrderDetailDrawer } from '../../components/orders/OrderWorkflow';
+import { FiscalCustomerSelect } from '../../components/fiscal/FiscalCustomerSelect';
+import { fiscalApi } from '../../api/fiscal';
+import { printJobsApi } from '../../api/printing';
 
 const paymentOptions: { value: PaymentMethod; label: string }[] = [
   { value: 'cash', label: 'Efectivo' },
   { value: 'card', label: 'Tarjeta' },
+  { value: 'nequi', label: 'Nequi / Daviplata' },
   { value: 'transfer', label: 'Transferencia' },
 ];
 
@@ -60,13 +65,19 @@ export function BillingPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [closeOrder, setCloseOrder] = useState<Order | null>(null);
+  const [closeClientId, setCloseClientId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [amountReceived, setAmountReceived] = useState('');
   const [statusFilter, setStatusFilter] = useState('delivered');
   const [dateFrom, setDateFrom] = useState(todayInput());
   const [dateTo, setDateTo] = useState(todayInput());
+  const [fiscalTickets, setFiscalTickets] = useState<Record<string, FiscalOrderTicket>>({});
+  const [printJobs, setPrintJobs] = useState<Record<string, PrintJob>>({});
+  const [reprintingId, setReprintingId] = useState<string | null>(null);
   const toast = useToast();
+  const { openShift } = useShiftStore();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -91,6 +102,56 @@ export function BillingPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  useEffect(() => {
+    const billedIds = orders.filter((order) => order.status === 'billed').map((order) => order._id);
+    if (billedIds.length === 0) { setFiscalTickets({}); return; }
+    Promise.all(
+      billedIds.map((id) =>
+        fiscalApi
+          .getOrderTicket(id)
+          .then((res) => [id, res.data] as const)
+          .catch(() => null)
+      )
+    ).then((results) => {
+      const map: Record<string, FiscalOrderTicket> = {};
+      for (const result of results) if (result) map[result[0]] = result[1];
+      setFiscalTickets(map);
+    });
+  }, [orders]);
+
+  const refreshPrintJob = useCallback(async (orderId: string) => {
+    try {
+      const res = await printJobsApi.getAll({ orderId, type: 'RECEIPT', limit: 1 });
+      setPrintJobs((prev) => {
+        const next = { ...prev };
+        if (res.data.jobs[0]) next[orderId] = res.data.jobs[0];
+        else delete next[orderId];
+        return next;
+      });
+    } catch {
+      // Best-effort — the print status badge just stays hidden for this order.
+    }
+  }, []);
+
+  useEffect(() => {
+    const billedIds = orders.filter((order) => order.status === 'billed').map((order) => order._id);
+    if (billedIds.length === 0) { setPrintJobs({}); return; }
+    billedIds.forEach(refreshPrintJob);
+  }, [orders, refreshPrintJob]);
+
+  const handleReprint = async (order: Order) => {
+    setReprintingId(order._id);
+    try {
+      await printJobsApi.reprintOrder(order._id);
+      toast.success('Reimpresión del ticket enviada');
+      await refreshPrintJob(order._id);
+    } catch {
+      toast.error('Error al reimprimir el ticket');
+    } finally {
+      setReprintingId(null);
+    }
+  };
+
   const tableName = (id?: string | CafeTable | null) =>
     !id ? 'Sin mesa / Mostrador' : typeof id === 'object' ? id.name : tables.find((table) => table._id === id)?.name || id;
 
@@ -100,9 +161,11 @@ export function BillingPage() {
   const handleCloseOrder = async () => {
     if (!closeOrder) return;
     try {
-      await ordersApi.close(closeOrder._id, paymentMethod);
+      const parsedAmount = amountReceived.trim() ? Number(amountReceived) : undefined;
+      await ordersApi.close(closeOrder._id, paymentMethod, closeClientId ?? undefined, parsedAmount);
       toast.success('Pedido facturado');
       setCloseOrder(null);
+      setAmountReceived('');
       fetchData();
     } catch {
       toast.error('Error al facturar pedido');
@@ -200,7 +263,17 @@ export function BillingPage() {
                   <td className="px-4 py-3 text-right text-island-dark/70">{formatCOPDecimal(invoiceNet(order))}</td>
                   <td className="px-4 py-3 text-right text-island-dark/70">{formatCOPDecimal(invoiceTax(order))}</td>
                   <td className="px-4 py-3 text-right font-semibold text-island-dark">{formatCOP(order.total)}</td>
-                  <td className="px-4 py-3 text-center"><OrderStatusBadge status={order.status} /></td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex flex-col items-center gap-1">
+                      <OrderStatusBadge status={order.status} />
+                      {order.status === 'billed' && fiscalTickets[order._id]?.applicable && (
+                        <FiscalDocumentStatusBadge status={fiscalTickets[order._id].status ?? 'PENDING'} />
+                      )}
+                      {order.status === 'billed' && printJobs[order._id] && (
+                        <PrintJobStatusBadge status={printJobs[order._id].status} />
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-island-dark/70">{formatShortDate(order.createdAt)}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
@@ -209,7 +282,27 @@ export function BillingPage() {
                         <Eye size={14} />
                       </Button>
                       {order.status === 'delivered' && (
-                        <Button variant="secondary" size="sm" onClick={() => setCloseOrder(order)}>Facturar</Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            setCloseOrder(order);
+                            setAmountReceived('');
+                            setCloseClientId(typeof order.clientId === 'object' ? order.clientId?._id ?? null : order.clientId ?? null);
+                          }}
+                        >
+                          Facturar
+                        </Button>
+                      )}
+                      {order.status === 'billed' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          loading={reprintingId === order._id}
+                          onClick={() => handleReprint(order)}
+                        >
+                          <PrinterIcon size={14} /> Reimprimir
+                        </Button>
                       )}
                       {!['billed', 'cancelled'].includes(order.status) && (
                         <Button variant="danger" size="sm" onClick={() => setCancelTarget(order)}>
@@ -287,11 +380,32 @@ export function BillingPage() {
             <p className="text-sm text-island-dark/70 font-body">
               Selecciona el método de pago para cerrar el pedido de {tableName(closeOrder.tableId)}.
             </p>
+            {!openShift && (
+              <div className="rounded-lg border border-warning bg-warning-tint p-3 flex items-start gap-2 text-sm text-warning-ink font-body">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                No hay un turno de caja abierto. El pedido se facturará igual, pero quedará marcado "sin turno" en el arqueo.
+              </div>
+            )}
             <Select
               label="Método de pago"
               options={paymentOptions}
               value={paymentMethod}
               onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}
+            />
+            {paymentMethod === 'cash' && (
+              <Input
+                label="Monto recibido (opcional)"
+                type="number"
+                min={0}
+                placeholder={String(closeOrder.total)}
+                value={amountReceived}
+                onChange={(event) => setAmountReceived(event.target.value)}
+                hint="Si lo indicas, el ticket impreso mostrará el cambio."
+              />
+            )}
+            <FiscalCustomerSelect
+              onChange={setCloseClientId}
+              initialClient={typeof closeOrder.clientId === 'object' ? (closeOrder.clientId as Client) : null}
             />
             <div className="flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setCloseOrder(null)}>Cancelar</Button>

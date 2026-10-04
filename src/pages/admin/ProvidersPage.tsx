@@ -102,7 +102,7 @@ export function ProvidersPage() {
 
       <div className="card">
         <Input
-          placeholder="Buscar por nombre..."
+          placeholder="Buscar por nombre, contacto, categoría, email o teléfono..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
         />

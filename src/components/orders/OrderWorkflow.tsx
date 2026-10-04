@@ -37,14 +37,18 @@ function lastStatusAt(order: Order) {
   return last?.at ?? order.billedAt ?? order.deliveredAt ?? order.cancelledAt ?? order.createdAt;
 }
 
-export function elapsedInCurrentStatus(order: Order, now: number) {
+export function elapsedMsInCurrentStatus(order: Order, now: number): number {
   const terminalAt = order.status === 'billed'
     ? order.billedAt ?? order.closedAt
     : order.status === 'cancelled'
       ? order.cancelledAt ?? order.closedAt
       : null;
   const end = terminalAt ? new Date(terminalAt).getTime() : now;
-  return formatDuration(end - new Date(lastStatusAt(order)).getTime());
+  return end - new Date(lastStatusAt(order)).getTime();
+}
+
+export function elapsedInCurrentStatus(order: Order, now: number) {
+  return formatDuration(elapsedMsInCurrentStatus(order, now));
 }
 
 export function deliveryMinutes(order: Order) {

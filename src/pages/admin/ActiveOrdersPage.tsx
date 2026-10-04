@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Check, Eye, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, CalendarDays, Check, Eye, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ordersApi } from '../../api/orders';
-import { Order } from '../../types';
+import { Order, OrderStatus } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatShortDate, todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
@@ -13,9 +13,21 @@ import { PageLoader } from '../../components/ui/Spinner';
 import {
   CancelOrderModal,
   elapsedInCurrentStatus,
+  elapsedMsInCurrentStatus,
   OrderDetailDrawer,
   useNow,
 } from '../../components/orders/OrderWorkflow';
+
+const AUTO_REFRESH_MS = 12_000;
+const ELAPSED_ALERT_MS = 10 * 60 * 1000; // 10 minutes in the same status turns the row red
+const SOUND_STORAGE_KEY = 'la_isla_bar_sound_enabled';
+
+const STATUS_FILTERS: { value: 'all' | OrderStatus; label: string }[] = [
+  { value: 'all', label: 'Todos' },
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'in-progress', label: 'En proceso' },
+  { value: 'ready', label: 'Listo' },
+];
 
 function isWaiting(order: Order) {
   return !['delivered', 'billed', 'cancelled'].includes(order.status);
@@ -25,35 +37,113 @@ function todayInput() {
   return todayLocal();
 }
 
+// pending -> in-progress -> ready; "ready" advances via the dedicated
+// "Entregado" button (ordersApi.deliver), not this generic transition.
+function nextOrderStatus(status: OrderStatus): OrderStatus | null {
+  if (status === 'pending') return 'in-progress';
+  if (status === 'in-progress') return 'ready';
+  return null;
+}
+
+function advanceStatusLabel(status: OrderStatus): string {
+  if (status === 'pending') return 'Iniciar';
+  if (status === 'in-progress') return 'Marcar listo';
+  return '';
+}
+
+function loadSoundPreference(): boolean {
+  try {
+    return localStorage.getItem(SOUND_STORAGE_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
+
+function saveSoundPreference(enabled: boolean) {
+  try {
+    localStorage.setItem(SOUND_STORAGE_KEY, enabled ? 'on' : 'off');
+  } catch {
+    // Private browsing / blocked storage — the toggle just won't persist.
+  }
+}
+
+// A short beep for new pending orders — generated with the Web Audio API so
+// no audio asset needs to ship with the app. Some browsers block audio
+// before any user gesture on the page; that failure is silently ignored.
+function playNewOrderBeep() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 880;
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.4);
+    oscillator.onended = () => ctx.close();
+  } catch {
+    // Audio blocked or unsupported — the visual list is still up to date.
+  }
+}
+
 export function ActiveOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(todayInput());
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all');
+  const [soundEnabled, setSoundEnabled] = useState(loadSoundPreference);
   const [selected, setSelected] = useState<Order | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
   const [stats, setStats] = useState<{ avgDeliveryMinutes: number; avgStayMinutes: number; points: Array<{ deliveryMinutes: number | null; stayMinutes: number | null; createdAt: string }> } | null>(null);
   const now = useNow();
   const toast = useToast();
+  const knownPendingIdsRef = useRef<Set<string> | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
     try {
       const [ordersRes, statsRes] = await Promise.all([
         ordersApi.getAll({ status: 'open', page: 1, limit: 100, dateFrom: selectedDate, dateTo: selectedDate }),
         ordersApi.getTimingStats({ dateFrom: selectedDate, dateTo: selectedDate }),
       ]);
-      setOrders(ordersRes.data.orders.filter(isWaiting));
+      const waiting = ordersRes.data.orders.filter(isWaiting);
+
+      const pendingIds = new Set(waiting.filter((o) => o.status === 'pending').map((o) => o._id));
+      if (knownPendingIdsRef.current) {
+        const hasNewPending = [...pendingIds].some((id) => !knownPendingIdsRef.current!.has(id));
+        if (hasNewPending && soundEnabled) playNewOrderBeep();
+      }
+      knownPendingIdsRef.current = pendingIds;
+
+      setOrders(waiting);
       setStats(statsRes.data);
     } catch {
       toast.error('Error al cargar pedidos activos');
     } finally {
       setLoading(false);
     }
-  }, [selectedDate]);
+  }, [selectedDate, soundEnabled]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { setLoading(true); fetchData(); }, [selectedDate]);
+
+  useEffect(() => {
+    const id = window.setInterval(fetchData, AUTO_REFRESH_MS);
+    return () => window.clearInterval(id);
+  }, [fetchData]);
+
+  const toggleSound = () => {
+    setSoundEnabled((prev) => {
+      const next = !prev;
+      saveSoundPreference(next);
+      return next;
+    });
+  };
 
   const markDelivered = async (order: Order) => {
     setActionLoading((prev) => ({ ...prev, [order._id]: true }));
@@ -63,6 +153,20 @@ export function ActiveOrdersPage() {
       fetchData();
     } catch {
       toast.error('Error al entregar pedido');
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [order._id]: false }));
+    }
+  };
+
+  const advanceStatus = async (order: Order) => {
+    const next = nextOrderStatus(order.status);
+    if (!next) return;
+    setActionLoading((prev) => ({ ...prev, [order._id]: true }));
+    try {
+      await ordersApi.update(order._id, { status: next });
+      fetchData();
+    } catch {
+      toast.error('Error al actualizar el estado del pedido');
     } finally {
       setActionLoading((prev) => ({ ...prev, [order._id]: false }));
     }
@@ -97,24 +201,28 @@ export function ActiveOrdersPage() {
 
   const normalizedSearch = search.trim().toLowerCase();
   const filteredOrders = useMemo(
-    () => orders.filter((order) => {
-      if (!normalizedSearch) return true;
-      const tableLabel = !order.tableId
-        ? 'Sin mesa / Mostrador'
-        : typeof order.tableId === 'object'
-          ? order.tableId.name
-          : order.tableId;
-      const itemsLabel = order.items.map((item) => item.productName).join(' ');
-      return [
-        tableLabel,
-        order.status,
-        order._id,
-        itemsLabel,
-        formatCOP(order.total),
-        String(order.total),
-      ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
-    }),
-    [orders, normalizedSearch]
+    () => orders
+      .filter((order) => statusFilter === 'all' || order.status === statusFilter)
+      .filter((order) => {
+        if (!normalizedSearch) return true;
+        const tableLabel = !order.tableId
+          ? 'Sin mesa / Mostrador'
+          : typeof order.tableId === 'object'
+            ? order.tableId.name
+            : order.tableId;
+        const itemsLabel = order.items.map((item) => item.productName).join(' ');
+        return [
+          tableLabel,
+          order.status,
+          order._id,
+          itemsLabel,
+          formatCOP(order.total),
+          String(order.total),
+        ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+      })
+      // Chronological: staff attends orders in the order they arrived.
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
+    [orders, statusFilter, normalizedSearch]
   );
 
   if (loading) return <PageLoader />;
@@ -124,7 +232,7 @@ export function ActiveOrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
           <h1 className="font-body text-2xl font-bold text-island-dark">Pedidos activos</h1>
-          <p className="text-island-dark/70 font-body text-sm">Pedidos creados que todavía no han sido entregados para la fecha seleccionada.</p>
+          <p className="text-island-dark/70 font-body text-sm">Pantalla de barra: pedidos creados que todavía no han sido entregados. Se actualiza sola cada {AUTO_REFRESH_MS / 1000}s.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
           <label className="card px-4 py-3 flex items-center gap-3">
@@ -139,6 +247,15 @@ export function ActiveOrdersPage() {
               />
             </span>
           </label>
+          <button
+            type="button"
+            onClick={toggleSound}
+            className="card px-4 py-3 flex items-center gap-2 hover:bg-gray-100 transition-colors"
+            title={soundEnabled ? 'Desactivar aviso sonoro' : 'Activar aviso sonoro'}
+          >
+            {soundEnabled ? <Volume2 size={18} className="text-island-blue" /> : <VolumeX size={18} className="text-island-dark/50" />}
+            <span className="text-xs font-body text-island-dark/70">{soundEnabled ? 'Sonido activo' : 'Sonido apagado'}</span>
+          </button>
           <div className="card px-4 py-3">
             <p className="text-xs text-island-dark/70 font-body">En espera</p>
             <p className="font-body font-semibold text-island-dark">{filteredOrders.length} pedido(s)</p>
@@ -155,6 +272,23 @@ export function ActiveOrdersPage() {
         <div className="rounded-lg border border-island-blue/20 bg-gray-100 px-4 py-2 font-body text-sm text-island-dark/70">
           {filteredOrders.length} de {orders.length} pedidos
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {STATUS_FILTERS.map((filter) => (
+          <button
+            key={filter.value}
+            type="button"
+            onClick={() => setStatusFilter(filter.value)}
+            className={`rounded-full px-4 py-1.5 text-sm font-body font-medium transition-colors ${
+              statusFilter === filter.value
+                ? 'bg-island-blue text-white'
+                : 'bg-white border border-island-blue/20 text-island-dark/70 hover:bg-gray-100'
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
       </div>
 
       <div className="grid lg:grid-cols-[1fr_22rem] gap-4">
@@ -175,33 +309,47 @@ export function ActiveOrdersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule">
-                {filteredOrders.map((order) => (
-                  <tr key={order._id} className="hover:bg-gray-100">
-                    <td className="px-4 py-3 font-medium text-island-dark">
-                      {!order.tableId ? 'Sin mesa / Mostrador' : typeof order.tableId === 'object' ? order.tableId.name : order.tableId}
-                    </td>
-                    <td className="px-4 py-3 text-island-dark/70">
-                      <p>{order.items.length} ítem(s)</p>
-                      <p className="text-xs">{formatShortDate(order.createdAt)}</p>
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-island-dark tabular-nums">{elapsedInCurrentStatus(order, now)}</td>
-                    <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(order.total)}</td>
-                    <td className="px-4 py-3 text-center"><OrderStatusBadge status={order.status} /></td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        <Button size="sm" onClick={() => markDelivered(order)} loading={actionLoading[order._id]}>
-                          <Check size={14} /> Entregado
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setSelected(order)}>
-                          <Eye size={14} />
-                        </Button>
-                        <Button size="sm" variant="danger" onClick={() => setCancelTarget(order)}>
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredOrders.map((order) => {
+                  const overThreshold = elapsedMsInCurrentStatus(order, now) >= ELAPSED_ALERT_MS;
+                  const next = nextOrderStatus(order.status);
+                  return (
+                    <tr key={order._id} className="hover:bg-gray-100">
+                      <td className="px-4 py-3 font-medium text-island-dark">
+                        {!order.tableId ? 'Sin mesa / Mostrador' : typeof order.tableId === 'object' ? order.tableId.name : order.tableId}
+                      </td>
+                      <td className="px-4 py-3 text-island-dark/70">
+                        <p>{order.items.length} ítem(s)</p>
+                        <p className="text-xs">{formatShortDate(order.createdAt)}</p>
+                        {order.notes && <p className="text-xs italic text-island-dark/60 mt-0.5">{order.notes}</p>}
+                      </td>
+                      <td className={`px-4 py-3 font-semibold tabular-nums ${overThreshold ? 'text-error-ink' : 'text-island-dark'}`}>
+                        {elapsedInCurrentStatus(order, now)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(order.total)}</td>
+                      <td className="px-4 py-3 text-center"><OrderStatusBadge status={order.status} /></td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end gap-2">
+                          {next && (
+                            <Button size="sm" variant="secondary" onClick={() => advanceStatus(order)} loading={actionLoading[order._id]}>
+                              <ArrowRight size={14} /> {advanceStatusLabel(order.status)}
+                            </Button>
+                          )}
+                          {order.status === 'ready' && (
+                            <Button size="sm" onClick={() => markDelivered(order)} loading={actionLoading[order._id]}>
+                              <Check size={14} /> Entregado
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" onClick={() => setSelected(order)}>
+                            <Eye size={14} />
+                          </Button>
+                          <Button size="sm" variant="danger" onClick={() => setCancelTarget(order)}>
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
                 {filteredOrders.length === 0 && (
                   <tr>
                     <td colSpan={6} className="text-center py-10 text-island-dark/70">No hay pedidos pendientes de entrega.</td>

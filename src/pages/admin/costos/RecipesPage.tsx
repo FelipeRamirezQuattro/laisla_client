@@ -32,6 +32,7 @@ export function RecipesPage() {
     setLoading(true);
     try {
       const params: Record<string, string> = {};
+      params.active = 'true';
       if (catFilter) params.category = catFilter;
       const [recipesRes, categoriesRes] = await Promise.all([
         recipesApi.getAll(params),
@@ -74,8 +75,8 @@ export function RecipesPage() {
     if (!(await confirm(`¿Eliminar la receta "${name}"?`))) return;
     try {
       await recipesApi.delete(id);
+      setRecipes((current) => current.filter((recipe) => recipe._id !== id));
       toast.success('Receta eliminada');
-      fetch();
     } catch {
       toast.error('Error al eliminar receta');
     }

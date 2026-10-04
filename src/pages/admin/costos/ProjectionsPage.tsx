@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Pencil, X } from 'lucide-react';
 import { projectionsApi } from '../../../api/costs';
 import { Projection, MonthProjection } from '../../../types';
@@ -8,6 +8,7 @@ import { calcMonthProjection } from '../../../utils/costFormulas';
 import { useToast } from '../../../hooks/useToast';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -16,6 +17,7 @@ const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
 export function ProjectionsPage() {
   const { year } = useParams<{ year: string }>();
   const yearNum = parseInt(year ?? String(new Date().getFullYear()), 10);
+  const navigate = useNavigate();
   const toast = useToast();
 
   const [projection, setProjection] = useState<Projection | null>(null);
@@ -31,12 +33,31 @@ export function ProjectionsPage() {
   const [editOpExp, setEditOpExp] = useState(0);
 
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setProjection(null);
     projectionsApi.get(yearNum).then((res) => {
-      setProjection(res.data);
+      if (active) setProjection(res.data);
     }).catch(() => {
-      setProjection(null);
-    }).finally(() => setLoading(false));
+      if (active) setProjection(null);
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
   }, [yearNum]);
+
+  const yearOptions = Array.from({ length: 11 }, (_, index) => yearNum - 5 + index)
+    .map((optionYear) => ({ value: String(optionYear), label: String(optionYear) }));
+  const yearSelector = (
+    <div className="w-full sm:w-48">
+      <Select
+        label="Año de proyección"
+        options={yearOptions}
+        value={String(yearNum)}
+        onChange={(event) => navigate(`/admin/costos/proyecciones/${event.target.value}`)}
+      />
+    </div>
+  );
 
   const createProjection = async () => {
     setCreating(true);
@@ -85,7 +106,10 @@ export function ProjectionsPage() {
   if (!projection) {
     return (
       <div className="space-y-6">
-        <h1 className="font-body text-2xl font-bold text-island-dark">Proyecciones {yearNum}</h1>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <h1 className="font-body text-2xl font-bold text-island-dark">Proyecciones {yearNum}</h1>
+          {yearSelector}
+        </div>
         <div className="card text-center py-12">
           <p className="text-island-dark/70 font-body mb-4">No hay proyección para {yearNum}.</p>
           <Button onClick={createProjection} loading={creating}>Crear proyección {yearNum}</Button>
@@ -115,13 +139,14 @@ export function ProjectionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-body text-2xl font-bold text-island-dark">Proyecciones {yearNum}</h1>
           <p className="text-island-dark/70 font-body text-sm">
             Tasa de crecimiento: {(projection.growthRate * 100).toFixed(1)}% · {projection.workingDaysPerMonth} días/mes
           </p>
         </div>
+        {yearSelector}
       </div>
 
       {/* Annual totals */}

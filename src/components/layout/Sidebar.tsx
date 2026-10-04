@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { alertasInvApi } from "../../api/inventario";
+import { fiscalApi } from "../../api/fiscal";
+import { printingAlertsApi } from "../../api/printing";
 import { useUiStore } from "../../store/uiStore";
 import { useAuthStore } from "../../store/authStore";
 import {
@@ -46,13 +48,18 @@ function NavItem({ to, label, Icon, end, badgeCount }: AdminNavLeaf & { badgeCou
 function NavGroup({
   group,
   agotadoCount,
+  fiscalCount,
+  printingCount,
   defaultOpen,
 }: {
   group: AdminNavGroup;
   agotadoCount: number;
+  fiscalCount: number;
+  printingCount: number;
   defaultOpen: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const badgeCounts = { agotado: agotadoCount, fiscal: fiscalCount, printing: printingCount };
 
   return (
     <>
@@ -63,7 +70,7 @@ function NavGroup({
         <span className="flex items-center gap-3">
           <group.Icon size={16} strokeWidth={1.75} />
           {group.label}
-          {group.badge === "agotado" && <Badge count={agotadoCount} />}
+          {group.badge && <Badge count={badgeCounts[group.badge]} />}
         </span>
         {open ? (
           <ChevronUp size={14} className="opacity-60" />
@@ -78,7 +85,7 @@ function NavGroup({
             <NavItem
               key={item.to}
               {...item}
-              badgeCount={item.badge === "agotado" ? agotadoCount : undefined}
+              badgeCount={item.badge ? badgeCounts[item.badge] : undefined}
             />
           ))}
         </div>
@@ -92,6 +99,8 @@ export function Sidebar() {
   const { isAdmin, isSuperAdmin } = useAuthStore();
   const location = useLocation();
   const [agotadoCount, setAgotadoCount] = useState(0);
+  const [fiscalCount, setFiscalCount] = useState(0);
+  const [printingCount, setPrintingCount] = useState(0);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -102,6 +111,30 @@ export function Sidebar() {
           res.data.filter((a) => a.detalle.nivel === "AGOTADO").length,
         ),
       )
+      .catch(() => {});
+  }, [location.pathname, isAdmin]);
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    fiscalApi
+      .getHealth()
+      .then((res) =>
+        setFiscalCount(
+          (res.data.documentsByStatus.ERROR ?? 0) + (res.data.documentsByStatus.CONTINGENCY ?? 0),
+        ),
+      )
+      .catch(() => {});
+  }, [location.pathname, isSuperAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    printingAlertsApi
+      .get()
+      .then((res) => {
+        const alerts = res.data;
+        const flags = [alerts.noCajaPrinter, alerts.agentsOffline].filter(Boolean).length;
+        setPrintingCount(alerts.failedJobsCount + flags);
+      })
       .catch(() => {});
   }, [location.pathname, isAdmin]);
 
@@ -171,6 +204,8 @@ export function Sidebar() {
                   key={group.id}
                   group={group}
                   agotadoCount={agotadoCount}
+                  fiscalCount={fiscalCount}
+                  printingCount={printingCount}
                   defaultOpen={defaultOpen}
                 />
               );

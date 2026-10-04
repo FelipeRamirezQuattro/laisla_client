@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Coffee, ImageIcon } from "lucide-react";
 import { publicMenuApi } from "../../api/publicMenu";
@@ -22,8 +22,11 @@ export function MenuPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<RecipeCategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
+  const loadMenu = useCallback(() => {
+    setLoading(true);
+    setLoadError(false);
     publicMenuApi
       .get()
       .then((res) => {
@@ -31,11 +34,14 @@ export function MenuPage() {
         setCategories(res.data.categories);
       })
       .catch(() => {
-        setRecipes([]);
-        setCategories([]);
+        setLoadError(true);
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    loadMenu();
+  }, [loadMenu]);
 
   const groupedMenu = useMemo(() => {
     return categories
@@ -69,7 +75,18 @@ export function MenuPage() {
         </svg>
       </div>
 
-      {groupedMenu.length > 0 ? (
+      {loadError ? (
+        <section className="menu-empty" role="alert">
+          <span className="menu-empty-icon">
+            <Coffee size={30} strokeWidth={2} />
+          </span>
+          <h2>No pudimos cargar la carta</h2>
+          <p>La conexión falló por un momento. Puedes volver a intentarlo sin recargar la página.</p>
+          <button type="button" className="menu-empty-cta" onClick={loadMenu}>
+            Intentar de nuevo
+          </button>
+        </section>
+      ) : groupedMenu.length > 0 ? (
         <section className="menu-category-list">
           {groupedMenu.map(({ category, items }, index) => (
             <article className="menu-category" key={category.value}>

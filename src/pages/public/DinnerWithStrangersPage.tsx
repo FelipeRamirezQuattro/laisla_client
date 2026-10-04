@@ -48,6 +48,8 @@ export function DinnerWithStrangersPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<Partial<FormState>>({ hobbies: [] });
   const [events, setEvents] = useState<Event[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const toast = useToast();
@@ -55,7 +57,8 @@ export function DinnerWithStrangersPage() {
   useEffect(() => {
     publicApi.getEvents({ type: 'dinner-with-strangers' })
       .then((r) => setEvents(r.data))
-      .catch(() => {});
+      .catch(() => setEventsError(true))
+      .finally(() => setEventsLoading(false));
   }, []);
 
   const update = (fields: Partial<FormState>) => setForm((prev) => ({
@@ -129,7 +132,14 @@ export function DinnerWithStrangersPage() {
       <StepIndicator steps={steps} currentStep={step} />
 
       <div className="ev-wizard-card">
-        {step === 1 && <WelcomeStep events={events} onNext={() => setStep(2)} />}
+        {step === 1 && (
+          <WelcomeStep
+            events={events}
+            loading={eventsLoading}
+            loadError={eventsError}
+            onNext={() => setStep(2)}
+          />
+        )}
         {step === 2 && <PersonalInfoStep form={form} update={update} events={events} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
         {step === 3 && (
           <QuestionnaireStep
@@ -155,7 +165,12 @@ export function DinnerWithStrangersPage() {
   );
 }
 
-function WelcomeStep({ events, onNext }: { events: Event[]; onNext: () => void }) {
+function WelcomeStep({ events, loading, loadError, onNext }: {
+  events: Event[];
+  loading: boolean;
+  loadError: boolean;
+  onNext: () => void;
+}) {
   return (
     <div className="space-y-6">
       <div className="text-center py-2">
@@ -181,8 +196,22 @@ function WelcomeStep({ events, onNext }: { events: Event[]; onNext: () => void }
           ))}
         </div>
       )}
+      {!loading && events.length === 0 && (
+        <div className="ev-info-box" role="status">
+          <p style={{ fontWeight: 800, color: 'var(--ev-dark)', marginBottom: 6 }}>
+            {loadError ? 'No pudimos consultar las fechas.' : 'No hay fechas disponibles en este momento.'}
+          </p>
+          <p style={{ margin: 0, color: 'var(--ev-muted)' }}>
+            {loadError
+              ? 'Actualiza la página e inténtalo de nuevo.'
+              : 'Cuando el equipo publique una nueva cena, podrás iniciar el registro aquí.'}
+          </p>
+        </div>
+      )}
       <div className="flex justify-end">
-        <button className="ev-btn-primary" onClick={onNext}>Quiero participar →</button>
+        <button className="ev-btn-primary" onClick={onNext} disabled={loading || events.length === 0}>
+          {loading ? 'Consultando fechas…' : 'Quiero participar →'}
+        </button>
       </div>
     </div>
   );

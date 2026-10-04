@@ -86,16 +86,18 @@ export function ReservationsPage() {
 
   const fetchTables = useCallback(async () => {
     try {
-      const res = await tablesApi.getAll({ date: reserveDate });
+      const res = await tablesApi.getAll({ date: reserveDate, timeSlot: reserveForm.timeSlot });
       setTables(res.data);
       setReserveForm((current) => ({
         ...current,
-        tableId: current.tableId || res.data.find((table) => table.status === 'available')?._id || '',
+        tableId: res.data.some((table) => table._id === current.tableId && table.status === 'available')
+          ? current.tableId
+          : res.data.find((table) => table.status === 'available')?._id || '',
       }));
     } catch {
       toast.error('Error al cargar mesas');
     }
-  }, [reserveDate]);
+  }, [reserveDate, reserveForm.timeSlot]);
 
   useEffect(() => { fetchTables(); }, [fetchTables]);
 
@@ -130,7 +132,10 @@ export function ReservationsPage() {
     setDetailText(viewReservation.detail || '');
 
     let active = true;
-    tablesApi.getAll({ date: toDateInputValue(viewReservation.date) })
+    tablesApi.getAll({
+      date: toDateInputValue(viewReservation.date),
+      timeSlot: viewReservation.timeSlot,
+    })
       .then((res) => {
         if (active) setModalTables(res.data);
       })

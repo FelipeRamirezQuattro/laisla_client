@@ -1,7 +1,8 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Bell, ChevronDown, ClipboardList, FolderOpen, KeyRound, LogOut, Menu } from 'lucide-react';
+import { Banknote, Bell, ChevronDown, ClipboardList, FolderOpen, KeyRound, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
+import { useShiftStore } from '../../store/shiftStore';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
@@ -29,6 +30,14 @@ export function Topbar() {
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { unreadCount, notifications, markAsRead, markAllAsRead } = useNotifications(10);
+  const { openShift, refresh: refreshShift } = useShiftStore();
+
+  useEffect(() => {
+    if (!user) return;
+    refreshShift();
+    const intervalId = window.setInterval(refreshShift, 30000);
+    return () => window.clearInterval(intervalId);
+  }, [user, refreshShift]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -78,6 +87,20 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => navigate('/admin/caja')}
+          className={`hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-body font-medium transition-colors ${
+            openShift
+              ? 'bg-success-tint text-success-ink hover:bg-success-tint/80'
+              : 'bg-warning-tint text-warning-ink hover:bg-warning-tint/80'
+          }`}
+        >
+          <Banknote size={14} />
+          {openShift
+            ? `Turno abierto · ${typeof openShift.openedBy === 'object' ? openShift.openedBy.name : 'Responsable'}`
+            : 'Sin turno abierto'}
+        </button>
         <div className="relative">
           <button
             type="button"

@@ -56,6 +56,30 @@ export function ReservationStatusBadge({ status }: { status: string }) {
   return <Badge label={info.label} variant={info.variant} />;
 }
 
+export function FiscalDocumentStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; variant: BadgeProps['variant'] }> = {
+    PENDING:     { label: 'Pendiente',    variant: 'yellow' },
+    SENDING:     { label: 'Enviando',     variant: 'blue'   },
+    ACCEPTED:    { label: 'Aceptado',     variant: 'green'  },
+    REJECTED:    { label: 'Rechazado',    variant: 'red'    },
+    ERROR:       { label: 'Error',        variant: 'red'    },
+    CONTINGENCY: { label: 'Contingencia', variant: 'brown'  },
+  };
+  const info = map[status] || { label: status, variant: 'gray' };
+  return <Badge label={info.label} variant={info.variant} />;
+}
+
+export function PrintJobStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; variant: BadgeProps['variant'] }> = {
+    PENDING: { label: 'Pendiente', variant: 'yellow' },
+    CLAIMED: { label: 'Imprimiendo', variant: 'blue' },
+    DONE: { label: 'Impreso', variant: 'green' },
+    FAILED: { label: 'Falló', variant: 'red' },
+  };
+  const info = map[status] || { label: status, variant: 'gray' };
+  return <Badge label={info.label} variant={info.variant} />;
+}
+
 export function EventStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; variant: BadgeProps['variant'] }> = {
     upcoming:  { label: 'Próximo',    variant: 'blue'  },

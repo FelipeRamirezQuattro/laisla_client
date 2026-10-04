@@ -7,6 +7,7 @@ import { Event, EventType } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, formatTime } from '../../utils/formatDate';
 import { PageLoader } from '../../components/ui/Spinner';
+import { EventImage } from './EventImage';
 import './eventsPublic.css';
 
 const typeFilters: Array<{ value: string; label: string }> = [
@@ -95,11 +96,11 @@ function EventCard({ event }: { event: Event }) {
       className="ev-card"
     >
       <div className="ev-card-media">
-        {event.imageUrl ? (
-          <img src={event.imageUrl} alt={event.title} />
-        ) : (
-          <EventIcon size={48} strokeWidth={1.5} />
-        )}
+        <EventImage
+          src={event.imageUrl}
+          alt={event.title}
+          fallback={<EventIcon size={48} strokeWidth={1.5} aria-label="Imagen no disponible" />}
+        />
         {!soldOut && (
           <img src="/images/brand/sello-color.png" alt="" className="ev-card-seal" />
         )}

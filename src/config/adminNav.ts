@@ -25,6 +25,10 @@ import {
   Package,
   CircleDollarSign,
   UserCog,
+  Landmark,
+  FileText,
+  Settings2,
+  Printer,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -39,8 +43,8 @@ export interface AdminNavLeaf {
   quickNav?: boolean;
   /** Not rendered in the sidebar — only contributes a Topbar breadcrumb label. */
   hidden?: boolean;
-  /** Shows the low-stock alert badge (agotado count) next to this item. */
-  badge?: 'agotado';
+  /** Shows the low-stock alert badge (agotado count), the fiscal ERROR/CONTINGENCY count, or the printing alerts count next to this item. */
+  badge?: 'agotado' | 'fiscal' | 'printing';
 }
 
 export interface AdminNavGroup {
@@ -50,7 +54,7 @@ export interface AdminNavGroup {
   items: AdminNavLeaf[];
   /** Visibility gate: undefined = any authenticated admin user. */
   gate?: AdminNavGate;
-  badge?: 'agotado';
+  badge?: 'agotado' | 'fiscal' | 'printing';
   /**
    * Path prefix used to decide whether this group should start expanded.
    * Defaults to matching any of `items`' paths — set this instead when the
@@ -83,7 +87,8 @@ export const ADMIN_NAV: AdminNavEntry[] = [
   { to: '/admin/billing', label: 'Facturación', Icon: ReceiptText, quickNav: true },
   { to: '/admin/mis-tareas', label: 'Mis tareas', Icon: ListChecks },
   { to: '/admin/expenses', label: 'Gastos', Icon: HandCoins, quickNav: true },
-  { to: '/admin/cashflow', label: 'Caja / Cierre', Icon: Banknote, quickNav: true },
+  { to: '/admin/caja', label: 'Caja / Turno', Icon: Banknote, quickNav: true },
+  { to: '/admin/caja/historial', label: 'Historial de turnos', Icon: Banknote, hidden: true },
   { to: '/admin/reservations', label: 'Reservaciones', Icon: Calendar, quickNav: true },
 
   {
@@ -134,6 +139,17 @@ export const ADMIN_NAV: AdminNavEntry[] = [
   },
 
   {
+    id: 'printing',
+    label: 'Impresión',
+    Icon: Printer,
+    gate: 'admin',
+    badge: 'printing',
+    items: [
+      { to: '/admin/printing', label: 'Impresoras', Icon: Printer, badge: 'printing' },
+    ],
+  },
+
+  {
     id: 'config',
     label: 'Configuración',
     Icon: UserCog,
@@ -141,6 +157,19 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     openMatch: '/admin/usuarios',
     items: [
       { to: '/admin/usuarios', label: 'Usuarios', Icon: UserCog },
+    ],
+  },
+
+  {
+    id: 'fiscal',
+    label: 'Facturación electrónica',
+    Icon: Landmark,
+    gate: 'superadmin',
+    badge: 'fiscal',
+    openMatch: '/admin/fiscal',
+    items: [
+      { to: '/admin/fiscal/documentos', label: 'Documentos fiscales', Icon: FileText, badge: 'fiscal' },
+      { to: '/admin/fiscal/configuracion', label: 'Configuración fiscal', Icon: Settings2 },
     ],
   },
 

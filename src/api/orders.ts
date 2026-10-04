@@ -30,8 +30,8 @@ export const ordersApi = {
     api.post<Order>('/admin/orders', data),
   update: (id: string, data: Partial<Order>) => api.put<Order>(`/admin/orders/${id}`, data),
   deliver: (id: string) => api.patch<Order>(`/admin/orders/${id}/deliver`),
-  close: (id: string, paymentMethod: PaymentMethod) =>
-    api.patch<Order>(`/admin/orders/${id}/close`, { paymentMethod }),
+  close: (id: string, paymentMethod: PaymentMethod, clientId?: string, amountReceived?: number) =>
+    api.patch<Order>(`/admin/orders/${id}/close`, { paymentMethod, clientId, amountReceived }),
   cancel: (id: string, data: { reason: string; reasonDetail?: string }) =>
     api.patch<Order>(`/admin/orders/${id}/cancel`, data),
 };

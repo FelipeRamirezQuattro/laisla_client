@@ -57,7 +57,7 @@ export interface CafeTable {
 // ─── Order ───────────────────────────────────────────────────────────────────
 
 export type OrderStatus = 'pending' | 'in-progress' | 'ready' | 'delivered' | 'billed' | 'cancelled';
-export type PaymentMethod = 'cash' | 'card' | 'transfer';
+export type PaymentMethod = 'cash' | 'card' | 'transfer' | 'nequi';
 
 export interface OrderItem {
   productId: string;
@@ -97,6 +97,15 @@ export interface Order {
 
 // ─── Client ──────────────────────────────────────────────────────────────────
 
+export interface ClientFiscal {
+  docType?: 'CC' | 'NIT' | 'CE';
+  docNumber?: string;
+  dv?: string;
+  businessName?: string;
+  personType?: 'NATURAL' | 'JURIDICA';
+  fiscalEmail?: string;
+}
+
 export interface Client {
   _id: string;
   name: string;
@@ -104,6 +113,7 @@ export interface Client {
   phone?: string;
   notes?: string;
   visitCount: number;
+  fiscal?: ClientFiscal;
   createdAt: string;
 }
 
@@ -120,29 +130,92 @@ export interface Provider {
   createdAt: string;
 }
 
-// ─── Cash Closing ────────────────────────────────────────────────────────────
+// ─── Cash Shift / Arqueo ─────────────────────────────────────────────────────
 
-export interface Expense {
-  description: string;
-  amount: number;
-  source?: 'manual' | 'daily_expense';
-  expenseId?: string;
+export type CashShiftStatus = 'OPEN' | 'COUNTING' | 'CLOSED' | 'REVIEWED';
+export type DenominationKind = 'bill' | 'coin';
+
+export interface DenominationCount {
+  value: number;
+  kind: DenominationKind;
+  quantity: number;
+  subtotal: number;
 }
 
-export interface CashClosing {
-  _id: string;
-  date: string;
-  openingCash: number;
+/** Request-side shape — no subtotal, the server computes and verifies it. */
+export interface DenominationInput {
+  value: number;
+  kind: DenominationKind;
+  quantity: number;
+}
+
+export interface CashCount {
+  denominations: DenominationCount[];
+  total: number;
+  countedBy: string | User;
+  countedAt: string;
+}
+
+export interface CashShiftSalesSnapshot {
   cashSales: number;
   cardSales: number;
+  nequiSales: number;
   transferSales: number;
-  expenses: Expense[];
-  totalExpenses: number;
-  expectedCash: number;
-  actualCash: number;
-  difference: number;
+  totalSales: number;
+  totalOrders: number;
+  unassignedOrdersCount: number;
+}
+
+export type CashShiftAuditAction =
+  | 'OPEN'
+  | 'COUNT_OPENING'
+  | 'COUNT_CLOSING'
+  | 'CLOSE'
+  | 'APPROVE'
+  | 'ADJUSTMENT';
+
+export interface CashShiftAuditEntry {
+  action: CashShiftAuditAction;
+  by: string | User;
+  at: string;
+  detail?: Record<string, unknown>;
+}
+
+export interface CashShift {
+  _id: string;
+  status: CashShiftStatus;
+  openedBy: string | User;
+  openedAt: string;
+  openingFloat: CashCount;
+  closingCount?: CashCount;
+  closedBy?: string | User;
+  closedAt?: string;
+  salesSnapshot?: CashShiftSalesSnapshot;
+  totalExpenses?: number;
+  totalWithdrawals?: number;
+  totalCashIn?: number;
+  expectedCash?: number;
+  difference?: number;
+  reviewedBy?: string | User;
+  reviewedAt?: string;
+  reviewNotes?: string;
+  fiscalWarning?: string;
   notes?: string;
-  closedBy: string | User;
+  auditLog: CashShiftAuditEntry[];
+  migratedFromLegacy?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CashMovementType = 'WITHDRAWAL' | 'CASH_IN';
+
+export interface CashMovement {
+  _id: string;
+  cashShiftId: string;
+  type: CashMovementType;
+  amount: number;
+  reason: string;
+  createdBy: string | User;
   createdAt: string;
 }
 
@@ -161,6 +234,8 @@ export interface DailyExpense {
   stockMovementId?: string;
   notes?: string;
   createdBy: string | User;
+  cashShiftId?: string | null;
+  locked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -708,4 +783,199 @@ export interface Notification {
   isRead: boolean;
   readAt?: string;
   createdAt: string;
+}
+
+// ─── Fiscal (DIAN electronic invoicing) ─────────────────────────────────────
+
+export type FiscalDocumentType = 'DEE_POS' | 'INVOICE' | 'CREDIT_NOTE';
+export type FiscalDocumentStatus = 'PENDING' | 'SENDING' | 'ACCEPTED' | 'REJECTED' | 'ERROR' | 'CONTINGENCY';
+export type FiscalEnvironment = 'TEST' | 'PRODUCTION';
+export type FiscalProviderName = 'MOCK' | 'ALANUBE' | 'BILIDOX';
+
+export interface FiscalTaxSummaryEntry {
+  taxType: 'NONE' | 'IVA_19' | 'CONSUMO_8';
+  taxRate: number;
+  taxableAmount: number;
+  taxAmount: number;
+}
+
+export interface FiscalIssuerSnapshot {
+  personType: 'NATURAL' | 'JURIDICA';
+  idType: string;
+  idNumber: string;
+  dv?: string;
+  businessName: string;
+  tradeName: string;
+  taxRegime?: string;
+  fiscalResponsibilities: string[];
+  ivaResponsible: boolean;
+  consumptionTaxResponsible: boolean;
+  address: string;
+  municipality: string;
+  email: string;
+}
+
+export interface FiscalAcquirerSnapshot {
+  personType: 'NATURAL' | 'JURIDICA';
+  docType: string;
+  docNumber: string;
+  dv?: string;
+  name: string;
+  email?: string;
+}
+
+export interface FiscalDocument {
+  _id: string;
+  orderId: string;
+  type: FiscalDocumentType;
+  referencedDocumentId?: string;
+  reason?: string;
+  issuerSnapshot: FiscalIssuerSnapshot;
+  acquirerSnapshot: FiscalAcquirerSnapshot;
+  totalsSnapshot: { subtotal: number; taxSummary: FiscalTaxSummaryEntry[]; total: number };
+  prefix?: string;
+  number?: number;
+  status: FiscalDocumentStatus;
+  cufe?: string;
+  cude?: string;
+  qrData?: string;
+  pdfUrl?: string;
+  xmlUrl?: string;
+  providerDocumentId?: string;
+  attempts: number;
+  nextAttemptAt?: string;
+  lastError?: string;
+  idempotencyKey: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FiscalNumberingResolution {
+  documentType: FiscalDocumentType;
+  prefix: string;
+  rangeFrom: number;
+  rangeTo: number;
+  currentNumber: number;
+  resolutionNumber: string;
+  validFrom?: string;
+  validTo?: string;
+  technicalKey?: string;
+}
+
+export interface FiscalIssuer {
+  personType: 'NATURAL' | 'JURIDICA';
+  idType: 'CC' | 'NIT';
+  idNumber: string;
+  dv?: string;
+  businessName: string;
+  tradeName: string;
+  taxRegime?: string;
+  fiscalResponsibilities: string[];
+  ivaResponsible: boolean;
+  consumptionTaxResponsible: boolean;
+  address: string;
+  municipality: string;
+  municipalityCode?: string;
+  email: string;
+}
+
+export interface FiscalConfig {
+  _id: string;
+  enabled: boolean;
+  environment: FiscalEnvironment;
+  provider: FiscalProviderName;
+  issuer: FiscalIssuer;
+  numbering: FiscalNumberingResolution[];
+  alertThresholds: { rangeConsumedPercent: number; daysBeforeExpiry: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FiscalHealth {
+  enabled: boolean;
+  environment: FiscalEnvironment;
+  provider: FiscalProviderName;
+  documentsByStatus: Partial<Record<FiscalDocumentStatus, number>>;
+  lastAcceptedAt: string | null;
+}
+
+export interface FiscalOrderTicket {
+  applicable: boolean;
+  status?: FiscalDocumentStatus | 'NOT_APPLICABLE';
+  type?: FiscalDocumentType;
+  prefix?: string;
+  number?: number;
+  cufe?: string;
+  cude?: string;
+  qrData?: string;
+  pdfUrl?: string;
+  lastError?: string;
+}
+
+// ─── Printing (ticket térmico / comandas) ───────────────────────────────────
+
+export type PrinterRole = 'CAJA' | 'BARRA';
+
+export interface Printer {
+  _id: string;
+  name: string;
+  role: PrinterRole;
+  ip: string;
+  port: number;
+  paperWidthMm: number;
+  columns: number;
+  hasCashDrawer: boolean;
+  isActive: boolean;
+  agentId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PrintAgent {
+  _id: string;
+  name: string;
+  isActive: boolean;
+  lastSeenAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Only present right after creating or regenerating an agent's token — the
+// backend never returns the cleartext token again afterward.
+export interface PrintAgentWithToken extends PrintAgent {
+  token: string;
+}
+
+export interface PrintConfig {
+  _id: string;
+  receiptAutoPrint: boolean;
+  kitchenPrintingEnabled: boolean;
+  openDrawerOnCash: boolean;
+  headerText: string;
+  footerText: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PrintJobType = 'RECEIPT' | 'KITCHEN_ORDER' | 'REPRINT' | 'TEST';
+export type PrintJobStatus = 'PENDING' | 'CLAIMED' | 'DONE' | 'FAILED';
+
+export interface PrintJob {
+  _id: string;
+  type: PrintJobType;
+  printerId?: string | Pick<Printer, '_id' | 'name' | 'role'> | null;
+  orderId?: string | null;
+  fiscalDocumentId?: string | null;
+  status: PrintJobStatus;
+  attempts: number;
+  claimedAt?: string | null;
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PrintingAlerts {
+  failedJobsCount: number;
+  noCajaPrinter: boolean;
+  agentsOffline: boolean;
 }

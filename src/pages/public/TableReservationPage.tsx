@@ -89,8 +89,12 @@ export function TableReservationPage() {
       };
       const res = await publicApi.createReservation(payload as Partial<Reservation>);
       navigate('/reservar/mesa/exito', { state: { reservation: res.data } });
-    } catch {
-      setError('Hubo un error al procesar tu reservación. Intenta de nuevo.');
+    } catch (err: unknown) {
+      const response = (err as {
+        response?: { data?: { error?: string; details?: Array<{ msg?: string }> } };
+      })?.response?.data;
+      const detail = response?.details?.find((item) => item.msg)?.msg;
+      setError(detail || response?.error || 'Hubo un error al procesar tu reservación. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }

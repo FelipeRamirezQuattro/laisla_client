@@ -6,12 +6,14 @@ import { z } from 'zod';
 import { tablesApi } from '../../api/tables';
 import { CafeTable, TableZoneRecord } from '../../types';
 import { useToast } from '../../hooks/useToast';
+import { useConfirm } from '../../hooks/useConfirm';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Modal } from '../../components/ui/Modal';
 import { TableStatusBadge } from '../../components/ui/Badge';
 import { PageLoader } from '../../components/ui/Spinner';
+import { todayLocal } from '../../utils/formatDate';
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
@@ -26,6 +28,14 @@ const statusBorder: Record<string, string> = {
   occupied:  'border-l-4 border-l-error',
   reserved:  'border-l-4 border-l-warning',
 };
+
+const timeOptions = Array.from({ length: 13 }, (_, index) => {
+  const hour = 8 + index;
+  const value = `${String(hour).padStart(2, '0')}:00`;
+  const hour12 = hour > 12 ? hour - 12 : hour;
+  const suffix = hour >= 12 ? 'p.m.' : 'a.m.';
+  return { value, label: `${hour12}:00 ${suffix}` };
+});
 
 export function TablesPage() {
   const [tables, setTables] = useState<CafeTable[]>([]);
@@ -44,7 +54,10 @@ export function TablesPage() {
   const [releaseAllModalOpen, setReleaseAllModalOpen] = useState(false);
   const [zoneFilter, setZoneFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [selectedDate, setSelectedDate] = useState(todayLocal());
+  const [selectedTime, setSelectedTime] = useState('13:00');
   const toast = useToast();
+  const confirm = useConfirm();
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -62,7 +75,8 @@ export function TablesPage() {
   const fetchTables = useCallback(async () => {
     setLoading(true);
     try {
-      const params = zoneFilter ? { zone: zoneFilter } : undefined;
+      const params: Record<string, string> = { date: selectedDate, timeSlot: selectedTime };
+      if (zoneFilter) params.zone = zoneFilter;
       const res = await tablesApi.getAll(params);
       setTables(res.data);
     } catch {
@@ -70,7 +84,7 @@ export function TablesPage() {
     } finally {
       setLoading(false);
     }
-  }, [zoneFilter]);
+  }, [zoneFilter, selectedDate, selectedTime]);
 
   useEffect(() => { fetchZones(); }, [fetchZones]);
   useEffect(() => { fetchTables(); }, [fetchTables]);
@@ -200,6 +214,31 @@ export function TablesPage() {
     }
   };
 
+  const deleteZone = async (zone: TableZoneRecord) => {
+    const tableCount = grouped[zone.value]?.length || 0;
+    if (tableCount > 0) {
+      toast.error('Mueve o elimina las mesas de esta zona antes de eliminarla');
+      return;
+    }
+    if (!(await confirm(`¿Eliminar la zona "${zone.label}"?`))) return;
+
+    setZoneSaving(true);
+    try {
+      await tablesApi.deleteZone(zone._id);
+      if (editingZone?._id === zone._id) {
+        setEditingZone(null);
+        setZoneName('');
+      }
+      if (zoneFilter === zone.value) setZoneFilter('');
+      await fetchZones();
+      toast.success('Zona eliminada');
+    } catch {
+      toast.error('Error al eliminar zona');
+    } finally {
+      setZoneSaving(false);
+    }
+  };
+
   const normalizedSearch = search.trim().toLowerCase();
   const filteredTables = tables.filter((table) => {
     if (!normalizedSearch) return true;
@@ -235,7 +274,7 @@ export function TablesPage() {
         </div>
       </div>
 
-      <div className="card grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
+      <div className="card grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_14rem_14rem_12rem]">
         <Input
           placeholder="Buscar por mesa, zona, estado o capacidad..."
           value={search}
@@ -246,7 +285,23 @@ export function TablesPage() {
           value={zoneFilter}
           onChange={(e) => setZoneFilter(e.target.value)}
         />
+        <Input
+          label="Fecha de disponibilidad"
+          type="date"
+          value={selectedDate}
+          onChange={(event) => setSelectedDate(event.target.value)}
+        />
+        <Select
+          label="Hora de disponibilidad"
+          options={timeOptions}
+          value={selectedTime}
+          onChange={(event) => setSelectedTime(event.target.value)}
+        />
       </div>
+
+      <p className="text-sm text-island-dark/70 font-body">
+        El estado reservado corresponde a las reservaciones asignadas para la fecha y hora elegidas.
+      </p>
 
       {loading ? <PageLoader /> : (
         <div className="space-y-6">
@@ -345,9 +400,21 @@ export function TablesPage() {
                   <p className="font-body text-sm font-semibold text-island-dark">{zone.label}</p>
                   <p className="font-body text-xs text-island-dark/70">{grouped[zone.value]?.length || 0} mesas</p>
                 </div>
-                <Button type="button" variant="ghost" size="sm" onClick={() => editZone(zone)}>
-                  Editar
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => editZone(zone)}>
+                    Editar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    onClick={() => deleteZone(zone)}
+                    disabled={zoneSaving || (grouped[zone.value]?.length || 0) > 0}
+                    title={(grouped[zone.value]?.length || 0) > 0 ? 'Primero mueve o elimina las mesas de esta zona' : undefined}
+                  >
+                    Eliminar
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

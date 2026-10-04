@@ -1,6 +1,6 @@
 import { ArrowLeft, ExternalLink, Plus, Repeat, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { projectsApi } from '../../../api/projects';
 import { tasksApi } from '../../../api/tasks';
 import { usersApi } from '../../../api/users';
@@ -12,6 +12,7 @@ import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
 import { useToast } from '../../../hooks/useToast';
 import { useConfirm } from '../../../hooks/useConfirm';
+import { useAuth } from '../../../hooks/useAuth';
 import { formatShortDate } from '../../../utils/formatDate';
 import type { Project, ProjectTask, ProjectTaskStatus, RecurrenceFrequency, TaskPriority, User } from '../../../types';
 
@@ -114,6 +115,8 @@ interface TaskDraft {
 
 export function ProyectoDetailPage() {
   const { id = '' } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<ProjectTask[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -126,6 +129,7 @@ export function ProyectoDetailPage() {
   const [editing, setEditing] = useState<ProjectTask | null>(null);
   const [draft, setDraft] = useState<TaskDraft>(emptyDraft());
   const [attachment, setAttachment] = useState({ filename: '', url: '' });
+  const [archiving, setArchiving] = useState(false);
   const toast = useToast();
   const confirm = useConfirm();
 
@@ -268,6 +272,27 @@ export function ProyectoDetailPage() {
     }
   };
 
+  const archiveProject = async () => {
+    if (!(await confirm({
+      message: '¿Archivar este proyecto completo? Dejará de aparecer en la lista de proyectos activos.',
+      confirmLabel: 'Archivar proyecto',
+      variant: 'danger',
+    }))) return;
+
+    setArchiving(true);
+    try {
+      await projectsApi.delete(id);
+      toast.success('Proyecto archivado');
+      navigate('/admin/proyectos');
+    } catch (error) {
+      const message = (error as { response?: { data?: { error?: string } } })
+        .response?.data?.error || 'Error al archivar proyecto';
+      toast.error(message);
+    } finally {
+      setArchiving(false);
+    }
+  };
+
   const renderTask = (task: ProjectTask) => (
     <div key={task._id} className={`bg-white border border-island-blue/20 border-l-4 ${priorityClass[task.priority]} rounded-lg p-4 hover:border-island-blue/40 transition-colors`}>
       <div className="flex items-start justify-between gap-4">
@@ -332,7 +357,20 @@ export function ProyectoDetailPage() {
           </div>
           <p className="text-island-dark/70 font-body text-sm mt-1">{project.description || 'Sin descripción'}</p>
         </div>
-        <Button onClick={openCreate} icon={<Plus size={15} />}>Nueva tarea</Button>
+        <div className="flex flex-wrap gap-2">
+          {user?.role === 'superadmin' && (
+            <Button
+              type="button"
+              variant="danger"
+              onClick={archiveProject}
+              loading={archiving}
+              icon={<Trash2 size={15} />}
+            >
+              Archivar proyecto
+            </Button>
+          )}
+          <Button onClick={openCreate} icon={<Plus size={15} />}>Nueva tarea</Button>
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">

@@ -67,7 +67,7 @@ export function HomeFooter() {
           <p className="li-footer-col-title">La isla</p>
           <a href="#razones">El espacio</a>
           <Link to="/menu">La carta</Link>
-          <a href="#eventos">Eventos</a>
+          <Link to="/reservar/eventos">Eventos</Link>
           <Link to="/reservar/cena-con-desconocidos">Cena con desconocidos</Link>
         </nav>
         <div className="li-footer-col">
