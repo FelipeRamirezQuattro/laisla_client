@@ -76,6 +76,17 @@
   }
 }
 
+/* iOS/macOS Safari (WebKit 15+) applies text-align: center and its own height to the
+   internal value box of <input type="date">, via its user-agent stylesheet, overriding
+   that box's own padding and font-size. This cannot be fixed on the <input> itself —
+   only by targeting that internal pseudo-element directly. Without this, date inputs
+   render with large, centered text that visually overflows their container on iPhone,
+   even though the <input> element's own box respects normal CSS. */
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+  height: 1.4em;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
