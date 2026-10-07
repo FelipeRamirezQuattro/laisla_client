@@ -915,13 +915,16 @@ export interface FiscalOrderTicket {
 // ─── Printing (ticket térmico / comandas) ───────────────────────────────────
 
 export type PrinterRole = 'CAJA' | 'BARRA';
+export type PrinterConnectionType = 'NETWORK' | 'USB';
 
 export interface Printer {
   _id: string;
   name: string;
   role: PrinterRole;
-  ip: string;
+  connectionType: PrinterConnectionType;
+  ip?: string;
   port: number;
+  localPath?: string;
   paperWidthMm: number;
   columns: number;
   hasCashDrawer: boolean;

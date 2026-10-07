@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Check } from "lucide-react";
 import { useScrollReveal } from "./useScrollReveal";
-import { bookingHours, nextDayChips } from "./helpers";
+import { bookingHours, nextOpenDayChips } from "./helpers";
 
 export function HomeBooking() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export function HomeBooking() {
   const [bookingHour, setBookingHour] = useState(2);
   const [bookingPeople, setBookingPeople] = useState(2);
 
-  const bookingDays = useMemo(() => nextDayChips(5), []);
+  const bookingDays = useMemo(() => nextOpenDayChips(5), []);
   const bookingSummary = `${bookingDays[bookingDay].label} · ${bookingHours[bookingHour]} · ${
     bookingPeople === 1 ? "1 persona" : `${bookingPeople} personas`
   }`;
@@ -30,8 +31,8 @@ export function HomeBooking() {
             sombra
           </h2>
           <p className="li-booking-desc">
-            Elige día, hora y cuántos son. Te guardamos la mesa 15 minutos y, si
-            vienen a trabajar, te sentamos cerca del enchufe.
+            Elige el día, la hora y el número de personas. Nosotros nos
+            encargamos del resto.
           </p>
           <div className="li-booking-tags">
             <span>Patio con sombra</span>
@@ -43,37 +44,49 @@ export function HomeBooking() {
           className="li-booking-form"
           onSubmit={(event) => {
             event.preventDefault();
-            navigate("/reservar/mesa");
+            const params = new URLSearchParams({
+              date: bookingDays[bookingDay].value,
+              timeSlot: bookingHours[bookingHour],
+              partySize: String(bookingPeople),
+            });
+            navigate(`/reservar/mesa?${params.toString()}`);
           }}
         >
           <p className="li-booking-form-title">Tu mesa en La Isla</p>
-          <p className="li-booking-step-label">1 · Día</p>
-          <div className="li-chip-row">
+          <p className="li-booking-help">Elige tu preferencia. Confirmaremos la disponibilidad contigo.</p>
+          <p className="li-booking-step-label" id="booking-day-label">Día</p>
+          <div className="li-chip-row li-day-grid" role="radiogroup" aria-labelledby="booking-day-label">
             {bookingDays.map((day, index) => (
               <button
                 type="button"
                 key={day.label}
                 onClick={() => setBookingDay(index)}
                 className={`li-chip-btn ${index === bookingDay ? "is-active" : ""}`}
+                role="radio"
+                aria-checked={index === bookingDay}
               >
+                {index === bookingDay && <Check size={15} aria-hidden="true" />}
                 {day.label}
               </button>
             ))}
           </div>
-          <p className="li-booking-step-label">2 · Hora</p>
-          <div className="li-chip-row">
+          <p className="li-booking-step-label" id="booking-hour-label">Hora</p>
+          <div className="li-chip-row li-hour-grid" role="radiogroup" aria-labelledby="booking-hour-label">
             {bookingHours.map((hour, index) => (
               <button
                 type="button"
                 key={hour}
                 onClick={() => setBookingHour(index)}
                 className={`li-chip-btn ${index === bookingHour ? "is-active" : ""}`}
+                role="radio"
+                aria-checked={index === bookingHour}
               >
+                {index === bookingHour && <Check size={15} aria-hidden="true" />}
                 {hour}
               </button>
             ))}
           </div>
-          <p className="li-booking-step-label">3 · Cuántos son</p>
+          <p className="li-booking-step-label">Cuántas personas</p>
           <div className="li-people-row">
             <button
               type="button"
@@ -96,7 +109,7 @@ export function HomeBooking() {
             </button>
           </div>
           <button type="submit" className="li-booking-submit">
-            Continuar con la reserva →
+            Reservar mesa para {bookingPeople} →
           </button>
           <p className="li-booking-summary">{bookingSummary}</p>
         </form>

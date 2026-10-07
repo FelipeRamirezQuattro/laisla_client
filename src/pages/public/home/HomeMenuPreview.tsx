@@ -12,9 +12,10 @@ export type MenuPreviewItem = {
 
 type HomeMenuPreviewProps = {
   menuItems: MenuPreviewItem[];
+  status: "loading" | "ready" | "error";
 };
 
-export function HomeMenuPreview({ menuItems }: HomeMenuPreviewProps) {
+export function HomeMenuPreview({ menuItems, status }: HomeMenuPreviewProps) {
   const revealRef = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -27,7 +28,9 @@ export function HomeMenuPreview({ menuItems }: HomeMenuPreviewProps) {
             <br />
             dos veces
           </h2>
-          {menuItems.length > 0 ? (
+          {status === "loading" ? (
+            <div className="li-empty-state" aria-live="polite">Cargando la carta…</div>
+          ) : menuItems.length > 0 ? (
             <div className="li-menu-list">
               {menuItems.map((item) => (
                 <div className="li-menu-row" key={item.id}>
@@ -39,8 +42,9 @@ export function HomeMenuPreview({ menuItems }: HomeMenuPreviewProps) {
             </div>
           ) : (
             <div className="li-empty-state">
-              La carta pública aparecerá aquí cuando haya productos activos
-              publicados desde el administrador.
+              {status === "error"
+                ? "No pudimos cargar la carta. Puedes verla completa o escribirnos para conocer lo disponible."
+                : "Estamos actualizando la selección de hoy. Mira la carta completa para ver todo lo disponible."}
             </div>
           )}
           <Link to="/menu" className="li-text-link">
@@ -57,20 +61,12 @@ export function HomeMenuPreview({ menuItems }: HomeMenuPreviewProps) {
             />
           </div>
           <div className="li-menu-roast">
-            <p className="li-kicker">Tostión de la semana</p>
-            <p className="li-menu-roast-title">
-              Finca La Palma
-              <br />· Anaime
+            <p className="li-kicker">Café en barra</p>
+            <p className="li-menu-roast-title">Pregunta por el grano de hoy</p>
+            <p>
+              En la barra te contamos su origen, notas y el método que mejor le
+              queda. La disponibilidad cambia con cada lote.
             </p>
-            <p>Notas de panela, mandarina y almendra. Se acaba el domingo.</p>
-          </div>
-          <div className="li-menu-picnic-photo li-duotone">
-            <ProgressiveImage
-              className="image-fill"
-              src={homeImages.menuPicnic.src}
-              alt={homeImages.menuPicnic.alt}
-              loading="lazy"
-            />
           </div>
         </div>
       </div>

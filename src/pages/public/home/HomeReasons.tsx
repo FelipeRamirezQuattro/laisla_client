@@ -4,21 +4,18 @@ import { homeImages } from "./helpers";
 
 const reasons = [
   {
-    n: "N.º 01",
     tag: "Barra",
     title: "Café de origen",
-    desc: "Grano del Tolima, tostión de la semana escrita en la pizarra y métodos fríos para el calor de Ibagué.",
+    desc: "Café preparado al momento, métodos fríos para el calor de Ibagué y una barra que siempre tiene algo por recomendar.",
     img: homeImages.reasons[0],
   },
   {
-    n: "N.º 02",
     tag: "Mesas",
     title: "Isla de trabajo",
     desc: "Enchufe en cada mesa, WiFi que aguanta la videollamada y permiso oficial para quedarte cuatro horas.",
     img: homeImages.reasons[1],
   },
   {
-    n: "N.º 03",
     tag: "Planes",
     title: "Vida social",
     desc: "Cine bajo el cobertizo, catas guiadas, domingos de picnic y la cena donde nadie se conoce.",
@@ -35,16 +32,16 @@ export function HomeReasons() {
       <div ref={revealRef} className="li-reveal">
         <div className="li-reasons-head">
           <div>
-            <p className="li-kicker">Tres razones · una isla</p>
+            <p className="li-kicker">Un lugar, tres maneras de estar</p>
             <h2 className="li-section-title">
-              Aquí el reloj
+              Ven por el café.
               <br />
-              se queda afuera
+              Quédate por el plan.
             </h2>
           </div>
           <p className="li-reasons-lead">
-            No somos un café para llevar. Somos el sitio donde te sientas,
-            sacas el portátil o no, y de repente son las seis.
+            Aquí puedes avanzar en lo tuyo, hacer una pausa o sumarte a un plan.
+            Cada rincón tiene su propio ritmo.
           </p>
         </div>
         <div className="li-reasons-grid">
@@ -57,7 +54,6 @@ export function HomeReasons() {
                   alt={reason.img.alt}
                   loading="lazy"
                 />
-                <span className="li-reason-badge">{reason.n}</span>
               </div>
               <div className="li-reason-body">
                 <p className="li-reason-tag">{reason.tag}</p>

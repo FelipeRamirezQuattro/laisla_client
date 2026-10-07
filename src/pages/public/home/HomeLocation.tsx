@@ -1,4 +1,4 @@
-import { Clock, MapPin, Phone } from "lucide-react";
+import { Clock, MapPin, MessageCircle, Phone } from "lucide-react";
 import { useScrollReveal } from "./useScrollReveal";
 import { contact } from "../../../utils/siteInfo";
 
@@ -32,14 +32,24 @@ export function HomeLocation() {
             <Phone size={22} strokeWidth={2} />
             <a href={contact.phoneHref}>{contact.phone}</a>
           </div>
-          <a
-            href={directionsHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="li-btn-primary"
-          >
-            Cómo llegar →
-          </a>
+          <div className="li-location-actions">
+            <a
+              href={directionsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="li-btn-primary"
+            >
+              Abrir en Google Maps →
+            </a>
+            <a
+              href={contact.whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="li-btn-outline"
+            >
+              <MessageCircle size={18} aria-hidden="true" /> Escribir por WhatsApp
+            </a>
+          </div>
         </div>
         <div className="li-location-map">
           <iframe
@@ -47,6 +57,7 @@ export function HomeLocation() {
             title="Ubicación de La Isla · Café Picnic"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
           />
         </div>
       </div>

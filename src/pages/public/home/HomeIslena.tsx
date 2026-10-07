@@ -1,6 +1,4 @@
-import { ProgressiveImage } from "./ProgressiveImage";
 import { useScrollReveal } from "./useScrollReveal";
-import { homeImages } from "./helpers";
 
 export function HomeIslena() {
   const revealRef = useScrollReveal<HTMLDivElement>();
@@ -9,50 +7,36 @@ export function HomeIslena() {
     <section className="li-isleña li-pattern-band">
       <div ref={revealRef} className="li-reveal li-isleña-inner">
         <div className="li-isleña-copy">
-          <p className="li-kicker">Te presentamos a La Isleña</p>
-          <p className="li-isleña-title">
-            Sin prisa,
+          <p className="li-kicker">Ella es Coral</p>
+          <h2 className="li-isleña-title">
+            El alma de
             <br />
-            <span>sin ruido</span>
-          </p>
+            <span>La Isla</span>
+          </h2>
           <p className="li-isleña-desc">
-            Llega en chanclas, se queda hasta que se acabe la conversación.
-            Si la ves pasar, ya entendiste el plan.
+            Curiosa, cercana y siempre lista para armar plan. Coral nos recuerda
+            que una buena pausa también puede cambiarte el día.
           </p>
-          <div className="li-isleña-thumbs">
-            {homeImages.isleña.map((img, index) => (
-              <div
-                className="li-isleña-thumb li-duotone"
-                style={{ transform: `rotate(${index % 2 ? 2 : -2}deg)` }}
-                key={img.src}
-              >
-                <ProgressiveImage
-                  className="image-fill"
-                  src={img.src}
-                  alt={img.alt}
-                  loading="lazy"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="li-isleña-facts">
-          <div className="li-isleña-fact">
-            <span>Su pedido</span>
-            <span>Latte con canela</span>
-          </div>
-          <div className="li-isleña-fact">
-            <span>Su mesa</span>
-            <span>La del rincón</span>
-          </div>
-          <div className="li-isleña-fact">
-            <span>Se reconoce por</span>
-            <span>Las chanclas</span>
+          <div className="li-isleña-facts">
+            <div className="li-isleña-fact">
+              <span>Lo que le gusta</span>
+              <span>Juntar personas</span>
+            </div>
+            <div className="li-isleña-fact">
+              <span>Su plan ideal</span>
+              <span>Una tarde sin reloj</span>
+            </div>
+            <div className="li-isleña-fact">
+              <span>Su filosofía</span>
+              <span>Disfrutar el momento</span>
+            </div>
           </div>
         </div>
         <img
           src="/images/brand/mascota-islena.png"
-          alt="La Isleña, el personaje de La Isla"
+          alt="Coral, el personaje de La Isla"
+          width="560"
+          height="660"
           className="li-isleña-mascot"
         />
       </div>

@@ -16,24 +16,42 @@ import { recipePriceLabel } from "./home/helpers";
 export function HomePage() {
   const [menuRecipes, setMenuRecipes] = useState<Recipe[]>([]);
   const [publicEvents, setPublicEvents] = useState<Event[]>([]);
+  const [menuStatus, setMenuStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [eventsStatus, setEventsStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
-    publicMenuApi
-      .get()
-      .then((res) => setMenuRecipes(res.data.recipes))
-      .catch(() => setMenuRecipes([]));
-  }, []);
+    let active = true;
 
-  useEffect(() => {
-    publicApi
-      .getEvents()
-      .then((res) => setPublicEvents(res.data))
-      .catch(() => setPublicEvents([]));
+    Promise.allSettled([publicMenuApi.get(), publicApi.getEvents()]).then(
+      ([menuResult, eventsResult]) => {
+        if (!active) return;
+
+        if (menuResult.status === "fulfilled") {
+          setMenuRecipes(menuResult.value.data.recipes);
+          setMenuStatus("ready");
+        } else {
+          setMenuRecipes([]);
+          setMenuStatus("error");
+        }
+
+        if (eventsResult.status === "fulfilled") {
+          setPublicEvents(eventsResult.value.data);
+          setEventsStatus("ready");
+        } else {
+          setPublicEvents([]);
+          setEventsStatus("error");
+        }
+      },
+    );
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const menuItems = useMemo(
     () =>
-      menuRecipes.slice(0, 6).map((recipe) => ({
+      menuRecipes.slice(0, 4).map((recipe) => ({
         id: recipe._id,
         name: recipe.name,
         desc:
@@ -52,16 +70,16 @@ export function HomePage() {
 
   return (
     <div className="li-home">
-      <main>
+      <div>
         <HomeHero />
         <HomeReasons />
-        <HomeMenuPreview menuItems={menuItems} />
-        <HomeEvents events={calendarEvents} />
+        <HomeMenuPreview menuItems={menuItems} status={menuStatus} />
+        <HomeEvents events={calendarEvents} status={eventsStatus} />
         <HomeIslena />
         <HomeDinner dinnerEvent={dinnerEvent} />
         <HomeBooking />
         <HomeLocation />
-      </main>
+      </div>
     </div>
   );
 }

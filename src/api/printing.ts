@@ -34,6 +34,8 @@ export const printJobsApi = {
   retry: (id: string) => api.post<PrintJob>(`/admin/printing/jobs/${id}/retry`),
   reprintOrder: (orderId: string, amountReceived?: number) =>
     api.post<PrintJob>(`/admin/printing/orders/${orderId}/reprint`, { amountReceived }),
+  sendReceiptEmail: (orderId: string, email: string) =>
+    api.post<{ success: true }>(`/admin/printing/orders/${orderId}/send-receipt-email`, { email }),
 };
 
 export const printingAlertsApi = {

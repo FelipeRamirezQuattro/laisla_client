@@ -1,4 +1,4 @@
-import { AlertTriangle, Eye, Printer as PrinterIcon, ReceiptText, Trash2 } from 'lucide-react';
+import { AlertTriangle, Eye, Mail, Printer as PrinterIcon, ReceiptText, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { ordersApi } from '../../api/orders';
@@ -77,6 +77,9 @@ export function BillingPage() {
   const [fiscalTickets, setFiscalTickets] = useState<Record<string, FiscalOrderTicket>>({});
   const [printJobs, setPrintJobs] = useState<Record<string, PrintJob>>({});
   const [reprintingId, setReprintingId] = useState<string | null>(null);
+  const [emailTarget, setEmailTarget] = useState<Order | null>(null);
+  const [emailAddress, setEmailAddress] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
   const toast = useToast();
   const { openShift } = useShiftStore();
 
@@ -150,6 +153,26 @@ export function BillingPage() {
       toast.error('Error al reimprimir el ticket');
     } finally {
       setReprintingId(null);
+    }
+  };
+
+  const openSendEmail = (order: Order) => {
+    setEmailTarget(order);
+    setEmailAddress(typeof order.clientId === 'object' ? order.clientId?.email ?? '' : '');
+  };
+
+  const handleSendReceiptEmail = async () => {
+    if (!emailTarget) return;
+    setSendingEmail(true);
+    try {
+      await printJobsApi.sendReceiptEmail(emailTarget._id, emailAddress.trim());
+      toast.success('Recibo enviado por correo');
+      setEmailTarget(null);
+    } catch (error) {
+      const message = (error as { response?: { data?: { error?: string } } }).response?.data?.error || 'Error al enviar el recibo por correo';
+      toast.error(message);
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -229,6 +252,11 @@ export function BillingPage() {
           onClick={() => handleReprint(order)}
         >
           <PrinterIcon size={14} /> Reimprimir
+        </Button>
+      )}
+      {order.status === 'billed' && (
+        <Button variant="ghost" size="sm" onClick={() => openSendEmail(order)}>
+          <Mail size={14} /> Correo
         </Button>
       )}
       {!['billed', 'cancelled'].includes(order.status) && (
@@ -477,6 +505,29 @@ export function BillingPage() {
             <div className="flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setCloseOrder(null)}>Cancelar</Button>
               <Button onClick={handleCloseOrder}>Confirmar factura</Button>
+            </div>
+          </div>
+        </Modal>
+        )}
+
+        {emailTarget && (
+        <Modal isOpen={!!emailTarget} onClose={() => setEmailTarget(null)} title="Enviar recibo por correo">
+          <div className="space-y-4">
+            <p className="text-sm text-island-dark/70 font-body">
+              Se enviará el recibo del pedido de {tableName(emailTarget.tableId)} al correo indicado.
+            </p>
+            <Input
+              label="Correo electrónico"
+              type="email"
+              value={emailAddress}
+              onChange={(event) => setEmailAddress(event.target.value)}
+              placeholder="cliente@correo.com"
+            />
+            <div className="flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => setEmailTarget(null)}>Cancelar</Button>
+              <Button onClick={handleSendReceiptEmail} loading={sendingEmail} disabled={!emailAddress.trim()}>
+                <Mail size={14} /> Enviar
+              </Button>
             </div>
           </div>
         </Modal>

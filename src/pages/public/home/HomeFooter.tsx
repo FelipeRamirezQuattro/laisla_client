@@ -56,16 +56,18 @@ export function HomeFooter() {
           <img
             src="/images/brand/logo-principal-blanco.png"
             alt="La Isla · Café Picnic"
+            width="300"
+            height="300"
             className="li-footer-logo"
           />
           <p className="li-footer-desc">
-            Café picnic en el corazón de Ibagué. Una pausa en medio del ruido,
-            de lunes a sábado, de 1 a 9 de la noche.
+            <strong>Vivir sin afán.</strong> Café picnic en el corazón de
+            Ibagué, de lunes a sábado, de 1 a 9 de la noche.
           </p>
         </div>
         <nav className="li-footer-col">
           <p className="li-footer-col-title">La isla</p>
-          <a href="#razones">El espacio</a>
+          <a href="/#razones">El espacio</a>
           <Link to="/menu">La carta</Link>
           <Link to="/reservar/eventos">Eventos</Link>
           <Link to="/reservar/cena-con-desconocidos">Cena con desconocidos</Link>
@@ -82,9 +84,14 @@ export function HomeFooter() {
         <div className="li-footer-col">
           <p className="li-footer-col-title">Boletín · 1 vez al mes</p>
           <form className="li-newsletter-form" onSubmit={handleNewsletterSubmit}>
+            <label className="li-sr-only" htmlFor="newsletter-email">Correo electrónico</label>
             <input
+              id="newsletter-email"
+              name="email"
               type="email"
-              placeholder="tu@correo.com"
+              autoComplete="email"
+              spellCheck={false}
+              placeholder="tu@correo.com…"
               value={newsletterEmail}
               onChange={(event) => setNewsletterEmail(event.target.value)}
               disabled={newsletterStatus === "loading"}
@@ -109,7 +116,7 @@ export function HomeFooter() {
               }}
             />
             <button type="submit" disabled={newsletterStatus === "loading"}>
-              {newsletterStatus === "loading" ? "Enviando" : "Apuntarme"}
+              {newsletterStatus === "loading" ? "Enviando…" : "Apuntarme"}
             </button>
           </form>
           {TURNSTILE_SITE_KEY && (
@@ -122,7 +129,7 @@ export function HomeFooter() {
             />
           )}
           {newsletterMessage && (
-            <span className="li-newsletter-message">{newsletterMessage}</span>
+            <span className="li-newsletter-message" role="status" aria-live="polite">{newsletterMessage}</span>
           )}
           <a href={`mailto:${contact.email}`}>{contact.email}</a>
           <a href={contact.phoneHref}>{contact.phone}</a>

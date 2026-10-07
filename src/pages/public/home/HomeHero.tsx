@@ -17,37 +17,36 @@ export function HomeHero() {
       <div className="li-hero-overlay" aria-hidden="true" />
       <div className="li-hero-inner li-reveal" ref={revealRef}>
         <div className="li-hero-copy">
+          <p className="li-kicker li-kicker-on-blue">Café picnic · La Macarena</p>
           <h1 className="li-hero-title">
-            Baja el
+            Vivir
             <br />
-            volumen
-            <br />
-            <span>de la ciudad</span>
+            {" "}<span>sin afán.</span>
           </h1>
           <p className="li-hero-desc">
-            Café de especialidad, mesas largas, patio con sombra y planes para
-            conocer gente.
+            Un lugar para tomar café, compartir la mesa y dejar que el día vaya
+            a otro ritmo.
           </p>
           <div className="li-hero-actions">
             <Link to="/reservar/mesa" className="li-btn-primary">
               Reservar mesa →
             </Link>
-            <Link to="/reservar/cena-con-desconocidos" className="li-btn-ghost">
-              Cena con desconocidos
+            <Link to="/menu" className="li-btn-ghost">
+              Ver la carta
             </Link>
           </div>
           <div className="li-hero-stats">
             <div>
-              <strong>1pm–9pm</strong>
-              <span>Lun a sáb</span>
+              <span>Horario</span>
+              <strong>1 pm–9 pm</strong>
             </div>
             <div>
-              <strong>4h</strong>
-              <span>Mesa sin culpa</span>
+              <span>Estamos en</span>
+              <strong>La Macarena</strong>
             </div>
             <div>
-              <strong>Tolima</strong>
-              <span>Grano de origen</span>
+              <span>El plan</span>
+              <strong>Café, picnic y buenos planes</strong>
             </div>
           </div>
         </div>
@@ -59,6 +58,7 @@ export function HomeHero() {
               src={homeImages.hero.src}
               alt={homeImages.hero.alt}
               loading="eager"
+              fetchPriority="high"
             />
           </div>
         </div>

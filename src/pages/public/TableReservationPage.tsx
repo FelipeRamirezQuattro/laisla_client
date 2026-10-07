@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Leaf, Monitor, PartyPopper, Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ import { formatDate } from '../../utils/formatDate';
 
 const steps = ['Fecha y hora', 'Zona', 'Tus datos', 'Ocasión', 'Confirmación'];
 
-const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+const timeSlots = ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
 
 const zoneInfo = [
   {
@@ -61,8 +61,17 @@ interface FormState {
 }
 
 export function TableReservationPage() {
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<Partial<FormState>>({});
+  const [form, setForm] = useState<Partial<FormState>>(() => {
+    const partySize = Number(searchParams.get('partySize'));
+    const timeSlot = searchParams.get('timeSlot') || '';
+    return {
+      date: searchParams.get('date') || '',
+      timeSlot: timeSlots.includes(timeSlot) ? timeSlot : '',
+      partySize: Number.isInteger(partySize) && partySize >= 1 && partySize <= 12 ? partySize : undefined,
+    };
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -163,8 +172,10 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
           {timeSlots.map((t) => (
             <button
               key={t}
+              type="button"
               onClick={() => update({ timeSlot: t })}
-              className={`py-2 rounded-lg text-sm font-body font-medium transition-all ${
+              aria-pressed={form.timeSlot === t}
+              className={`py-2 rounded-lg text-sm font-body font-medium transition-colors duration-200 ${
                 form.timeSlot === t
                   ? 'bg-island-blue text-white'
                   : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
@@ -181,8 +192,10 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
             <button
               key={n}
+              type="button"
               onClick={() => update({ partySize: n })}
-              className={`w-12 h-12 rounded-xl text-sm font-body font-medium transition-all ${
+              aria-pressed={form.partySize === n}
+              className={`w-12 h-12 rounded-xl text-sm font-body font-medium transition-colors duration-200 ${
                 form.partySize === n
                   ? 'bg-island-dark text-white'
                   : 'bg-sand text-island-dark hover:bg-sand hover:text-island-dark'
@@ -193,7 +206,7 @@ function Step1({ form, update, onNext }: { form: Partial<FormState>; update: (f:
           ))}
         </div>
       </div>
-      {err && <p className="text-error-ink text-sm font-body">{err}</p>}
+      {err && <p className="text-error-ink text-sm font-body" role="alert">{err}</p>}
       <div className="flex justify-end pt-2">
         <Button onClick={handleNext}>Continuar</Button>
       </div>
@@ -219,8 +232,10 @@ function Step2({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
           return (
           <button
             key={z.value}
+            type="button"
             onClick={() => update({ zone: z.value })}
-            className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all ${
+            aria-pressed={form.zone === z.value}
+            className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-colors duration-200 ${
               form.zone === z.value
                 ? 'border-island-blue bg-island-blue bg-opacity-5'
                 : 'border-island-blue/20 hover:border-island-blue/40'
@@ -236,7 +251,7 @@ function Step2({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
           </button>
         )})}
       </div>
-      {err && <p className="text-error-ink text-sm font-body">{err}</p>}
+      {err && <p className="text-error-ink text-sm font-body" role="alert">{err}</p>}
       <div className="flex justify-between pt-2">
         <Button variant="secondary" onClick={onBack}>Volver</Button>
         <Button onClick={handleNext}>Continuar</Button>
@@ -282,16 +297,20 @@ function Step4({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
       <h2 className="font-body text-xl font-semibold text-island-dark">¿Es una ocasión especial?</h2>
       <div className="flex gap-3">
         <button
+          type="button"
           onClick={() => update({ hasOccasion: false })}
-          className={`flex-1 py-3 rounded-xl font-body font-medium border-2 transition-all ${
+          aria-pressed={form.hasOccasion === false}
+          className={`flex-1 py-3 rounded-xl font-body font-medium border-2 transition-colors duration-200 ${
             form.hasOccasion === false ? 'border-island-dark bg-island-dark text-white' : 'border-island-blue/20 hover:border-island-blue/20'
           }`}
         >
           No, es una visita normal
         </button>
         <button
+          type="button"
           onClick={() => update({ hasOccasion: true })}
-          className={`flex-1 py-3 rounded-xl font-body font-medium border-2 transition-all ${
+          aria-pressed={form.hasOccasion === true}
+          className={`flex-1 py-3 rounded-xl font-body font-medium border-2 transition-colors duration-200 ${
             form.hasOccasion === true ? 'border-island-blue bg-island-blue text-white' : 'border-island-blue/20 hover:border-island-blue'
           }`}
         >
@@ -307,7 +326,7 @@ function Step4({ form, update, onNext, onBack }: { form: Partial<FormState>; upd
           <Select
             label="Tipo de ocasión"
             options={occasionOptions}
-            placeholder="Seleccionar..."
+            placeholder="Seleccionar…"
             value={form.occasionType || ''}
             onChange={(e) => update({ occasionType: e.target.value })}
           />
@@ -353,7 +372,7 @@ function Step5({ form, onBack, onSubmit, loading, error }: { form: Partial<FormS
           <Row label="Ocasión especial" value={occasionLabels[form.occasionType || ''] || form.occasionType || ''} />
         )}
       </div>
-      {error && <p className="text-error-ink text-sm font-body">{error}</p>}
+      {error && <p className="text-error-ink text-sm font-body" role="alert" aria-live="polite">{error}</p>}
       <p className="text-xs text-island-dark/70 font-body">
         Al confirmar, aceptas que tu reservación está sujeta a disponibilidad. Te contactaremos por email para confirmar.
       </p>

@@ -91,27 +91,45 @@ export function PrintingPage() {
 const printerSchema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
   role: z.enum(['CAJA', 'BARRA']),
-  ip: z.string().min(1, 'IP requerida'),
+  connectionType: z.enum(['NETWORK', 'USB']),
+  ip: z.string(),
   port: z.coerce.number().int().min(1),
+  localPath: z.string(),
   paperWidthMm: z.coerce.number().int().min(1),
   columns: z.coerce.number().int().min(1),
   hasCashDrawer: z.boolean(),
   isActive: z.boolean(),
   agentId: z.string(),
+}).superRefine((data, ctx) => {
+  if (data.connectionType === 'USB') {
+    if (!data.localPath.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Puerto o ruta local requerido, ej. \\\\.\\COM3', path: ['localPath'] });
+    }
+  } else if (!data.ip.trim()) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'IP requerida', path: ['ip'] });
+  }
 });
 type PrinterFormData = z.infer<typeof printerSchema>;
 
 const emptyPrinterForm: PrinterFormData = {
   name: '',
   role: 'CAJA',
+  connectionType: 'NETWORK',
   ip: '',
   port: 9100,
+  localPath: '',
   paperWidthMm: 80,
   columns: 48,
   hasCashDrawer: false,
   isActive: true,
   agentId: '',
 };
+
+function connectionLabel(printer: Printer) {
+  return printer.connectionType === 'USB'
+    ? `USB · ${printer.localPath || 'sin configurar'}`
+    : `${printer.ip || 'sin IP'}:${printer.port}`;
+}
 
 function roleLabel(role: string) {
   return role === 'CAJA' ? 'Caja' : 'Barra';
@@ -136,8 +154,10 @@ function PrintersTab({
     handleSubmit,
     reset,
     control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<PrinterFormData>({ resolver: zodResolver(printerSchema), defaultValues: emptyPrinterForm });
+  const connectionType = watch('connectionType');
 
   const openCreate = () => {
     setEditing(null);
@@ -150,8 +170,10 @@ function PrintersTab({
     reset({
       name: printer.name,
       role: printer.role,
-      ip: printer.ip,
+      connectionType: printer.connectionType || 'NETWORK',
+      ip: printer.ip || '',
       port: printer.port,
+      localPath: printer.localPath || '',
       paperWidthMm: printer.paperWidthMm,
       columns: printer.columns,
       hasCashDrawer: printer.hasCashDrawer,
@@ -163,7 +185,12 @@ function PrintersTab({
 
   const onSubmit = async (data: PrinterFormData) => {
     try {
-      const payload = { ...data, agentId: data.agentId || null };
+      const payload = {
+        ...data,
+        agentId: data.agentId || null,
+        ip: data.connectionType === 'NETWORK' ? data.ip : undefined,
+        localPath: data.connectionType === 'USB' ? data.localPath : undefined,
+      };
       if (editing) {
         await printersApi.update(editing._id, payload);
         toast.success('Impresora actualizada');
@@ -222,7 +249,7 @@ function PrintersTab({
               <tr key={printer._id} className="hover:bg-gray-100 transition-colors">
                 <td className="px-4 py-3 font-medium text-island-dark">{printer.name}</td>
                 <td className="px-4 py-3 text-island-dark/70">{roleLabel(printer.role)}</td>
-                <td className="px-4 py-3 text-island-dark/70">{printer.ip}:{printer.port}</td>
+                <td className="px-4 py-3 text-island-dark/70">{connectionLabel(printer)}</td>
                 <td className="px-4 py-3 text-island-dark/70">
                   {agents.find((a) => a._id === printer.agentId)?.name || '—'}
                 </td>
@@ -264,10 +291,28 @@ function PrintersTab({
               {...register('agentId')}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="IP" error={errors.ip?.message} {...register('ip')} />
-            <Input label="Puerto" type="number" {...register('port')} />
-          </div>
+          <Select
+            label="Tipo de conexión"
+            options={[
+              { value: 'NETWORK', label: 'Red (Ethernet/WiFi)' },
+              { value: 'USB', label: 'USB directo al computador' },
+            ]}
+            {...register('connectionType')}
+          />
+          {connectionType === 'USB' ? (
+            <Input
+              label="Puerto o ruta local"
+              placeholder="\\.\COM3"
+              hint="En Windows, el puerto COM que Windows le asignó a la impresora (revísalo en Administrador de dispositivos)."
+              error={errors.localPath?.message}
+              {...register('localPath')}
+            />
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="IP" error={errors.ip?.message} {...register('ip')} />
+              <Input label="Puerto" type="number" {...register('port')} />
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <Input label="Ancho de papel (mm)" type="number" {...register('paperWidthMm')} />
             <Input label="Columnas" type="number" {...register('columns')} />

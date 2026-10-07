@@ -6,16 +6,17 @@ import {
   eventCtaPath,
   eventDateParts,
   eventDateTimeLabel,
-  eventPriceLabel,
-  eventSpotsLeft,
   homeImages,
 } from "./helpers";
+import { InstagramIcon, WhatsAppIcon } from "../../../components/icons/SocialIcons";
+import { contact, socialLinks } from "../../../utils/siteInfo";
 
 type HomeEventsProps = {
   events: Event[];
+  status: "loading" | "ready" | "error";
 };
 
-export function HomeEvents({ events }: HomeEventsProps) {
+export function HomeEvents({ events, status }: HomeEventsProps) {
   const revealRef = useScrollReveal<HTMLDivElement>();
 
   return (
@@ -34,7 +35,12 @@ export function HomeEvents({ events }: HomeEventsProps) {
             Todo el calendario →
           </Link>
         </div>
-        {events.length > 0 ? (
+        {status === "loading" ? (
+          <div className="li-events-empty" aria-live="polite">
+            <img src="/images/brand/icono-blanco.png" alt="" width="64" height="64" />
+            <p>Cargando los próximos planes…</p>
+          </div>
+        ) : events.length > 0 ? (
           <div className="li-events-grid">
             {events.map((event, index) => {
               const { day, month } = eventDateParts(event);
@@ -55,21 +61,35 @@ export function HomeEvents({ events }: HomeEventsProps) {
                     </span>
                   </div>
                   <div className="li-event-body">
-                    <span className="li-event-badge">
-                      {event.pricePerPerson > 0
-                        ? `${eventPriceLabel(event)} · ${eventSpotsLeft(event)} cupos`
-                        : "Entrada libre"}
-                    </span>
+                    <span className="li-event-badge">Próximo plan</span>
                     <h3>{event.title}</h3>
                     <p>{eventDateTimeLabel(event)}</p>
+                    {event.description && <p className="li-event-desc">{event.description}</p>}
+                    <span className="li-event-action">Ver evento →</span>
                   </div>
                 </Link>
               );
             })}
           </div>
         ) : (
-          <div className="li-empty-state">
-            Los eventos publicados desde el administrador aparecerán aquí.
+          <div className="li-events-empty">
+            <img src="/images/brand/icono-blanco.png" alt="" width="64" height="64" />
+            <div>
+              <h3>{status === "error" ? "La cartelera está tomando aire" : "La próxima fecha está por llegar"}</h3>
+              <p>
+                {status === "error"
+                  ? "No pudimos cargar los planes ahora. Escríbenos y te contamos qué viene."
+                  : "Mientras anunciamos el siguiente plan, síguenos o pregúntanos por WhatsApp."}
+              </p>
+            </div>
+            <div className="li-events-empty-actions">
+              <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer">
+                <InstagramIcon size={18} /> Instagram
+              </a>
+              <a href={contact.whatsappHref} target="_blank" rel="noopener noreferrer">
+                <WhatsAppIcon size={18} /> WhatsApp
+              </a>
+            </div>
           </div>
         )}
       </div>

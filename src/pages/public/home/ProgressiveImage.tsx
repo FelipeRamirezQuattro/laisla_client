@@ -6,6 +6,7 @@ type ProgressiveImageProps = {
   alt: string;
   className?: string;
   loading?: ImgHTMLAttributes<HTMLImageElement>["loading"];
+  fetchPriority?: ImgHTMLAttributes<HTMLImageElement>["fetchPriority"];
 };
 
 export function ProgressiveImage({
@@ -13,6 +14,7 @@ export function ProgressiveImage({
   alt,
   className = "",
   loading = "lazy",
+  fetchPriority,
 }: ProgressiveImageProps) {
   const [loaded, setLoaded] = useState(false);
   const revealFrame = useRef<number>();
@@ -39,7 +41,10 @@ export function ProgressiveImage({
       <img
         src={src}
         alt={alt}
+        width="1200"
+        height="900"
         loading={loading}
+        fetchPriority={fetchPriority}
         decoding="async"
         onLoad={revealImage}
       />
