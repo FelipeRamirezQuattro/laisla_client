@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
 import { useShiftStore } from '../../store/shiftStore';
-import { CafeTable, Client, FiscalOrderTicket, Order, OrderItem, PaymentMethod, PrintJob } from '../../types';
+import { CafeTable, Client, FiscalOrderTicket, Order, OrderItem, PaymentMethod, PrintConfig, PrintingAlerts, PrintJob } from '../../types';
 import { formatCOP, formatCOPDecimal } from '../../utils/formatCurrency';
 import { formatShortDate, todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
@@ -17,7 +17,7 @@ import { PageLoader } from '../../components/ui/Spinner';
 import { CancelOrderModal, OrderDetailDrawer } from '../../components/orders/OrderWorkflow';
 import { FiscalCustomerSelect } from '../../components/fiscal/FiscalCustomerSelect';
 import { fiscalApi } from '../../api/fiscal';
-import { printJobsApi } from '../../api/printing';
+import { printConfigApi, printingAlertsApi, printJobsApi } from '../../api/printing';
 
 const paymentOptions: { value: PaymentMethod; label: string }[] = [
   { value: 'cash', label: 'Efectivo' },
@@ -49,12 +49,6 @@ function lineTax(item: OrderItem) {
   return lineTotal - lineTotal / (1 + taxRate);
 }
 
-function taxLabel(item: OrderItem) {
-  if (!item.taxRate || item.taxRate <= 0) return 'Sin impuesto';
-  const name = item.taxType === 'CONSUMO_8' ? 'Impoconsumo' : 'IVA';
-  return `${name} (${(item.taxRate * 100).toFixed(0)}%)`;
-}
-
 function todayInput() {
   return todayLocal();
 }
@@ -80,6 +74,8 @@ export function BillingPage() {
   const [emailTarget, setEmailTarget] = useState<Order | null>(null);
   const [emailAddress, setEmailAddress] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [printConfig, setPrintConfig] = useState<PrintConfig | null>(null);
+  const [printingAlerts, setPrintingAlerts] = useState<PrintingAlerts | null>(null);
   const toast = useToast();
   const { openShift } = useShiftStore();
 
@@ -105,6 +101,16 @@ export function BillingPage() {
   }, [statusFilter, dateFrom, dateTo]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Same PrintConfig the thermal ticket and the receipt email already use —
+  // keeps the business header (NIT/teléfono/redes) consistent across all
+  // three places a customer might see their receipt.
+  useEffect(() => {
+    printConfigApi.get().then((res) => setPrintConfig(res.data)).catch(() => {});
+    // Decides whether "Imprimir ticket" goes to the thermal printer or
+    // falls back to the browser print dialog — see renderActions below.
+    printingAlertsApi.get().then((res) => setPrintingAlerts(res.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const billedIds = orders.filter((order) => order.status === 'billed').map((order) => order._id);
@@ -213,6 +219,19 @@ export function BillingPage() {
 
   if (loading) return <PageLoader />;
 
+  // While alerts are still loading, default to "no printer" — the browser
+  // print fallback always works, so that's the safe default rather than a
+  // silent no-op against a thermal printer that may not exist.
+  const hasActiveCajaPrinter = printingAlerts ? !printingAlerts.noCajaPrinter : false;
+
+  const handlePrintTicket = (order: Order) => {
+    if (hasActiveCajaPrinter) {
+      handleReprint(order);
+    } else {
+      setSelectedOrder(order);
+    }
+  };
+
   const renderStatusBadges = (order: Order) => (
     <>
       <OrderStatusBadge status={order.status} />
@@ -249,9 +268,10 @@ export function BillingPage() {
           variant="ghost"
           size="sm"
           loading={reprintingId === order._id}
-          onClick={() => handleReprint(order)}
+          onClick={() => handlePrintTicket(order)}
+          title={hasActiveCajaPrinter ? 'Reimprime en la impresora de caja' : 'No hay impresora de caja activa — abre el ticket para imprimir desde el navegador'}
         >
-          <PrinterIcon size={14} /> Reimprimir
+          <PrinterIcon size={14} /> {hasActiveCajaPrinter ? 'Reimprimir' : 'Imprimir ticket'}
         </Button>
       )}
       {order.status === 'billed' && (
@@ -267,71 +287,61 @@ export function BillingPage() {
     </>
   );
 
-  const invoiceContent = (order: Order): ReactNode => (
-    <div className="space-y-4">
-      <div className="rounded-xl bg-island-dark text-white px-5 py-4 flex items-start justify-between gap-4">
-        <div>
-          <p className="font-body text-xl font-semibold">La Isla Café Picnic</p>
-          <p className="text-sm opacity-75 font-body">Factura de pedido</p>
-        </div>
-        <div className="text-right text-sm font-body opacity-80">
-          <p>{tableName(order.tableId)}</p>
-          <p>{formatShortDate(order.createdAt)}</p>
-        </div>
-      </div>
+  // Narrow "tirilla" layout — same visual structure as the thermal ESC/POS
+  // ticket and the receipt email, so the browser-printed invoice, the
+  // physical ticket and the emailed receipt all look consistent. Used both
+  // for the on-screen modal preview and the print-only copy below.
+  const invoiceContent = (order: Order): ReactNode => {
+    const saleNumber = order._id.slice(-8).toUpperCase();
+    const methodLabel = paymentOptions.find((option) => option.value === order.paymentMethod)?.label;
 
-      {/* Desktop/print: table */}
-      <div className="hidden sm:block print:block border border-island-blue/20 rounded-xl overflow-hidden">
-        <table className="w-full text-sm font-body">
-          <thead className="bg-gray-100 border-b border-island-blue/20">
-            <tr>
-              <th className="text-left px-4 py-2 text-island-dark/70 font-medium">Producto</th>
-              <th className="text-center px-4 py-2 text-island-dark/70 font-medium">Cant.</th>
-              <th className="text-right px-4 py-2 text-island-dark/70 font-medium">Precio</th>
-              <th className="text-right px-4 py-2 text-island-dark/70 font-medium">Impuesto</th>
-              <th className="text-right px-4 py-2 text-island-dark/70 font-medium">Total</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-island-blue/20">
-            {order.items.map((item, idx) => (
-              <tr key={`${item.productId}-${item.variantSize ?? ''}-${idx}`}>
-                <td className="px-4 py-3">
-                  <p className="font-medium text-island-dark">{item.productName}</p>
-                  <p className="text-xs text-island-dark/70">{taxLabel(item)}</p>
-                </td>
-                <td className="px-4 py-3 text-center text-island-dark/70">{item.quantity}</td>
-                <td className="px-4 py-3 text-right text-island-dark/70">{formatCOP(item.unitPrice)}</td>
-                <td className="px-4 py-3 text-right text-island-dark/70">{formatCOPDecimal(lineTax(item))}</td>
-                <td className="px-4 py-3 text-right font-medium text-island-dark">{formatCOP(item.quantity * item.unitPrice)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    return (
+      <div className="mx-auto w-full max-w-[320px] font-mono text-xs text-island-dark space-y-2 print:max-w-[80mm] print:text-[11px]">
+        <div className="text-center space-y-0.5">
+          <p className="text-sm font-bold">{printConfig?.headerText || 'La Isla Café Picnic'}</p>
+          {printConfig?.businessNit && <p>NIT {printConfig.businessNit}</p>}
+          {printConfig?.businessPhone && <p>Tel: {printConfig.businessPhone}</p>}
+          {printConfig?.businessSocial && <p>{printConfig.businessSocial}</p>}
+        </div>
 
-      {/* Mobile: stacked item list */}
-      <div className="sm:hidden print:hidden space-y-2">
-        {order.items.map((item, idx) => (
-          <div key={`${item.productId}-${item.variantSize ?? ''}-${idx}`} className="border border-island-blue/20 rounded-lg px-3 py-2">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="font-medium text-island-dark text-sm">{item.productName}</p>
-                <p className="text-xs text-island-dark/70">{taxLabel(item)}</p>
+        <div className="border-t border-dashed border-island-dark/40" />
+
+        <p>Comprobante de pago</p>
+        <p>No. {saleNumber}</p>
+        <p>{formatShortDate(order.createdAt)}</p>
+        <p>{tableName(order.tableId)}</p>
+
+        <div className="border-t border-dashed border-island-dark/40" />
+
+        <div className="space-y-1.5">
+          {order.items.map((item, idx) => (
+            <div key={`${item.productId}-${item.variantSize ?? ''}-${idx}`}>
+              <p className="font-semibold">{item.productName}{item.variantSize ? ` (${item.variantSize})` : ''}</p>
+              <div className="flex justify-between">
+                <span>{item.quantity} x {formatCOP(item.unitPrice)}</span>
+                <span className="font-semibold">{formatCOP(item.quantity * item.unitPrice)}</span>
               </div>
-              <p className="font-medium text-island-dark text-sm shrink-0">{formatCOP(item.quantity * item.unitPrice)}</p>
             </div>
-            <p className="text-xs text-island-dark/70 mt-1">{item.quantity} x {formatCOP(item.unitPrice)}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="ml-auto w-full sm:w-80 rounded-xl bg-gray-100 p-4 space-y-2 font-body text-sm">
-        <div className="flex justify-between text-island-dark/70"><span>Base sin impuesto</span><span>{formatCOPDecimal(invoiceNet(order))}</span></div>
-        <div className="flex justify-between text-island-dark/70"><span>Impuesto incluido</span><span>{formatCOPDecimal(invoiceTax(order))}</span></div>
-        <div className="flex justify-between text-lg font-semibold text-island-dark border-t border-island-blue/20 pt-2"><span>Total</span><span>{formatCOP(order.total)}</span></div>
+        <div className="border-t border-dashed border-island-dark/40" />
+
+        <div className="space-y-1">
+          <div className="flex justify-between"><span>Subtotal</span><span>{formatCOPDecimal(invoiceNet(order))}</span></div>
+          <div className="flex justify-between"><span>Impuesto</span><span>{formatCOPDecimal(invoiceTax(order))}</span></div>
+          <div className="flex justify-between text-sm font-bold border-t border-island-dark/40 pt-1"><span>Total</span><span>{formatCOP(order.total)}</span></div>
+          {methodLabel && (
+            <div className="flex justify-between"><span>Pago</span><span>{methodLabel}</span></div>
+          )}
+        </div>
+
+        <div className="border-t border-dashed border-island-dark/40" />
+
+        <p className="text-center">¡Gracias por tu visita!</p>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
