@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { ProgressiveImage } from "./ProgressiveImage";
 import { useScrollReveal } from "./useScrollReveal";
 import { homeImages } from "./helpers";
@@ -26,6 +27,42 @@ const reasons = [
 
 export function HomeReasons() {
   const revealRef = useScrollReveal<HTMLDivElement>();
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeReason, setActiveReason] = useState(0);
+
+  const scrollToReason = (index: number) => {
+    const carousel = carouselRef.current;
+    const card = carousel?.children[index] as HTMLElement | undefined;
+    const firstCard = carousel?.firstElementChild as HTMLElement | null;
+
+    if (!carousel || !card || !firstCard) return;
+
+    carousel.scrollTo({
+      left: card.offsetLeft - firstCard.offsetLeft,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  };
+
+  const updateActiveReason = () => {
+    const carousel = carouselRef.current;
+    const cards = Array.from(carousel?.children ?? []) as HTMLElement[];
+    const firstCard = cards[0];
+
+    if (!carousel || !firstCard) return;
+
+    const closestIndex = cards.reduce((closest, card, index) => {
+      const cardDistance = Math.abs(card.offsetLeft - firstCard.offsetLeft - carousel.scrollLeft);
+      const closestCard = cards[closest];
+      const closestDistance = Math.abs(
+        closestCard.offsetLeft - firstCard.offsetLeft - carousel.scrollLeft,
+      );
+      return cardDistance < closestDistance ? index : closest;
+    }, 0);
+
+    setActiveReason(closestIndex);
+  };
 
   return (
     <section className="li-reasons li-pattern-band" id="razones">
@@ -44,9 +81,19 @@ export function HomeReasons() {
             Cada rincón tiene su propio ritmo.
           </p>
         </div>
-        <div className="li-reasons-grid">
-          {reasons.map((reason) => (
-            <article className={`li-reason-card ${reason.extra ?? ""}`} key={reason.title}>
+        <div
+          ref={carouselRef}
+          className="li-reasons-grid"
+          role="region"
+          aria-label="Tres maneras de disfrutar La Isla"
+          onScroll={updateActiveReason}
+        >
+          {reasons.map((reason, index) => (
+            <article
+              className={`li-reason-card ${reason.extra ?? ""}`}
+              key={reason.title}
+              aria-label={`${index + 1} de ${reasons.length}: ${reason.title}`}
+            >
               <div className="li-reason-photo li-duotone">
                 <ProgressiveImage
                   className="image-fill"
@@ -62,6 +109,27 @@ export function HomeReasons() {
               </div>
             </article>
           ))}
+        </div>
+        <div className="li-reasons-carousel-nav" aria-label="Navegación del carrusel">
+          <button
+            type="button"
+            aria-label="Ver la tarjeta anterior"
+            disabled={activeReason === 0}
+            onClick={() => scrollToReason(activeReason - 1)}
+          >
+            ←
+          </button>
+          <span className="li-reasons-carousel-count" aria-live="polite">
+            Desliza · <strong>{activeReason + 1}</strong> de {reasons.length}
+          </span>
+          <button
+            type="button"
+            aria-label="Ver la tarjeta siguiente"
+            disabled={activeReason === reasons.length - 1}
+            onClick={() => scrollToReason(activeReason + 1)}
+          >
+            →
+          </button>
         </div>
       </div>
     </section>

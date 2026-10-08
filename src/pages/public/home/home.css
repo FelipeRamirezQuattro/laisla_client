@@ -81,6 +81,7 @@
 .li-reason-tag { margin: 0 0 8px; color: var(--li-blue); font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .li-reason-card h3 { margin: 0 0 12px; font-size: clamp(27px,2.4vw,34px); line-height: 1.05; }
 .li-reason-card p:last-child { display: -webkit-box; margin: 0; overflow: hidden; color: var(--li-muted); font-size: 16px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.li-reasons-carousel-nav { display: none; }
 
 /* Menu — 65/35 */
 .li-menu { padding: clamp(64px,8vw,104px) clamp(20px,5vw,64px); background: var(--li-sand); }
@@ -277,7 +278,18 @@
   .li-reasons-head { margin-bottom: 28px; }
   .li-reasons-lead { font-size: 17px; }
   .li-reason-card, .li-event-card { display: flex; }
-  .li-reason-photo, .li-event-photo { min-height: 0; aspect-ratio: 16 / 9; }
+  .li-reasons-grid { display: flex; gap: 14px; margin-right: -18px; padding-right: 18px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .li-reasons-grid::-webkit-scrollbar { display: none; }
+  .li-reason-card { height: auto; flex: 0 0 calc(100% - 34px); scroll-snap-align: start; scroll-snap-stop: always; }
+  .li-reason-photo { height: auto; min-height: 0; aspect-ratio: 16 / 9; }
+  .li-reason-card p:last-child { display: block; overflow: visible; -webkit-line-clamp: unset; }
+  .li-event-photo { min-height: 0; aspect-ratio: 16 / 9; }
+  .li-reasons-carousel-nav { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 18px; }
+  .li-reasons-carousel-nav button { display: grid; width: 46px; height: 46px; flex: none; place-items: center; border: 2px solid var(--li-blue); border-radius: 50%; background: var(--li-yellow); color: var(--li-blue); cursor: pointer; font: 800 21px/1 "Nunito", sans-serif; transition: transform .15s ease, opacity .15s ease; }
+  .li-reasons-carousel-nav button:active:not(:disabled) { transform: scale(.94); }
+  .li-reasons-carousel-nav button:disabled { opacity: .36; cursor: default; }
+  .li-reasons-carousel-count { color: var(--li-muted); font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .li-reasons-carousel-count strong { color: var(--li-blue); font-size: 16px; }
   .li-menu-row { grid-template-columns: minmax(0,1fr) auto; gap: 6px 12px; }
   .li-menu-row-name { grid-row: 1; grid-column: 1; }
   .li-menu-row-price { grid-row: 1; grid-column: 2; text-align: right; }
