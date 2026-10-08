@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, CalendarDays, Check, Eye, Trash2, Volume2, VolumeX } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { CalendarDays, Check, Eye, Pencil, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ordersApi } from '../../api/orders';
 import { Order, OrderStatus } from '../../types';
@@ -35,20 +36,6 @@ function isWaiting(order: Order) {
 
 function todayInput() {
   return todayLocal();
-}
-
-// pending -> in-progress -> ready; "ready" advances via the dedicated
-// "Entregado" button (ordersApi.deliver), not this generic transition.
-function nextOrderStatus(status: OrderStatus): OrderStatus | null {
-  if (status === 'pending') return 'in-progress';
-  if (status === 'in-progress') return 'ready';
-  return null;
-}
-
-function advanceStatusLabel(status: OrderStatus): string {
-  if (status === 'pending') return 'Iniciar';
-  if (status === 'in-progress') return 'Marcar listo';
-  return '';
 }
 
 function loadSoundPreference(): boolean {
@@ -104,6 +91,7 @@ export function ActiveOrdersPage() {
   const [stats, setStats] = useState<{ avgDeliveryMinutes: number; avgStayMinutes: number; points: Array<{ deliveryMinutes: number | null; stayMinutes: number | null; createdAt: string }> } | null>(null);
   const now = useNow();
   const toast = useToast();
+  const navigate = useNavigate();
   const knownPendingIdsRef = useRef<Set<string> | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -153,20 +141,6 @@ export function ActiveOrdersPage() {
       fetchData();
     } catch {
       toast.error('Error al entregar pedido');
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [order._id]: false }));
-    }
-  };
-
-  const advanceStatus = async (order: Order) => {
-    const next = nextOrderStatus(order.status);
-    if (!next) return;
-    setActionLoading((prev) => ({ ...prev, [order._id]: true }));
-    try {
-      await ordersApi.update(order._id, { status: next });
-      fetchData();
-    } catch {
-      toast.error('Error al actualizar el estado del pedido');
     } finally {
       setActionLoading((prev) => ({ ...prev, [order._id]: false }));
     }
@@ -311,7 +285,6 @@ export function ActiveOrdersPage() {
               <tbody className="divide-y divide-rule">
                 {filteredOrders.map((order) => {
                   const overThreshold = elapsedMsInCurrentStatus(order, now) >= ELAPSED_ALERT_MS;
-                  const next = nextOrderStatus(order.status);
                   return (
                     <tr key={order._id} className="hover:bg-gray-100">
                       <td className="px-4 py-3 font-medium text-island-dark">
@@ -329,16 +302,12 @@ export function ActiveOrdersPage() {
                       <td className="px-4 py-3 text-center"><OrderStatusBadge status={order.status} /></td>
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-2">
-                          {next && (
-                            <Button size="sm" variant="secondary" onClick={() => advanceStatus(order)} loading={actionLoading[order._id]}>
-                              <ArrowRight size={14} /> {advanceStatusLabel(order.status)}
-                            </Button>
-                          )}
-                          {order.status === 'ready' && (
-                            <Button size="sm" onClick={() => markDelivered(order)} loading={actionLoading[order._id]}>
-                              <Check size={14} /> Entregado
-                            </Button>
-                          )}
+                          <Button size="sm" onClick={() => markDelivered(order)} loading={actionLoading[order._id]}>
+                            <Check size={14} /> Entregado
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => navigate(`/admin/orders?edit=${order._id}`)}>
+                            <Pencil size={14} />
+                          </Button>
                           <Button size="sm" variant="ghost" onClick={() => setSelected(order)}>
                             <Eye size={14} />
                           </Button>

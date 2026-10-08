@@ -1,5 +1,6 @@
 import { ShoppingCart } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
 import { recipesApi } from '../../api/costs';
@@ -13,7 +14,6 @@ import { PageLoader } from '../../components/ui/Spinner';
 import { TableSelector, TableSummary } from '../../components/orders/TableStep';
 import { RecipeStep } from '../../components/orders/RecipeStep';
 import { CartPanel, itemKey } from '../../components/orders/CartPanel';
-import { OpenOrdersTab } from '../../components/orders/OpenOrdersTab';
 
 const WALK_IN_ID = 'walk-in';
 const walkInTable: CafeTable = {
@@ -34,17 +34,13 @@ function itemTaxAmount(unitPrice: number, taxRate = 0) {
   return unitPrice - unitPrice / (1 + taxRate);
 }
 
-function isOpenOrder(order: Order) {
-  return !['delivered', 'billed', 'cancelled'].includes(order.status);
-}
-
 export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [tables, setTables] = useState<CafeTable[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<RecipeCategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'new' | 'open'>('new');
+  const [searchParams, setSearchParams] = useSearchParams();
   const [wizardStep, setWizardStep] = useState<'table' | 'recipe'>('table');
   const [selectedTableId, setSelectedTableId] = useState('');
   const [selectedDate, setSelectedDate] = useState(todayLocal());
@@ -86,7 +82,6 @@ export function OrdersPage() {
   const tableOptions = [walkInTable, ...tables];
   const selectedTable = tableOptions.find((table) => table._id === selectedTableId);
   const editingOrder = orders.find((order) => order._id === editingOrderId);
-  const openOrders = orders.filter(isOpenOrder);
   const activeCategories = useMemo(
     () => categories.filter((category) => recipes.some((recipe) => recipe.category === category.value)),
     [categories, recipes]
@@ -172,11 +167,26 @@ export function OrdersPage() {
     setEditingOrderId(order._id);
     setSelectedTableId(tableIdOf(order.tableId));
     setCart(order.items.map((item) => ({ ...item })));
-    setActiveTab('new');
     setWizardStep('recipe');
     setRecipeSearch('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Reached via "Editar" on Pedidos activos (?edit=<orderId>) — once that
+  // order shows up in the day's fetched list, drop straight into editing it.
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (!editId || editingOrderId) return;
+    const order = orders.find((o) => o._id === editId);
+    if (order) {
+      startEditOrder(order);
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('edit');
+        return next;
+      }, { replace: true });
+    }
+  }, [searchParams, orders, editingOrderId]);
 
   const handleSaveOrder = async () => {
     if (!selectedTableId || cart.length === 0) {
@@ -254,32 +264,7 @@ export function OrdersPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 border-b border-island-blue/20">
-        <button
-          type="button"
-          onClick={() => setActiveTab('new')}
-          className={`px-4 py-2.5 font-body text-sm font-medium border-b-2 -mb-px transition-colors ${
-            activeTab === 'new' ? 'border-island-blue text-island-blue' : 'border-transparent text-island-dark/70 hover:text-island-dark'
-          }`}
-        >
-          Nuevo pedido
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('open')}
-          className={`px-4 py-2.5 font-body text-sm font-medium border-b-2 -mb-px transition-colors ${
-            activeTab === 'open' ? 'border-island-blue text-island-blue' : 'border-transparent text-island-dark/70 hover:text-island-dark'
-          }`}
-        >
-          Pedidos abiertos{openOrders.length > 0 && (
-            <span className="ml-2 rounded-full bg-gray-100 px-1.5 py-0.5 text-xs text-island-dark/70">{openOrders.length}</span>
-          )}
-        </button>
-      </div>
-
-      {activeTab === 'open' ? (
-        <OpenOrdersTab openOrders={openOrders} tableName={tableName} onEdit={startEditOrder} />
-      ) : wizardStep === 'table' ? (
+      {wizardStep === 'table' ? (
         <section className="space-y-3">
           <h2 className="font-body text-lg font-semibold text-island-dark">1. Mesa</h2>
           <TableSelector
