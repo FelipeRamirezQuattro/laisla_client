@@ -192,11 +192,20 @@ export function BillingPage() {
     if (!closeOrder) return;
     try {
       const parsedAmount = amountReceived.trim() ? Number(amountReceived) : undefined;
-      await ordersApi.close(closeOrder._id, paymentMethod, closeClientId ?? undefined, parsedAmount);
+      const res = await ordersApi.close(closeOrder._id, paymentMethod, closeClientId ?? undefined, parsedAmount);
       toast.success('Pedido facturado');
       setCloseOrder(null);
       setAmountReceived('');
-      fetchData();
+      await fetchData();
+      // Unifica "Facturar" con la impresión del ticket — ya no son dos
+      // pasos separados. El backend ya encola el ticket automáticamente al
+      // facturar si hay una impresora activa (solo refrescamos su estado);
+      // sin impresora, mostramos el ticket para imprimirlo desde el navegador.
+      if (hasActiveCajaPrinter) {
+        refreshPrintJob(res.data._id);
+      } else {
+        setSelectedOrder(res.data);
+      }
     } catch {
       toast.error('Error al facturar pedido');
     }
@@ -246,7 +255,12 @@ export function BillingPage() {
 
   const renderActions = (order: Order) => (
     <>
-      <Button variant="ghost" size="sm" onClick={() => setSelectedOrder(order)}>Factura</Button>
+      {/* Para pedidos "Entregado", "Facturar" ya cubre ver/imprimir el
+          ticket al confirmar — mostrar "Factura" aquí sería el mismo botón
+          dos veces con nombres distintos. */}
+      {order.status !== 'delivered' && (
+        <Button variant="ghost" size="sm" onClick={() => setSelectedOrder(order)}>Factura</Button>
+      )}
       <Button variant="ghost" size="sm" onClick={() => setDetailOrder(order)}>
         <Eye size={14} />
       </Button>
