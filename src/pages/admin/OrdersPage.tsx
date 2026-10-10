@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
 import { recipesApi } from '../../api/costs';
-import { CafeTable, Order, OrderItem, Recipe, RecipeCategoryOption, RecipeVariant } from '../../types';
+import { CafeTable, Order, OrderItem, Recipe, RecipeCategoryOption, RecipeVariant, TableZoneRecord } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
@@ -37,6 +37,7 @@ function itemTaxAmount(unitPrice: number, taxRate = 0) {
 export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [tables, setTables] = useState<CafeTable[]>([]);
+  const [zones, setZones] = useState<TableZoneRecord[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<RecipeCategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,14 +56,16 @@ export function OrdersPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [ordersRes, tablesRes, recipesRes, categoriesRes] = await Promise.all([
+      const [ordersRes, tablesRes, zonesRes, recipesRes, categoriesRes] = await Promise.all([
         ordersApi.getAll({ page: 1, limit: 50, dateFrom: selectedDate, dateTo: selectedDate }),
         tablesApi.getAll({ date: selectedDate }),
+        tablesApi.getZones(),
         recipesApi.getAll({ active: 'true', isSubRecipe: 'false', isProduct: 'true' }),
         recipesApi.getCategories(),
       ]);
       setOrders(ordersRes.data.orders);
       setTables(tablesRes.data);
+      setZones(zonesRes.data);
       setRecipes(recipesRes.data);
       setCategories(categoriesRes.data);
       setSelectedCategory((current) =>
@@ -269,6 +272,7 @@ export function OrdersPage() {
           <h2 className="font-body text-lg font-semibold text-island-dark">1. Mesa</h2>
           <TableSelector
             tableOptions={tableOptions}
+            zones={zones}
             selectedTableId={selectedTableId}
             editingOrder={editingOrder}
             walkInId={WALK_IN_ID}
