@@ -43,7 +43,7 @@ export function OrdersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [wizardStep, setWizardStep] = useState<'table' | 'recipe'>('table');
   const [selectedTableId, setSelectedTableId] = useState('');
-  const [selectedDate, setSelectedDate] = useState(todayLocal());
+  const [selectedDate, setSelectedDate] = useState(searchParams.get('date') || todayLocal());
   const [selectedCategory, setSelectedCategory] = useState('');
   const [recipeSearch, setRecipeSearch] = useState('');
   const [cart, setCart] = useState<OrderItem[]>([]);

@@ -1,6 +1,7 @@
-import { AlertTriangle, Eye, Mail, Printer as PrinterIcon, ReceiptText, Trash2 } from 'lucide-react';
+import { AlertTriangle, Eye, Mail, Pencil, Printer as PrinterIcon, ReceiptText, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
 import { useShiftStore } from '../../store/shiftStore';
@@ -77,6 +78,7 @@ export function BillingPage() {
   const [printConfig, setPrintConfig] = useState<PrintConfig | null>(null);
   const [printingAlerts, setPrintingAlerts] = useState<PrintingAlerts | null>(null);
   const toast = useToast();
+  const navigate = useNavigate();
   const { openShift } = useShiftStore();
 
   const fetchData = useCallback(async () => {
@@ -264,6 +266,16 @@ export function BillingPage() {
       <Button variant="ghost" size="sm" onClick={() => setDetailOrder(order)}>
         <Eye size={14} />
       </Button>
+      {!['billed', 'cancelled'].includes(order.status) && (
+        <Button
+          variant="ghost"
+          size="sm"
+          title="Editar pedido"
+          onClick={() => navigate(`/admin/orders?edit=${order._id}&date=${(order.serviceDate ?? order.createdAt).slice(0, 10)}`)}
+        >
+          <Pencil size={14} />
+        </Button>
+      )}
       {order.status === 'delivered' && (
         <Button
           variant="secondary"
@@ -484,7 +496,10 @@ export function BillingPage() {
           <Modal isOpen={!!selectedOrder} onClose={() => setSelectedOrder(null)} title="Factura básica" size="lg">
             <div className="space-y-4">
               {invoiceContent(selectedOrder)}
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-3">
+                <Button variant="secondary" onClick={() => openSendEmail(selectedOrder)}>
+                  <Mail size={14} /> Enviar por correo
+                </Button>
                 <Button onClick={() => window.print()}>
                   <PrinterIcon size={14} /> Imprimir
                 </Button>
