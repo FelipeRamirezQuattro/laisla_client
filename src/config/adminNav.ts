@@ -88,6 +88,8 @@ export const ADMIN_NAV: AdminNavEntry[] = [
   { to: '/admin/mis-tareas', label: 'Mis tareas', Icon: ListChecks },
   { to: '/admin/expenses', label: 'Gastos', Icon: HandCoins, quickNav: true },
   { to: '/admin/caja', label: 'Caja / Turno', Icon: Banknote, quickNav: true },
+  { to: '/admin/caja/saldos', label: 'Saldos de caja', Icon: Wallet, quickNav: true },
+  { to: '/admin/caja/pedidos', label: 'Turnos / Pedidos', Icon: ClipboardList, quickNav: true },
   { to: '/admin/caja/historial', label: 'Historial de turnos', Icon: Banknote, hidden: true },
   { to: '/admin/reservations', label: 'Reservaciones', Icon: Calendar, quickNav: true },
 

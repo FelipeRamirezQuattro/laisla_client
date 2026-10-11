@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, ArrowDownToLine, ArrowUpFromLine, History, Lock } from 'lucide-react';
 import { cashShiftsApi, ShiftSummary } from '../../../api/cashShifts';
 import { useShiftStore } from '../../../store/shiftStore';
@@ -13,7 +13,7 @@ import { PageLoader } from '../../../components/ui/Spinner';
 import { DenominationCounter } from '../../../components/caja/DenominationCounter';
 import { emptyDenominationCounts } from '../../../config/denominations';
 import { formatCOP } from '../../../utils/formatCurrency';
-import type { CashMovementType, DenominationInput } from '../../../types';
+import type { CashBalances, CashMovementType, DenominationInput } from '../../../types';
 
 type CloseResult = {
   expectedCash: number;
@@ -29,6 +29,7 @@ export function ShiftDashboardPage() {
   const navigate = useNavigate();
 
   const [summary, setSummary] = useState<ShiftSummary | null>(null);
+  const [balances, setBalances] = useState<CashBalances | null>(null);
   const [openModalVisible, setOpenModalVisible] = useState(false);
   const [openDenominations, setOpenDenominations] = useState<DenominationInput[]>(emptyDenominationCounts());
   const [openNotes, setOpenNotes] = useState('');
@@ -52,6 +53,14 @@ export function ShiftDashboardPage() {
     if (!openShift) { setSummary(null); return; }
     cashShiftsApi.getSummary(openShift._id).then((r) => setSummary(r.data)).catch(() => {});
   }, [openShift?._id]);
+
+  const isAdminUser = !!user?.role && ['admin', 'superadmin'].includes(user.role);
+
+  // Before opening: show the till cash that should be in the drawer, including off-shift expenses.
+  useEffect(() => {
+    if (openShift || !isAdminUser) { setBalances(null); return; }
+    cashShiftsApi.getBalances().then((r) => setBalances(r.data)).catch(() => {});
+  }, [openShift?._id, isAdminUser]);
 
   const userId = user?._id ?? user?.id;
   const isOwnShift = !!openShift && (typeof openShift.openedBy === 'string'
@@ -147,6 +156,17 @@ export function ShiftDashboardPage() {
             <p className="font-body font-semibold text-island-dark">No hay un turno abierto</p>
             <p className="text-sm text-island-dark/70 font-body">Abre un turno contando la base inicial por denominaciones.</p>
           </div>
+          {balances && (
+            <div className="rounded-lg bg-gray-100 p-4 text-sm font-body text-island-dark text-left">
+              <p>Caja menor esperada en la registradora: <strong>{formatCOP(balances.cash.menor)}</strong></p>
+              {balances.pendingOffShiftExpenses.length > 0 && (
+                <p className="text-island-dark/70 mt-1">
+                  Incluye {balances.pendingOffShiftExpenses.length} gasto(s) fuera de turno desde el último cierre.{' '}
+                  <Link to="/admin/caja/saldos" className="underline">Ver detalle</Link>
+                </p>
+              )}
+            </div>
+          )}
           <Button onClick={() => setOpenModalVisible(true)}>Abrir turno</Button>
         </div>
       ) : (
@@ -198,7 +218,8 @@ export function ShiftDashboardPage() {
             <div className="rounded-lg border border-warning bg-warning-tint p-4 font-body flex items-start gap-3">
               <AlertTriangle size={20} className="text-warning-ink shrink-0 mt-0.5" />
               <p className="text-sm text-warning-ink">
-                {summary.salesSnapshot.unassignedOrdersCount} pedido(s) facturado(s) sin turno asignado durante esta ventana.
+                {summary.salesSnapshot.unassignedOrdersCount} pedido(s) facturado(s) sin turno asignado durante esta ventana.{' '}
+                <Link to="/admin/caja/pedidos?cashShiftId=none" className="font-semibold underline">Ver y asignar</Link>
               </p>
             </div>
           )}

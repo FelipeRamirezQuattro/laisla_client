@@ -32,6 +32,8 @@ export const ordersApi = {
   deliver: (id: string) => api.patch<Order>(`/admin/orders/${id}/deliver`),
   close: (id: string, paymentMethod: PaymentMethod, clientId?: string, amountReceived?: number) =>
     api.patch<Order>(`/admin/orders/${id}/close`, { paymentMethod, clientId, amountReceived }),
+  setShift: (id: string, cashShiftId: string | null) =>
+    api.patch<Order>(`/admin/orders/${id}/shift`, { cashShiftId }),
   cancel: (id: string, data: { reason: string; reasonDetail?: string }) =>
     api.patch<Order>(`/admin/orders/${id}/cancel`, data),
 };

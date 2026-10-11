@@ -1,7 +1,7 @@
 import { AlertTriangle, Eye, Mail, Pencil, Printer as PrinterIcon, ReceiptText, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
 import { useShiftStore } from '../../store/shiftStore';
@@ -517,7 +517,10 @@ export function BillingPage() {
             {!openShift && (
               <div className="rounded-lg border border-warning bg-warning-tint p-3 flex items-start gap-2 text-sm text-warning-ink font-body">
                 <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-                No hay un turno de caja abierto. El pedido se facturará igual, pero quedará marcado "sin turno" en el arqueo.
+                <span>
+                  No hay un turno de caja abierto. El pedido se facturará igual, pero quedará marcado "sin turno" en el arqueo.{' '}
+                  <Link to="/admin/caja/pedidos?cashShiftId=none" className="font-semibold underline">Ver pedidos sin turno</Link>
+                </span>
               </div>
             )}
             <Select

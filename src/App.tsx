@@ -22,6 +22,8 @@ import { ReservationsPage } from './pages/admin/ReservationsPage';
 import { ExpensesPage } from './pages/admin/ExpensesPage';
 import { ShiftDashboardPage } from './pages/admin/caja/ShiftDashboardPage';
 import { ShiftHistoryPage } from './pages/admin/caja/ShiftHistoryPage';
+import { CajaBalancesPage } from './pages/admin/caja/CajaBalancesPage';
+import { ShiftOrdersPage } from './pages/admin/caja/ShiftOrdersPage';
 import { ShiftPrintView } from './pages/admin/caja/ShiftPrintView';
 import { ReportsPage } from './pages/admin/ReportsPage';
 import { UsuariosPage } from './pages/admin/UsuariosPage';
@@ -91,6 +93,8 @@ function AppRoutes() {
             <Route path="/admin/reservations" element={<ReservationsPage />} />
             <Route path="/admin/expenses" element={<ExpensesPage />} />
             <Route path="/admin/caja" element={<ShiftDashboardPage />} />
+            <Route path="/admin/caja/saldos" element={<RoleGuard roles={['admin', 'superadmin']}><CajaBalancesPage /></RoleGuard>} />
+            <Route path="/admin/caja/pedidos" element={<RoleGuard roles={['admin', 'superadmin']}><ShiftOrdersPage /></RoleGuard>} />
             <Route path="/admin/caja/historial" element={<ShiftHistoryPage />} />
             <Route path="/admin/caja/shifts/:id/print" element={<ShiftPrintView />} />
             <Route path="/admin/cashflow" element={<Navigate to="/admin/caja" replace />} />

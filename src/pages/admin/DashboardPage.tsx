@@ -6,14 +6,11 @@ import { AlertTriangle, CalendarDays, ChevronRight, ClipboardList, DollarSign, S
 import { dashboardApi } from '../../api/dashboard';
 import { alertasInvApi } from '../../api/inventario';
 import { ordersApi } from '../../api/orders';
-import { DashboardSummary } from '../../types';
+import { DashboardSummary, MonthlySales } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, formatTime, todayLocal } from '../../utils/formatDate';
 import { PageLoader } from '../../components/ui/Spinner';
-
-function todayInput() {
-  return todayLocal();
-}
+import { Input } from '../../components/ui/Input';
 
 export function DashboardPage() {
   const [data, setData] = useState<DashboardSummary | null>(null);
@@ -24,24 +21,41 @@ export function DashboardPage() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [agotadoCount, setAgotadoCount] = useState(0);
+  const [monthly, setMonthly] = useState<MonthlySales | null>(null);
+  const today = todayLocal();
+  const [date, setDate] = useState(today);
+  const isToday = date === today;
+  const dayLabel = isToday ? 'hoy' : formatDate(date);
 
   useEffect(() => {
-    dashboardApi.getSummary()
-      .then((res) => setData(res.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
     alertasInvApi.getAll()
       .then((res) => setAgotadoCount(res.data.filter((a) => a.detalle.nivel === 'AGOTADO').length))
       .catch(() => {});
-    const today = todayInput();
-    ordersApi.getTimingStats({ dateFrom: today, dateTo: today })
-      .then((res) => setTimingStats(res.data))
-      .catch(() => {});
   }, []);
 
-  if (loading) return <PageLoader />;
+  useEffect(() => {
+    dashboardApi.getSummary({ date })
+      .then((res) => setData(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+    ordersApi.getTimingStats({ dateFrom: date, dateTo: date })
+      .then((res) => setTimingStats(res.data))
+      .catch(() => {});
+  }, [date]);
 
-  const summary = data!;
+  useEffect(() => {
+    dashboardApi.getMonthlySales(today.slice(0, 7))
+      .then((res) => setMonthly(res.data))
+      .catch(() => {});
+  }, [today]);
+
+  if (loading || !data) return <PageLoader />;
+
+  const summary = data;
+  const monthlyTotal = (monthly?.days ?? []).reduce(
+    (acc, day) => ({ revenue: acc.revenue + day.revenue, orders: acc.orders + day.orders }),
+    { revenue: 0, orders: 0 }
+  );
   const timingChartData = (timingStats?.points ?? [])
     .filter((point) => point.deliveryMinutes !== null)
     .slice(-12)
@@ -53,11 +67,20 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-body text-2xl font-bold text-island-dark">Dashboard</h1>
-        <p className="text-island-dark/70 font-body text-sm mt-1">
-          {new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="font-body text-2xl font-bold text-island-dark">Dashboard</h1>
+          <p className="text-island-dark/70 font-body text-sm mt-1">
+            {formatDate(date, "EEEE d 'de' MMMM yyyy")}
+          </p>
+        </div>
+        <Input
+          label="Fecha"
+          type="date"
+          value={date}
+          max={today}
+          onChange={(e) => e.target.value && setDate(e.target.value)}
+        />
       </div>
 
       {/* Inventory alert banner */}
@@ -73,13 +96,13 @@ export function DashboardPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <SummaryCard
-          label="Ventas del día"
+          label={isToday ? 'Ventas del día' : 'Ventas del día seleccionado'}
           value={formatCOP(summary.todaySales)}
           icon={<DollarSign size={22} />}
           color="blue"
         />
         <SummaryCard
-          label="Pedidos hoy"
+          label={isToday ? 'Pedidos hoy' : 'Pedidos del día'}
           value={String(summary.todayOrders)}
           icon={<ClipboardList size={22} />}
           color="sky"
@@ -132,7 +155,7 @@ export function DashboardPage() {
 
       {/* Chart */}
       <div className="card">
-        <h2 className="font-body text-lg font-semibold text-island-dark mb-4">Ventas por hora — hoy</h2>
+        <h2 className="font-body text-lg font-semibold text-island-dark mb-4">Ventas por hora — {dayLabel}</h2>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={summary.hourlySales.filter((h) => h.revenue > 0 || parseInt(h.hour) >= 7 && parseInt(h.hour) <= 22)}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
@@ -146,6 +169,62 @@ export function DashboardPage() {
             <Bar dataKey="revenue" fill="var(--color-island-blue)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      <div className="card">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+          <h2 className="font-body text-lg font-semibold text-island-dark">Ventas del mes</h2>
+          <p className="font-body text-sm text-island-dark/70">
+            {monthlyTotal.orders} pedidos · <strong className="text-island-dark">{formatCOP(monthlyTotal.revenue)}</strong>
+          </p>
+        </div>
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={(monthly?.days ?? []).map((day) => ({ ...day, label: day.date.slice(8) }))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fontFamily: 'DM Sans' }} />
+            <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11, fontFamily: 'DM Sans' }} />
+            <Tooltip
+              formatter={(value: number) => [formatCOP(value), 'Ventas']}
+              labelFormatter={(label) => `Día ${label}`}
+              labelStyle={{ fontFamily: 'DM Sans' }}
+              contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontFamily: 'DM Sans' }}
+            />
+            <Bar dataKey="revenue" fill="var(--color-island-blue)" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+        <div className="overflow-x-auto mt-4 max-h-96 overflow-y-auto">
+          <table className="w-full text-sm font-body">
+            <thead>
+              <tr className="border-b border-island-blue/20">
+                <th className="px-3 py-2 text-left font-medium text-island-dark/70">Día</th>
+                <th className="px-3 py-2 text-right font-medium text-island-dark/70">Pedidos</th>
+                <th className="px-3 py-2 text-right font-medium text-island-dark/70">Ventas</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-island-blue/20">
+              {(monthly?.days ?? []).map((day) => (
+                <tr
+                  key={day.date}
+                  className={`hover:bg-gray-100 cursor-pointer ${day.date === date ? 'bg-gray-100 font-semibold' : ''}`}
+                  onClick={() => day.date <= today && setDate(day.date)}
+                >
+                  <td className="px-3 py-2 text-island-dark">
+                    {formatDate(day.date, 'EEE d MMM')}{day.date === today ? ' (hoy)' : ''}
+                  </td>
+                  <td className="px-3 py-2 text-right text-island-dark">{day.orders}</td>
+                  <td className="px-3 py-2 text-right text-island-dark">{formatCOP(day.revenue)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-island-blue/20 font-semibold">
+                <td className="px-3 py-2 text-island-dark">Total</td>
+                <td className="px-3 py-2 text-right text-island-dark">{monthlyTotal.orders}</td>
+                <td className="px-3 py-2 text-right text-island-dark">{formatCOP(monthlyTotal.revenue)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

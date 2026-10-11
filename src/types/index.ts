@@ -81,6 +81,7 @@ export interface Order {
   subtotal: number;
   total: number;
   paymentMethod?: PaymentMethod;
+  cashShiftId?: string | { _id: string; status: CashShiftStatus; openedAt: string; closedAt?: string } | null;
   notes?: string;
   createdBy: string;
   serviceDate?: string;
@@ -227,6 +228,8 @@ export interface DailyExpense {
   type: DailyExpenseType;
   description: string;
   amount: number;
+  paymentMethod?: PaymentMethod;
+  cashAccount?: 'menor' | 'general';
   insumoId?: string | Insumo;
   providerId?: string | Provider;
   quantity?: number;
@@ -384,6 +387,11 @@ export interface HourlySale {
   hour: string;
   revenue: number;
   orders: number;
+}
+
+export interface MonthlySales {
+  month: string;
+  days: Array<{ date: string; revenue: number; orders: number }>;
 }
 
 export interface DashboardSummary {
@@ -984,4 +992,22 @@ export interface PrintingAlerts {
   failedJobsCount: number;
   noCajaPrinter: boolean;
   agentsOffline: boolean;
+}
+
+// ─── Caja: saldos por cuenta ─────────────────────────────────────────────────
+
+export interface CashBalances {
+  cash: { total: number; menor: number; general: number };
+  card: number;
+  transfer: number;
+  nequi: number;
+  shiftOpen: boolean;
+  pendingOffShiftExpenses: Array<{
+    _id: string;
+    description: string;
+    amount: number;
+    paymentMethod?: PaymentMethod;
+    cashAccount?: 'menor' | 'general';
+    createdAt: string;
+  }>;
 }

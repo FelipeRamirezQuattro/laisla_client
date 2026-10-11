@@ -1,0 +1,289 @@
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Pencil, Trash2 } from 'lucide-react';
+import { cashShiftsApi } from '../../../api/cashShifts';
+import { ordersApi } from '../../../api/orders';
+import { usersApi } from '../../../api/users';
+import { useConfirm } from '../../../hooks/useConfirm';
+import { usePagination } from '../../../hooks/usePagination';
+import { useToast } from '../../../hooks/useToast';
+import { Badge, OrderStatusBadge } from '../../../components/ui/Badge';
+import { Button } from '../../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
+import { Modal } from '../../../components/ui/Modal';
+import { Pagination } from '../../../components/ui/Pagination';
+import { Select } from '../../../components/ui/Select';
+import { PageLoader } from '../../../components/ui/Spinner';
+import type { CafeTable, CashShift, Order, User } from '../../../types';
+import { formatCOP } from '../../../utils/formatCurrency';
+import { formatDate, formatDateTime } from '../../../utils/formatDate';
+
+const statusLabel: Record<CashShift['status'], string> = {
+  OPEN: 'Abierto',
+  COUNTING: 'En conteo',
+  CLOSED: 'Cerrado',
+  REVIEWED: 'Aprobado',
+};
+
+const paymentLabel: Record<string, string> = {
+  cash: 'Efectivo',
+  card: 'Tarjeta',
+  transfer: 'Transferencia',
+  nequi: 'Nequi',
+};
+
+const errorMessage = (error: unknown, fallback: string) =>
+  (error as { response?: { data?: { error?: string } } }).response?.data?.error || fallback;
+
+export function ShiftOrdersPage() {
+  const toast = useToast();
+  const confirm = useConfirm();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { page, limit, goToPage } = usePagination(1, 20);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [shifts, setShifts] = useState<CashShift[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [savingOrderId, setSavingOrderId] = useState('');
+  const [shiftFilter, setShiftFilter] = useState(searchParams.get('cashShiftId') || '');
+  const [dateFrom, setDateFrom] = useState(searchParams.get('dateFrom') || '');
+  const [dateTo, setDateTo] = useState(searchParams.get('dateTo') || '');
+
+  const [editing, setEditing] = useState<CashShift | null>(null);
+  const [editOwner, setEditOwner] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
+  const fetchShifts = useCallback(async () => {
+    try {
+      const res = await cashShiftsApi.list();
+      setShifts(res.data);
+    } catch {
+      toast.error('Error al cargar los turnos');
+    }
+  }, []);
+
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params: Record<string, string | number> = { page, limit };
+      if (shiftFilter) params.cashShiftId = shiftFilter;
+      if (dateFrom) params.dateFrom = dateFrom;
+      if (dateTo) params.dateTo = dateTo;
+      const res = await ordersApi.getAll(params);
+      setOrders(res.data.orders);
+      setTotalPages(res.data.totalPages);
+    } catch {
+      toast.error('Error al cargar los pedidos');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, limit, shiftFilter, dateFrom, dateTo]);
+
+  useEffect(() => { fetchShifts(); }, [fetchShifts]);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => {
+    usersApi.getAssignable().then((res) => setUsers(res.data)).catch(() => {});
+  }, []);
+
+  const changeShiftFilter = (value: string) => {
+    setShiftFilter(value);
+    goToPage(1);
+    setSearchParams(value ? { cashShiftId: value } : {});
+  };
+
+  const ownerName = (shift: CashShift) =>
+    typeof shift.openedBy === 'object' ? shift.openedBy.name : users.find((user) => (user._id ?? user.id) === shift.openedBy)?.name || '—';
+
+  const shiftLabel = (shift: CashShift) => `${formatDateTime(shift.openedAt)} · ${ownerName(shift)} (${statusLabel[shift.status]})`;
+
+  const shiftOptions = shifts.map((shift) => ({ value: shift._id, label: shiftLabel(shift) }));
+
+  const orderShiftId = (order: Order) =>
+    typeof order.cashShiftId === 'object' && order.cashShiftId ? order.cashShiftId._id : order.cashShiftId || '';
+
+  const tableName = (order: Order) =>
+    order.tableId && typeof order.tableId === 'object' ? (order.tableId as CafeTable).name : 'Sin mesa / Mostrador';
+
+  const assignShift = async (order: Order, value: string) => {
+    setSavingOrderId(order._id);
+    try {
+      await ordersApi.setShift(order._id, value || null);
+      toast.success(value ? 'Turno asignado al pedido' : 'Pedido marcado sin turno');
+      await Promise.all([fetchOrders(), fetchShifts()]);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Error al asignar el turno'));
+    } finally {
+      setSavingOrderId('');
+    }
+  };
+
+  const openEdit = (shift: CashShift) => {
+    setEditing(shift);
+    setEditOwner(typeof shift.openedBy === 'object' ? (shift.openedBy._id ?? shift.openedBy.id) : shift.openedBy);
+    setEditNotes(shift.notes || '');
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    setEditSaving(true);
+    try {
+      await cashShiftsApi.update(editing._id, { openedBy: editOwner || undefined, notes: editNotes });
+      toast.success('Turno actualizado');
+      setEditing(null);
+      await Promise.all([fetchShifts(), fetchOrders()]);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Error al editar el turno'));
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const removeShift = async (shift: CashShift) => {
+    try {
+      const { data: preview } = await cashShiftsApi.getDeletionPreview(shift._id);
+      const accepted = await confirm({
+        title: 'Eliminar turno',
+        confirmLabel: 'Eliminar todo',
+        message: (
+          <div className="space-y-2 text-sm font-body">
+            <p>Se eliminará el turno del {formatDateTime(shift.openedAt)} y todo lo asociado. Esta acción no se puede deshacer:</p>
+            <ul className="list-disc pl-5">
+              <li>{preview.orders} pedido(s) por {formatCOP(preview.ordersTotal)}</li>
+              <li>{preview.expenses} gasto(s) por {formatCOP(preview.expensesTotal)}</li>
+              <li>{preview.movements} movimiento(s) de caja</li>
+            </ul>
+            <p>Si solo quieres conservar las ventas, primero reasigna los pedidos a otro turno.</p>
+          </div>
+        ),
+      });
+      if (!accepted) return;
+      await cashShiftsApi.remove(shift._id);
+      toast.success('Turno eliminado');
+      if (shiftFilter === shift._id) changeShiftFilter('');
+      await Promise.all([fetchShifts(), fetchOrders()]);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Error al eliminar el turno'));
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-body text-2xl font-bold text-island-dark">Turnos / Pedidos</h1>
+        <p className="text-island-dark/70 font-body text-sm">
+          Consulta a qué turno pertenece cada pedido, reasígnalo y administra los turnos.
+        </p>
+      </div>
+
+      <div className="card grid gap-3 md:grid-cols-3">
+        <Select
+          label="Turno"
+          options={[{ value: '', label: 'Todos' }, { value: 'none', label: 'Sin turno' }, ...shiftOptions]}
+          value={shiftFilter}
+          onChange={(e) => changeShiftFilter(e.target.value)}
+        />
+        <Input label="Desde" type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); goToPage(1); }} />
+        <Input label="Hasta" type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); goToPage(1); }} />
+      </div>
+
+      {loading ? <PageLoader /> : (
+        <div className="card overflow-x-auto">
+          <table className="w-full text-sm font-body">
+            <thead>
+              <tr className="border-b border-island-blue/20">
+                <th className="px-3 py-2 text-left font-medium text-island-dark/70">Fecha</th>
+                <th className="px-3 py-2 text-left font-medium text-island-dark/70">Mesa</th>
+                <th className="px-3 py-2 text-left font-medium text-island-dark/70">Estado</th>
+                <th className="px-3 py-2 text-left font-medium text-island-dark/70">Pago</th>
+                <th className="px-3 py-2 text-right font-medium text-island-dark/70">Total</th>
+                <th className="px-3 py-2 text-left font-medium text-island-dark/70 min-w-64">Turno</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-island-blue/20">
+              {orders.map((order) => (
+                <tr key={order._id} className="hover:bg-gray-100">
+                  <td className="px-3 py-2 text-island-dark">{formatDate(order.closedAt || order.serviceDate || order.createdAt, 'dd/MM/yyyy')}</td>
+                  <td className="px-3 py-2 text-island-dark">{tableName(order)}</td>
+                  <td className="px-3 py-2"><OrderStatusBadge status={order.status} /></td>
+                  <td className="px-3 py-2 text-island-dark">{order.paymentMethod ? paymentLabel[order.paymentMethod] : '—'}</td>
+                  <td className="px-3 py-2 text-right text-island-dark">{formatCOP(order.total)}</td>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      {!orderShiftId(order) && <Badge variant="yellow" label="Sin turno" />}
+                      <Select
+                        options={[{ value: '', label: 'Sin turno' }, ...shiftOptions]}
+                        value={orderShiftId(order)}
+                        disabled={savingOrderId === order._id}
+                        onChange={(e) => assignShift(order, e.target.value)}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {orders.length === 0 && (
+                <tr><td colSpan={6} className="px-3 py-6 text-center text-island-dark/70">No hay pedidos con estos filtros.</td></tr>
+              )}
+            </tbody>
+          </table>
+          <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} />
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <h2 className="font-body text-lg font-semibold text-island-dark">Turnos</h2>
+        {shifts.map((shift) => (
+          <div key={shift._id} className="card flex flex-wrap items-center justify-between gap-3">
+            <div className="font-body">
+              <p className="font-medium text-island-dark text-sm">
+                {formatDateTime(shift.openedAt)}{shift.closedAt ? ` → ${formatDateTime(shift.closedAt)}` : ''}
+              </p>
+              <p className="text-xs text-island-dark/70">
+                Responsable: {ownerName(shift)} · Ventas {formatCOP(shift.salesSnapshot?.totalSales ?? 0)}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={shift.status === 'OPEN' ? 'green' : shift.status === 'CLOSED' ? 'yellow' : 'gray'}
+                label={statusLabel[shift.status]}
+              />
+              <Button type="button" variant="ghost" size="sm" onClick={() => changeShiftFilter(shift._id)}>
+                Ver pedidos
+              </Button>
+              <Button type="button" variant="secondary" size="sm" onClick={() => openEdit(shift)}>
+                <Pencil size={14} /> Editar
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={shift.status === 'OPEN'}
+                title={shift.status === 'OPEN' ? 'Cierra el turno antes de eliminarlo' : undefined}
+                onClick={() => removeShift(shift)}
+              >
+                <Trash2 size={14} /> Eliminar
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Modal isOpen={!!editing} onClose={() => setEditing(null)} title="Editar turno">
+        <div className="space-y-4">
+          <Select
+            label="Responsable del turno"
+            options={users.map((user) => ({ value: user._id ?? user.id, label: user.name }))}
+            value={editOwner}
+            onChange={(e) => setEditOwner(e.target.value)}
+          />
+          <Input label="Notas" value={editNotes} onChange={(e) => setEditNotes(e.target.value)} />
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setEditing(null)}>Cancelar</Button>
+            <Button type="button" loading={editSaving} onClick={saveEdit}>Guardar</Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}

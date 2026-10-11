@@ -1,5 +1,5 @@
 import api from './axios';
-import type { CashMovement, CashMovementType, CashShift, DenominationInput } from '../types';
+import type { CashBalances, CashMovement, CashMovementType, CashShift, DenominationInput } from '../types';
 
 export interface OpenShiftPayload {
   denominations: DenominationInput[];
@@ -44,6 +44,21 @@ export interface ListShiftsFilters {
   userId?: string;
 }
 
+export interface ShiftDeletionPreview {
+  status: string;
+  orders: number;
+  ordersTotal: number;
+  expenses: number;
+  expensesTotal: number;
+  movements: number;
+  acceptedFiscalDocuments: number;
+}
+
+export interface UpdateShiftPayload {
+  openedBy?: string;
+  notes?: string;
+}
+
 export const cashShiftsApi = {
   getOpen: () => api.get<CashShift | null>('/admin/caja/shifts/open'),
   open: (data: OpenShiftPayload) => api.post<CashShift>('/admin/caja/shifts', data),
@@ -58,5 +73,10 @@ export const cashShiftsApi = {
   adjust: (shiftId: string, reason: string, changes: Partial<CashShift>) =>
     api.post<CashShift>(`/admin/caja/shifts/${shiftId}/adjust`, { reason, changes }),
   getFiscalCheck: (shiftId: string) => api.get<ShiftFiscalCheck>(`/admin/caja/shifts/${shiftId}/fiscal-check`),
+  update: (shiftId: string, data: UpdateShiftPayload) => api.put<CashShift>(`/admin/caja/shifts/${shiftId}`, data),
+  getDeletionPreview: (shiftId: string) => api.get<ShiftDeletionPreview>(`/admin/caja/shifts/${shiftId}/deletion-preview`),
+  remove: (shiftId: string) => api.delete<ShiftDeletionPreview>(`/admin/caja/shifts/${shiftId}`),
+  getBalances: () => api.get<CashBalances>('/admin/caja/shifts/balances'),
+  transfer: (data: CreateMovementPayload) => api.post<CashMovement>('/admin/caja/shifts/transfers', data),
   getSummary: (shiftId: string) => api.get<ShiftSummary>(`/admin/caja/shifts/${shiftId}/summary`),
 };

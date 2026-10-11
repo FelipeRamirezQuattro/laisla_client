@@ -3,7 +3,7 @@ import { Edit3, History, PackagePlus, ReceiptText, RefreshCw } from 'lucide-reac
 import { expensesApi } from '../../api/expenses';
 import { insumosInvApi } from '../../api/inventario';
 import { providersApi } from '../../api/providers';
-import type { DailyExpense, Insumo, MeasurementUnit, Provider } from '../../types';
+import type { DailyExpense, Insumo, MeasurementUnit, PaymentMethod, Provider } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, todayLocal } from '../../utils/formatDate';
 import { MEASUREMENT_UNITS } from '../../utils/measurementUnits';
@@ -16,11 +16,31 @@ import { Drawer } from '../../components/ui/Drawer';
 
 type ExpenseType = 'INSUMO' | 'OTRO';
 
+const paymentOptions = [
+  { value: 'cash', label: 'Efectivo' },
+  { value: 'transfer', label: 'Transferencia' },
+  { value: 'nequi', label: 'Nequi / Daviplata' },
+  { value: 'card', label: 'Tarjeta' },
+];
+
+const cashAccountOptions = [
+  { value: 'menor', label: 'Caja menor (registradora)' },
+  { value: 'general', label: 'Caja general' },
+];
+
+const accountLabel = (expense: DailyExpense) => {
+  const method = paymentOptions.find((option) => option.value === (expense.paymentMethod ?? 'cash'))?.label ?? 'Efectivo';
+  if ((expense.paymentMethod ?? 'cash') !== 'cash') return method;
+  return `${method} · ${(expense.cashAccount ?? 'menor') === 'menor' ? 'caja menor' : 'caja general'}`;
+};
+
 interface FormState {
   date: string;
   type: ExpenseType;
   description: string;
   amount: number | '';
+  paymentMethod: PaymentMethod;
+  cashAccount: 'menor' | 'general';
   insumoId: string;
   providerId: string;
   quantity: number | '';
@@ -33,6 +53,8 @@ const emptyForm = (date = todayLocal()): FormState => ({
   type: 'OTRO',
   description: '',
   amount: '',
+  paymentMethod: 'cash',
+  cashAccount: 'menor',
   insumoId: '',
   providerId: '',
   quantity: '',
@@ -146,6 +168,8 @@ export function ExpensesPage() {
         type: form.type,
         description: form.description.trim(),
         amount,
+        paymentMethod: form.paymentMethod,
+        cashAccount: form.paymentMethod === 'cash' ? form.cashAccount : undefined,
         insumoId: form.type === 'INSUMO' ? form.insumoId : undefined,
         providerId: form.type === 'INSUMO' && form.providerId ? form.providerId : undefined,
         quantity: form.type === 'INSUMO' ? Number(form.quantity) : undefined,
@@ -177,6 +201,8 @@ export function ExpensesPage() {
       type: expense.type,
       description: expense.description,
       amount: expense.amount,
+      paymentMethod: expense.paymentMethod ?? 'cash',
+      cashAccount: expense.cashAccount ?? 'menor',
       insumoId: typeof expense.insumoId === 'object' && expense.insumoId ? expense.insumoId._id : expense.insumoId ?? '',
       providerId: typeof expense.providerId === 'object' && expense.providerId ? expense.providerId._id : expense.providerId ?? '',
       quantity: expense.quantity ?? '',
@@ -255,6 +281,7 @@ export function ExpensesPage() {
                       {expense.type === 'INSUMO'
                         ? `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`
                         : 'Gasto general'}
+                      <p className="text-xs">{accountLabel(expense)}{expense.cashShiftId ? '' : ' · fuera de turno'}</p>
                     </td>
                     <td className="px-3 py-3 text-island-dark/70">{providerName(expense.providerId) || '-'}</td>
                     <td className="px-3 py-3 text-right font-semibold text-island-dark">{formatCOP(expense.amount)}</td>
@@ -349,6 +376,20 @@ export function ExpensesPage() {
               value={form.amount}
               onChange={(event) => setForm({ ...form, amount: event.target.value === '' ? '' : +event.target.value })}
             />
+            <Select
+              label="Se paga con"
+              value={form.paymentMethod}
+              options={paymentOptions}
+              onChange={(event) => setForm({ ...form, paymentMethod: event.target.value as PaymentMethod })}
+            />
+            {form.paymentMethod === 'cash' && (
+              <Select
+                label="Sale de"
+                value={form.cashAccount}
+                options={cashAccountOptions}
+                onChange={(event) => setForm({ ...form, cashAccount: event.target.value as 'menor' | 'general' })}
+              />
+            )}
             <div>
               <label className="mb-1 block text-sm font-medium text-island-dark font-body">Notas</label>
               <textarea
