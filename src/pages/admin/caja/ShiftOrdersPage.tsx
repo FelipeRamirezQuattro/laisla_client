@@ -48,6 +48,7 @@ export function ShiftOrdersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingOrderId, setSavingOrderId] = useState('');
+  const [selected, setSelected] = useState<string[]>([]);
   const [shiftFilter, setShiftFilter] = useState(searchParams.get('cashShiftId') || '');
   const [dateFrom, setDateFrom] = useState(searchParams.get('dateFrom') || '');
   const [dateTo, setDateTo] = useState(searchParams.get('dateTo') || '');
@@ -107,6 +108,34 @@ export function ShiftOrdersPage() {
 
   const tableName = (order: Order) =>
     order.tableId && typeof order.tableId === 'object' ? (order.tableId as CafeTable).name : 'Sin mesa / Mostrador';
+
+  const isDeletable = (order: Order) => !orderShiftId(order) || order.status === 'cancelled';
+  const deletableOrders = orders.filter(isDeletable);
+  const allSelected = deletableOrders.length > 0 && deletableOrders.every((order) => selected.includes(order._id));
+
+  // Selection never outlives the page/filters it was made on.
+  useEffect(() => { setSelected([]); }, [orders]);
+
+  const toggleSelected = (id: string) =>
+    setSelected((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+
+  const deleteOrders = async (ids: string[]) => {
+    const accepted = await confirm({
+      title: ids.length === 1 ? 'Eliminar pedido' : `Eliminar ${ids.length} pedidos`,
+      confirmLabel: 'Eliminar',
+      message: 'Se eliminarán de forma permanente, junto con sus documentos fiscales no aceptados. Esta acción no se puede deshacer.',
+    });
+    if (!accepted) return;
+    try {
+      const res = await ordersApi.bulkRemove(ids);
+      const { deleted, skipped } = res.data;
+      if (skipped.length > 0) toast.error(`${skipped.length} pedido(s) no se eliminaron: ${skipped[0].reason}`);
+      if (deleted > 0) toast.success(`${deleted} pedido(s) eliminado(s)`);
+      await Promise.all([fetchOrders(), fetchShifts()]);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Error al eliminar los pedidos'));
+    }
+  };
 
   const assignShift = async (order: Order, value: string) => {
     setSavingOrderId(order._id);
@@ -175,40 +204,82 @@ export function ShiftOrdersPage() {
 
       {loading ? <PageLoader /> : (
         <div className="card overflow-x-auto">
-          <table className="w-full text-sm font-body">
+          {selected.length > 0 && (
+            <div className="mb-3 flex items-center justify-between rounded-lg bg-gray-100 px-3 py-2 text-sm font-body">
+              <span className="text-island-dark">{selected.length} pedido(s) seleccionado(s)</span>
+              <Button type="button" variant="ghost" size="sm" onClick={() => deleteOrders(selected)}>
+                <Trash2 size={14} /> Eliminar seleccionados
+              </Button>
+            </div>
+          )}
+          <table className="w-full min-w-[56rem] table-fixed text-sm font-body">
+            <colgroup>
+              <col className="w-10" />
+              <col className="w-28" />
+              <col className="w-40" />
+              <col className="w-32" />
+              <col className="w-32" />
+              <col className="w-32" />
+              <col />
+              <col className="w-24" />
+            </colgroup>
             <thead>
               <tr className="border-b border-island-blue/20">
+                <th className="px-3 py-2">
+                  <input
+                    type="checkbox"
+                    aria-label="Seleccionar todos los eliminables"
+                    checked={allSelected}
+                    disabled={deletableOrders.length === 0}
+                    onChange={() => setSelected(allSelected ? [] : deletableOrders.map((order) => order._id))}
+                  />
+                </th>
                 <th className="px-3 py-2 text-left font-medium text-island-dark/70">Fecha</th>
                 <th className="px-3 py-2 text-left font-medium text-island-dark/70">Mesa</th>
                 <th className="px-3 py-2 text-left font-medium text-island-dark/70">Estado</th>
                 <th className="px-3 py-2 text-left font-medium text-island-dark/70">Pago</th>
                 <th className="px-3 py-2 text-right font-medium text-island-dark/70">Total</th>
-                <th className="px-3 py-2 text-left font-medium text-island-dark/70 min-w-64">Turno</th>
+                <th className="px-3 py-2 text-left font-medium text-island-dark/70">Turno</th>
+                <th className="px-3 py-2 text-right font-medium text-island-dark/70">Acción</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-island-blue/20">
               {orders.map((order) => (
                 <tr key={order._id} className="hover:bg-gray-100">
+                  <td className="px-3 py-2">
+                    {isDeletable(order) && (
+                      <input
+                        type="checkbox"
+                        aria-label="Seleccionar pedido"
+                        checked={selected.includes(order._id)}
+                        onChange={() => toggleSelected(order._id)}
+                      />
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-island-dark">{formatDate(order.closedAt || order.serviceDate || order.createdAt, 'dd/MM/yyyy')}</td>
-                  <td className="px-3 py-2 text-island-dark">{tableName(order)}</td>
+                  <td className="px-3 py-2 text-island-dark truncate" title={tableName(order)}>{tableName(order)}</td>
                   <td className="px-3 py-2"><OrderStatusBadge status={order.status} /></td>
-                  <td className="px-3 py-2 text-island-dark">{order.paymentMethod ? paymentLabel[order.paymentMethod] : '—'}</td>
+                  <td className="px-3 py-2 text-island-dark truncate">{order.paymentMethod ? paymentLabel[order.paymentMethod] : '—'}</td>
                   <td className="px-3 py-2 text-right text-island-dark">{formatCOP(order.total)}</td>
                   <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      {!orderShiftId(order) && <Badge variant="yellow" label="Sin turno" />}
-                      <Select
-                        options={[{ value: '', label: 'Sin turno' }, ...shiftOptions]}
-                        value={orderShiftId(order)}
-                        disabled={savingOrderId === order._id}
-                        onChange={(e) => assignShift(order, e.target.value)}
-                      />
-                    </div>
+                    <Select
+                      options={[{ value: '', label: 'Sin turno' }, ...shiftOptions]}
+                      value={orderShiftId(order)}
+                      disabled={savingOrderId === order._id}
+                      onChange={(e) => assignShift(order, e.target.value)}
+                    />
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {isDeletable(order) && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => deleteOrders([order._id])} title="Eliminar pedido">
+                        <Trash2 size={14} />
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))}
               {orders.length === 0 && (
-                <tr><td colSpan={6} className="px-3 py-6 text-center text-island-dark/70">No hay pedidos con estos filtros.</td></tr>
+                <tr><td colSpan={8} className="px-3 py-6 text-center text-island-dark/70">No hay pedidos con estos filtros.</td></tr>
               )}
             </tbody>
           </table>

@@ -391,7 +391,7 @@ export interface HourlySale {
 
 export interface MonthlySales {
   month: string;
-  days: Array<{ date: string; revenue: number; orders: number }>;
+  days: Array<{ date: string; revenue: number; orders: number; cash: number; card: number; transfer: number; nequi: number }>;
 }
 
 export interface DashboardSummary {

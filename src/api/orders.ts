@@ -34,6 +34,9 @@ export const ordersApi = {
     api.patch<Order>(`/admin/orders/${id}/close`, { paymentMethod, clientId, amountReceived }),
   setShift: (id: string, cashShiftId: string | null) =>
     api.patch<Order>(`/admin/orders/${id}/shift`, { cashShiftId }),
+  remove: (id: string) => api.delete(`/admin/orders/${id}`),
+  bulkRemove: (ids: string[]) =>
+    api.post<{ deleted: number; skipped: Array<{ id: string; reason: string }> }>('/admin/orders/bulk-delete', { ids }),
   cancel: (id: string, data: { reason: string; reasonDetail?: string }) =>
     api.patch<Order>(`/admin/orders/${id}/cancel`, data),
 };

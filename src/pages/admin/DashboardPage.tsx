@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertTriangle, CalendarDays, ChevronRight, ClipboardList, DollarSign, Sparkles, Table2 } from 'lucide-react';
+import { AlertTriangle, Banknote, CalendarDays, ChevronRight, ClipboardList, DollarSign, Landmark, Sparkles, Table2, Wallet } from 'lucide-react';
+import { cashShiftsApi } from '../../api/cashShifts';
 import { dashboardApi } from '../../api/dashboard';
+import { useAuthStore } from '../../store/authStore';
 import { alertasInvApi } from '../../api/inventario';
 import { ordersApi } from '../../api/orders';
-import { DashboardSummary, MonthlySales } from '../../types';
+import { CashBalances, DashboardSummary, MonthlySales } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, formatTime, todayLocal } from '../../utils/formatDate';
 import { PageLoader } from '../../components/ui/Spinner';
@@ -22,10 +24,24 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [agotadoCount, setAgotadoCount] = useState(0);
   const [monthly, setMonthly] = useState<MonthlySales | null>(null);
+  const { isAdmin } = useAuthStore();
+  const [balances, setBalances] = useState<CashBalances | null>(null);
   const today = todayLocal();
-  const [date, setDate] = useState(today);
-  const isToday = date === today;
-  const dayLabel = isToday ? 'hoy' : formatDate(date);
+  const [dateFrom, setDateFrom] = useState(today);
+  const [dateTo, setDateTo] = useState(today);
+  const isToday = dateFrom === today && dateTo === today;
+  const isRange = dateFrom !== dateTo;
+  const dayLabel = isToday
+    ? 'hoy'
+    : isRange
+      ? `${formatDate(dateFrom, 'd MMM')} al ${formatDate(dateTo, 'd MMM yyyy')}`
+      : formatDate(dateFrom);
+
+  // Current account balances (sales − expenses); admin-only endpoint, independent of the date filter.
+  useEffect(() => {
+    if (!isAdmin) return;
+    cashShiftsApi.getBalances().then((res) => setBalances(res.data)).catch(() => {});
+  }, [isAdmin]);
 
   useEffect(() => {
     alertasInvApi.getAll()
@@ -34,14 +50,14 @@ export function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    dashboardApi.getSummary({ date })
+    dashboardApi.getSummary({ dateFrom, dateTo })
       .then((res) => setData(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
-    ordersApi.getTimingStats({ dateFrom: date, dateTo: date })
+    ordersApi.getTimingStats({ dateFrom, dateTo })
       .then((res) => setTimingStats(res.data))
       .catch(() => {});
-  }, [date]);
+  }, [dateFrom, dateTo]);
 
   useEffect(() => {
     dashboardApi.getMonthlySales(today.slice(0, 7))
@@ -53,9 +69,24 @@ export function DashboardPage() {
 
   const summary = data;
   const monthlyTotal = (monthly?.days ?? []).reduce(
-    (acc, day) => ({ revenue: acc.revenue + day.revenue, orders: acc.orders + day.orders }),
-    { revenue: 0, orders: 0 }
+    (acc, day) => ({
+      revenue: acc.revenue + day.revenue,
+      orders: acc.orders + day.orders,
+      cash: acc.cash + day.cash,
+      card: acc.card + day.card,
+      transfer: acc.transfer + day.transfer,
+      nequi: acc.nequi + day.nequi,
+    }),
+    { revenue: 0, orders: 0, cash: 0, card: 0, transfer: 0, nequi: 0 }
   );
+  // Table lists the newest day first; the chart keeps chronological order.
+  const monthlyRows = [...(monthly?.days ?? [])].sort((a, b) => b.date.localeCompare(a.date));
+  const methodColumns = [
+    { key: 'cash', label: 'Efectivo' },
+    { key: 'card', label: 'Tarjeta' },
+    { key: 'transfer', label: 'Transferencia' },
+    { key: 'nequi', label: 'Nequi' },
+  ] as const;
   const timingChartData = (timingStats?.points ?? [])
     .filter((point) => point.deliveryMinutes !== null)
     .slice(-12)
@@ -71,16 +102,37 @@ export function DashboardPage() {
         <div>
           <h1 className="font-body text-2xl font-bold text-island-dark">Dashboard</h1>
           <p className="text-island-dark/70 font-body text-sm mt-1">
-            {formatDate(date, "EEEE d 'de' MMMM yyyy")}
+            {isRange
+              ? `${formatDate(dateFrom, "d 'de' MMMM")} — ${formatDate(dateTo, "d 'de' MMMM yyyy")}`
+              : formatDate(dateFrom, "EEEE d 'de' MMMM yyyy")}
           </p>
         </div>
-        <Input
-          label="Fecha"
-          type="date"
-          value={date}
-          max={today}
-          onChange={(e) => e.target.value && setDate(e.target.value)}
-        />
+        <div className="flex flex-wrap items-end gap-3">
+          <Input
+            label="Desde"
+            type="date"
+            value={dateFrom}
+            max={dateTo}
+            onChange={(e) => e.target.value && setDateFrom(e.target.value)}
+          />
+          <Input
+            label="Hasta"
+            type="date"
+            value={dateTo}
+            min={dateFrom}
+            max={today}
+            onChange={(e) => e.target.value && setDateTo(e.target.value)}
+          />
+          {!isToday && (
+            <button
+              type="button"
+              className="mb-2 font-body text-sm text-island-blue hover:underline"
+              onClick={() => { setDateFrom(today); setDateTo(today); }}
+            >
+              Hoy
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Inventory alert banner */}
@@ -96,13 +148,13 @@ export function DashboardPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <SummaryCard
-          label={isToday ? 'Ventas del día' : 'Ventas del día seleccionado'}
+          label={isToday ? 'Ventas del día' : isRange ? 'Ventas del rango' : 'Ventas del día seleccionado'}
           value={formatCOP(summary.todaySales)}
           icon={<DollarSign size={22} />}
           color="blue"
         />
         <SummaryCard
-          label={isToday ? 'Pedidos hoy' : 'Pedidos del día'}
+          label={isToday ? 'Pedidos hoy' : isRange ? 'Pedidos del rango' : 'Pedidos del día'}
           value={String(summary.todayOrders)}
           icon={<ClipboardList size={22} />}
           color="sky"
@@ -120,6 +172,22 @@ export function DashboardPage() {
           color="dark"
         />
       </div>
+
+      {balances && (
+        <div className="space-y-3">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-body text-lg font-semibold text-island-dark">Saldos actuales</h2>
+            <Link to="/admin/caja/saldos" className="font-body text-sm text-island-blue hover:underline">Ver detalle</Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <SummaryCard label="Caja menor" value={formatCOP(balances.cash.menor)} icon={<Banknote size={22} />} color="blue" />
+            <SummaryCard label="Caja general" value={formatCOP(balances.cash.general)} icon={<Wallet size={22} />} color="sky" />
+            <SummaryCard label="Transferencia" value={formatCOP(balances.transfer)} icon={<Landmark size={22} />} color="yellow" />
+            <SummaryCard label="Nequi" value={formatCOP(balances.nequi)} icon={<Landmark size={22} />} color="yellow" />
+            <SummaryCard label="Tarjeta" value={formatCOP(balances.card)} icon={<Landmark size={22} />} color="dark" />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[18rem_18rem_minmax(0,1fr)] gap-4">
         <SummaryCard
@@ -198,20 +266,26 @@ export function DashboardPage() {
               <tr className="border-b border-island-blue/20">
                 <th className="px-3 py-2 text-left font-medium text-island-dark/70">Día</th>
                 <th className="px-3 py-2 text-right font-medium text-island-dark/70">Pedidos</th>
+                {methodColumns.map((column) => (
+                  <th key={column.key} className="px-3 py-2 text-right font-medium text-island-dark/70">{column.label}</th>
+                ))}
                 <th className="px-3 py-2 text-right font-medium text-island-dark/70">Ventas</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-island-blue/20">
-              {(monthly?.days ?? []).map((day) => (
+              {monthlyRows.map((day) => (
                 <tr
                   key={day.date}
-                  className={`hover:bg-gray-100 cursor-pointer ${day.date === date ? 'bg-gray-100 font-semibold' : ''}`}
-                  onClick={() => day.date <= today && setDate(day.date)}
+                  className={`hover:bg-gray-100 cursor-pointer ${day.date >= dateFrom && day.date <= dateTo ? 'bg-gray-100 font-semibold' : ''}`}
+                  onClick={() => { setDateFrom(day.date); setDateTo(day.date); }}
                 >
                   <td className="px-3 py-2 text-island-dark">
                     {formatDate(day.date, 'EEE d MMM')}{day.date === today ? ' (hoy)' : ''}
                   </td>
                   <td className="px-3 py-2 text-right text-island-dark">{day.orders}</td>
+                  {methodColumns.map((column) => (
+                    <td key={column.key} className="px-3 py-2 text-right text-island-dark">{formatCOP(day[column.key])}</td>
+                  ))}
                   <td className="px-3 py-2 text-right text-island-dark">{formatCOP(day.revenue)}</td>
                 </tr>
               ))}
@@ -220,6 +294,9 @@ export function DashboardPage() {
               <tr className="border-t border-island-blue/20 font-semibold">
                 <td className="px-3 py-2 text-island-dark">Total</td>
                 <td className="px-3 py-2 text-right text-island-dark">{monthlyTotal.orders}</td>
+                {methodColumns.map((column) => (
+                  <td key={column.key} className="px-3 py-2 text-right text-island-dark">{formatCOP(monthlyTotal[column.key])}</td>
+                ))}
                 <td className="px-3 py-2 text-right text-island-dark">{formatCOP(monthlyTotal.revenue)}</td>
               </tr>
             </tfoot>
