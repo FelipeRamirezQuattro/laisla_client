@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Pencil, Printer } from 'lucide-react';
+import { Pencil, Printer, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cashShiftsApi } from '../../../api/cashShifts';
 import { useAuthStore } from '../../../store/authStore';
 import { useToast } from '../../../hooks/useToast';
+import { useConfirm } from '../../../hooks/useConfirm';
+import { confirmAndDeleteShift } from '../../../utils/confirmDeleteShift';
 import { Button } from '../../../components/ui/Button';
 import { Select } from '../../../components/ui/Select';
 import { Input } from '../../../components/ui/Input';
@@ -24,6 +26,7 @@ const statusOptions = [
 export function ShiftHistoryPage() {
   const { isAdmin } = useAuthStore();
   const toast = useToast();
+  const confirm = useConfirm();
   const navigate = useNavigate();
   const [shifts, setShifts] = useState<CashShift[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,6 +106,18 @@ export function ShiftHistoryPage() {
       toast.error(message);
     } finally {
       setAdjustSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!detail) return;
+    try {
+      if (!(await confirmAndDeleteShift(detail, confirm))) return;
+      toast.success('Turno eliminado');
+      setDetail(null);
+      await fetchShifts();
+    } catch (error) {
+      toast.error((error as { response?: { data?: { error?: string } } }).response?.data?.error || 'Error al eliminar el turno');
     }
   };
 
@@ -213,6 +228,11 @@ export function ShiftHistoryPage() {
               <Button variant="secondary" size="sm" onClick={() => navigate(`/admin/caja/shifts/${detail._id}/print`)}>
                 <Printer size={14} /> Ver / imprimir reporte
               </Button>
+              {isAdmin && (
+                <Button size="sm" variant="ghost" onClick={handleDelete}>
+                  <Trash2 size={14} /> Eliminar turno
+                </Button>
+              )}
               {isAdmin && detail.status === 'CLOSED' && (
                 <Button size="sm" onClick={handleApprove} loading={approving}>Aprobar turno</Button>
               )}

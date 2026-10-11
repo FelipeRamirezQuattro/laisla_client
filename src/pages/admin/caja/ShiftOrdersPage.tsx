@@ -15,6 +15,8 @@ import { Pagination } from '../../../components/ui/Pagination';
 import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
 import type { CafeTable, CashShift, Order, User } from '../../../types';
+import { useShiftStore } from '../../../store/shiftStore';
+import { confirmAndDeleteShift } from '../../../utils/confirmDeleteShift';
 import { formatCOP } from '../../../utils/formatCurrency';
 import { formatDate, formatDateTime } from '../../../utils/formatDate';
 
@@ -142,27 +144,10 @@ export function ShiftOrdersPage() {
 
   const removeShift = async (shift: CashShift) => {
     try {
-      const { data: preview } = await cashShiftsApi.getDeletionPreview(shift._id);
-      const accepted = await confirm({
-        title: 'Eliminar turno',
-        confirmLabel: 'Eliminar todo',
-        message: (
-          <div className="space-y-2 text-sm font-body">
-            <p>Se eliminará el turno del {formatDateTime(shift.openedAt)} y todo lo asociado. Esta acción no se puede deshacer:</p>
-            <ul className="list-disc pl-5">
-              <li>{preview.orders} pedido(s) por {formatCOP(preview.ordersTotal)}</li>
-              <li>{preview.expenses} gasto(s) por {formatCOP(preview.expensesTotal)}</li>
-              <li>{preview.movements} movimiento(s) de caja</li>
-            </ul>
-            <p>Si solo quieres conservar las ventas, primero reasigna los pedidos a otro turno.</p>
-          </div>
-        ),
-      });
-      if (!accepted) return;
-      await cashShiftsApi.remove(shift._id);
+      if (!(await confirmAndDeleteShift(shift, confirm))) return;
       toast.success('Turno eliminado');
       if (shiftFilter === shift._id) changeShiftFilter('');
-      await Promise.all([fetchShifts(), fetchOrders()]);
+      await Promise.all([fetchShifts(), fetchOrders(), useShiftStore.getState().refresh()]);
     } catch (error) {
       toast.error(errorMessage(error, 'Error al eliminar el turno'));
     }
@@ -258,8 +243,6 @@ export function ShiftOrdersPage() {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={shift.status === 'OPEN'}
-                title={shift.status === 'OPEN' ? 'Cierra el turno antes de eliminarlo' : undefined}
                 onClick={() => removeShift(shift)}
               >
                 <Trash2 size={14} /> Eliminar

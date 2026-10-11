@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, ArrowDownToLine, ArrowUpFromLine, History, Lock } from 'lucide-react';
+import { AlertTriangle, ArrowDownToLine, ArrowUpFromLine, History, Lock, Trash2 } from 'lucide-react';
 import { cashShiftsApi, ShiftSummary } from '../../../api/cashShifts';
 import { useShiftStore } from '../../../store/shiftStore';
 import { useAuthStore } from '../../../store/authStore';
 import { useToast } from '../../../hooks/useToast';
+import { useConfirm } from '../../../hooks/useConfirm';
+import { confirmAndDeleteShift } from '../../../utils/confirmDeleteShift';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
@@ -26,6 +28,7 @@ export function ShiftDashboardPage() {
   const { openShift, loading, refresh } = useShiftStore();
   const { user } = useAuthStore();
   const toast = useToast();
+  const confirm = useConfirm();
   const navigate = useNavigate();
 
   const [summary, setSummary] = useState<ShiftSummary | null>(null);
@@ -135,6 +138,17 @@ export function ShiftDashboardPage() {
     await refresh();
   };
 
+  const handleDeleteShift = async () => {
+    if (!openShift) return;
+    try {
+      if (!(await confirmAndDeleteShift(openShift, confirm))) return;
+      toast.success('Turno eliminado');
+      await refresh();
+    } catch (error) {
+      toast.error((error as { response?: { data?: { error?: string } } }).response?.data?.error || 'Error al eliminar el turno');
+    }
+  };
+
   if (loading && !openShift) return <PageLoader />;
 
   return (
@@ -188,6 +202,11 @@ export function ShiftDashboardPage() {
               <Button size="sm" onClick={() => setCloseModalVisible(true)} disabled={!canOperate}>
                 Cerrar turno
               </Button>
+              {isAdminUser && (
+                <Button variant="ghost" size="sm" onClick={handleDeleteShift}>
+                  <Trash2 size={14} /> Eliminar turno
+                </Button>
+              )}
             </div>
           </div>
 
