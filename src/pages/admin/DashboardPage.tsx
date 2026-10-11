@@ -79,8 +79,8 @@ export function DashboardPage() {
     }),
     { revenue: 0, orders: 0, cash: 0, card: 0, transfer: 0, nequi: 0 }
   );
-  // Table lists the newest day first; the chart keeps chronological order.
-  const monthlyRows = [...(monthly?.days ?? [])].sort((a, b) => b.date.localeCompare(a.date));
+  // Table lists only days with sales, newest first; the chart keeps every day in chronological order.
+  const monthlyRows = (monthly?.days ?? []).filter((day) => day.revenue > 0).sort((a, b) => b.date.localeCompare(a.date));
   const methodColumns = [
     { key: 'cash', label: 'Efectivo' },
     { key: 'card', label: 'Tarjeta' },
@@ -290,6 +290,11 @@ export function DashboardPage() {
                 </tr>
               ))}
             </tbody>
+            {monthlyRows.length === 0 && (
+              <tbody>
+                <tr><td colSpan={7} className="px-3 py-6 text-center text-island-dark/70">Aún no hay ventas este mes.</td></tr>
+              </tbody>
+            )}
             <tfoot>
               <tr className="border-t border-island-blue/20 font-semibold">
                 <td className="px-3 py-2 text-island-dark">Total</td>
