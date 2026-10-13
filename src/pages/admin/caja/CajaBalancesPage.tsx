@@ -1,15 +1,27 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDownToLine, ArrowUpFromLine, ReceiptText } from 'lucide-react';
-import { cashShiftsApi } from '../../../api/cashShifts';
+import { ArrowLeftRight, ReceiptText, SlidersHorizontal } from 'lucide-react';
+import { cashShiftsApi, type CashAccountKey } from '../../../api/cashShifts';
 import { useToast } from '../../../hooks/useToast';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Modal } from '../../../components/ui/Modal';
+import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
-import type { CashBalances, CashMovementType } from '../../../types';
+import type { CashBalances } from '../../../types';
 import { formatCOP } from '../../../utils/formatCurrency';
 import { formatDateTime } from '../../../utils/formatDate';
+
+const accountOptions: Array<{ value: CashAccountKey; label: string }> = [
+  { value: 'menor', label: 'Caja menor (registradora)' },
+  { value: 'general', label: 'Caja general' },
+  { value: 'transfer', label: 'Transferencia' },
+  { value: 'nequi', label: 'Nequi / Daviplata' },
+  { value: 'card', label: 'Tarjeta' },
+];
+
+const errorMessage = (error: unknown, fallback: string) =>
+  (error as { response?: { data?: { error?: string } } }).response?.data?.error || fallback;
 
 const accountCards = (balances: CashBalances) => [
   { label: 'Caja menor (registradora)', value: balances.cash.menor, hint: 'Efectivo que debe haber en el cajón' },
@@ -23,7 +35,10 @@ export function CajaBalancesPage() {
   const toast = useToast();
   const [balances, setBalances] = useState<CashBalances | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modalType, setModalType] = useState<CashMovementType | null>(null);
+  const [modal, setModal] = useState<'transfer' | 'calibrate' | null>(null);
+  const [from, setFrom] = useState<CashAccountKey>('menor');
+  const [to, setTo] = useState<CashAccountKey>('general');
+  const [account, setAccount] = useState<CashAccountKey>('general');
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
@@ -41,24 +56,39 @@ export function CajaBalancesPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  const currentOf = (key: CashAccountKey) =>
+    !balances ? 0 : key === 'menor' ? balances.cash.menor : key === 'general' ? balances.cash.general : balances[key];
+
+  const closeModal = () => {
+    setModal(null);
+    setAmount('');
+    setReason('');
+  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!modalType) return;
     const value = Number(amount);
-    if (!Number.isFinite(value) || value <= 0 || !reason.trim()) {
-      toast.error('Ingresa un monto y un motivo');
+    if (!reason.trim() || !Number.isFinite(value) || amount === '' || (modal === 'transfer' && value <= 0)) {
+      toast.error(modal === 'transfer' ? 'Ingresa un monto mayor a cero y un motivo' : 'Ingresa el saldo y un motivo');
       return;
     }
     setSaving(true);
     try {
-      await cashShiftsApi.transfer({ type: modalType, amount: value, reason: reason.trim() });
-      toast.success('Traslado registrado');
-      setModalType(null);
-      setAmount('');
-      setReason('');
+      if (modal === 'transfer') {
+        await cashShiftsApi.transferBetweenAccounts({ from, to, amount: value, reason: reason.trim() });
+        toast.success('Traslado registrado');
+      } else {
+        await cashShiftsApi.calibrateAccount({
+          account: account as Exclude<CashAccountKey, 'menor'>,
+          targetBalance: value,
+          reason: reason.trim(),
+        });
+        toast.success('Saldo calibrado');
+      }
+      closeModal();
       await load();
     } catch (error) {
-      toast.error((error as { response?: { data?: { error?: string } } }).response?.data?.error || 'Error al registrar el traslado');
+      toast.error(errorMessage(error, 'No se pudo registrar el movimiento'));
     } finally {
       setSaving(false);
     }
@@ -76,11 +106,11 @@ export function CajaBalancesPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" onClick={() => setModalType('WITHDRAWAL')}>
-            <ArrowUpFromLine size={16} /> Caja menor → general
+          <Button type="button" variant="secondary" onClick={() => setModal('transfer')}>
+            <ArrowLeftRight size={16} /> Trasladar entre cuentas
           </Button>
-          <Button type="button" variant="secondary" onClick={() => setModalType('CASH_IN')}>
-            <ArrowDownToLine size={16} /> General → caja menor
+          <Button type="button" variant="secondary" onClick={() => setModal('calibrate')}>
+            <SlidersHorizontal size={16} /> Calibrar saldo
           </Button>
           <Link to="/admin/expenses">
             <Button type="button"><ReceiptText size={16} /> Registrar gasto</Button>
@@ -130,15 +160,36 @@ export function CajaBalancesPage() {
       </div>
 
       <Modal
-        isOpen={!!modalType}
-        onClose={() => setModalType(null)}
-        title={modalType === 'WITHDRAWAL' ? 'Trasladar de caja menor a caja general' : 'Trasladar de caja general a caja menor'}
+        isOpen={!!modal}
+        onClose={closeModal}
+        title={modal === 'transfer' ? 'Trasladar entre cuentas' : 'Calibrar saldo'}
       >
         <form onSubmit={submit} className="space-y-4">
-          <Input label="Monto (COP)" type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          {modal === 'transfer' ? (
+            <>
+              <Select label="Desde" options={accountOptions} value={from} onChange={(e) => setFrom(e.target.value as CashAccountKey)} />
+              <Select label="Hacia" options={accountOptions} value={to} onChange={(e) => setTo(e.target.value as CashAccountKey)} />
+              <Input label="Monto (COP)" type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            </>
+          ) : (
+            <>
+              <Select
+                label="Cuenta"
+                options={accountOptions.filter((option) => option.value !== 'menor')}
+                value={account}
+                onChange={(e) => setAccount(e.target.value as CashAccountKey)}
+              />
+              <p className="text-sm font-body text-island-dark/70">
+                Saldo calculado ahora: <strong className="text-island-dark">{formatCOP(currentOf(account))}</strong>. Escribe el saldo real
+                (por ejemplo 0 para empezar de cero) y el sistema registra la diferencia como ajuste. La caja menor no se calibra aquí:
+                sale del conteo de los turnos.
+              </p>
+              <Input label="Saldo real (COP)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            </>
+          )}
           <Input label="Motivo" value={reason} onChange={(e) => setReason(e.target.value)} />
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => setModalType(null)}>Cancelar</Button>
+            <Button type="button" variant="ghost" onClick={closeModal}>Cancelar</Button>
             <Button type="submit" loading={saving}>Registrar</Button>
           </div>
         </form>

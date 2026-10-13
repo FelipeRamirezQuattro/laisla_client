@@ -37,6 +37,8 @@ export interface ShiftSummary {
   unassignedOrders: Array<{ _id: string; total: number }>;
 }
 
+export type CashAccountKey = 'menor' | 'general' | 'transfer' | 'nequi' | 'card';
+
 export interface ListShiftsFilters {
   status?: string;
   dateFrom?: string;
@@ -78,5 +80,9 @@ export const cashShiftsApi = {
   remove: (shiftId: string) => api.delete<ShiftDeletionPreview>(`/admin/caja/shifts/${shiftId}`),
   getBalances: () => api.get<CashBalances>('/admin/caja/shifts/balances'),
   transfer: (data: CreateMovementPayload) => api.post<CashMovement>('/admin/caja/shifts/transfers', data),
+  transferBetweenAccounts: (data: { from: CashAccountKey; to: CashAccountKey; amount: number; reason: string }) =>
+    api.post<CashBalances>('/admin/caja/shifts/account-transfers', data),
+  calibrateAccount: (data: { account: Exclude<CashAccountKey, 'menor'>; targetBalance: number; reason: string }) =>
+    api.post<{ delta: number; balances: CashBalances }>('/admin/caja/shifts/calibrate', data),
   getSummary: (shiftId: string) => api.get<ShiftSummary>(`/admin/caja/shifts/${shiftId}/summary`),
 };

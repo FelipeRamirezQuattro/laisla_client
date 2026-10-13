@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, ArrowDownToLine, ArrowUpFromLine, History, Lock, Trash2 } from 'lucide-react';
+import { AlertTriangle, ArrowDownToLine, ArrowLeftRight, ArrowUpFromLine, History, Lock, Trash2 } from 'lucide-react';
 import { cashShiftsApi, ShiftSummary } from '../../../api/cashShifts';
 import { useShiftStore } from '../../../store/shiftStore';
 import { useAuthStore } from '../../../store/authStore';
@@ -158,9 +158,16 @@ export function ShiftDashboardPage() {
           <h1 className="font-body text-2xl font-bold text-island-dark">Caja / Turno</h1>
           <p className="text-island-dark/70 font-body text-sm">Arqueo por turno — base, ventas, gastos y cierre.</p>
         </div>
-        <Button type="button" variant="secondary" onClick={() => navigate('/admin/caja/historial')}>
-          <History size={16} /> Historial de turnos
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {isAdminUser && (
+            <Button type="button" variant="secondary" onClick={() => navigate('/admin/caja/saldos')}>
+              <ArrowLeftRight size={16} /> Traslados y saldos
+            </Button>
+          )}
+          <Button type="button" variant="secondary" onClick={() => navigate('/admin/caja/historial')}>
+            <History size={16} /> Historial de turnos
+          </Button>
+        </div>
       </div>
 
       {!openShift ? (
@@ -310,7 +317,12 @@ export function ShiftDashboardPage() {
                 {closeResult.fiscalWarning}
               </div>
             )}
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              {isAdminUser && (
+                <Button variant="secondary" onClick={async () => { await finishClosing(); navigate('/admin/caja/saldos'); }}>
+                  Hacer traslados
+                </Button>
+              )}
               <Button onClick={finishClosing}>Listo</Button>
             </div>
           </div>
