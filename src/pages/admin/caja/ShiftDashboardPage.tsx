@@ -97,7 +97,7 @@ export function ShiftDashboardPage() {
         amount: Number(movementAmount),
         reason: movementReason,
       });
-      toast.success(movementType === 'WITHDRAWAL' ? 'Sangría registrada' : 'Ingreso registrado');
+      toast.success(movementType === 'WITHDRAWAL' ? 'Retiro registrado' : 'Ingreso registrado');
       setMovementModalVisible(false);
       setMovementAmount('');
       setMovementReason('');
@@ -194,7 +194,7 @@ export function ShiftDashboardPage() {
             </div>
             <div className="flex gap-2">
               <Button variant="secondary" size="sm" onClick={() => { setMovementType('WITHDRAWAL'); setMovementModalVisible(true); }}>
-                <ArrowUpFromLine size={14} /> Sangría
+                <ArrowUpFromLine size={14} /> Retiro
               </Button>
               <Button variant="secondary" size="sm" onClick={() => { setMovementType('CASH_IN'); setMovementModalVisible(true); }}>
                 <ArrowDownToLine size={14} /> Ingreso
@@ -265,7 +265,7 @@ export function ShiftDashboardPage() {
           <Select
             label="Tipo"
             options={[
-              { value: 'WITHDRAWAL', label: 'Sangría (retiro)' },
+              { value: 'WITHDRAWAL', label: 'Retiro de efectivo' },
               { value: 'CASH_IN', label: 'Ingreso de efectivo' },
             ]}
             value={movementType}

@@ -55,7 +55,7 @@ export function ShiftPrintView() {
             </>
           )}
           <tr><td className="py-1 text-island-dark/70">Gastos en efectivo</td><td className="py-1 text-right">{formatCOP(shift.totalExpenses ?? 0)}</td></tr>
-          <tr><td className="py-1 text-island-dark/70">Retiros (sangrías)</td><td className="py-1 text-right">{formatCOP(shift.totalWithdrawals ?? 0)}</td></tr>
+          <tr><td className="py-1 text-island-dark/70">Retiros de efectivo</td><td className="py-1 text-right">{formatCOP(shift.totalWithdrawals ?? 0)}</td></tr>
           <tr><td className="py-1 text-island-dark/70">Ingresos manuales</td><td className="py-1 text-right">{formatCOP(shift.totalCashIn ?? 0)}</td></tr>
           <tr className="font-semibold"><td className="py-1">Efectivo esperado</td><td className="py-1 text-right">{formatCOP(shift.expectedCash ?? 0)}</td></tr>
           <tr className="font-semibold"><td className="py-1">Efectivo contado</td><td className="py-1 text-right">{formatCOP(shift.closingCount?.total ?? 0)}</td></tr>
