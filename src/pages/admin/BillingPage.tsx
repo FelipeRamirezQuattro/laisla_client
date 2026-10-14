@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ordersApi } from '../../api/orders';
 import { tablesApi } from '../../api/tables';
 import { useShiftStore } from '../../store/shiftStore';
-import { CafeTable, Client, FiscalOrderTicket, Order, OrderItem, PaymentMethod, PrintConfig, PrintingAlerts, PrintJob } from '../../types';
+import { CafeTable, Client, FiscalOrderTicket, Order, OrderItem, OrderPayment, PrintConfig, PrintingAlerts, PrintJob } from '../../types';
 import { formatCOP, formatCOPDecimal } from '../../utils/formatCurrency';
 import { formatShortDate, todayLocal } from '../../utils/formatDate';
 import { useToast } from '../../hooks/useToast';
@@ -17,15 +17,10 @@ import { FiscalDocumentStatusBadge, OrderStatusBadge, PrintJobStatusBadge } from
 import { PageLoader } from '../../components/ui/Spinner';
 import { CancelOrderModal, OrderDetailDrawer } from '../../components/orders/OrderWorkflow';
 import { FiscalCustomerSelect } from '../../components/fiscal/FiscalCustomerSelect';
+import { SplitPaymentEditor } from '../../components/billing/SplitPaymentEditor';
+import { formatOrderPayments, paymentsAreValid } from '../../utils/payments';
 import { fiscalApi } from '../../api/fiscal';
 import { printConfigApi, printingAlertsApi, printJobsApi } from '../../api/printing';
-
-const paymentOptions: { value: PaymentMethod; label: string }[] = [
-  { value: 'cash', label: 'Efectivo' },
-  { value: 'card', label: 'Tarjeta' },
-  { value: 'nequi', label: 'Nequi / Daviplata' },
-  { value: 'transfer', label: 'Transferencia' },
-];
 
 const statusOptions = [
   { value: 'open', label: 'Abiertos' },
@@ -64,7 +59,7 @@ export function BillingPage() {
   const [closeClientId, setCloseClientId] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [payments, setPayments] = useState<OrderPayment[]>([{ method: 'cash', amount: 0 }]);
   const [amountReceived, setAmountReceived] = useState('');
   const [statusFilter, setStatusFilter] = useState('delivered');
   const [dateFrom, setDateFrom] = useState(todayInput());
@@ -194,7 +189,7 @@ export function BillingPage() {
     if (!closeOrder) return;
     try {
       const parsedAmount = amountReceived.trim() ? Number(amountReceived) : undefined;
-      const res = await ordersApi.close(closeOrder._id, paymentMethod, closeClientId ?? undefined, parsedAmount);
+      const res = await ordersApi.close(closeOrder._id, payments, closeClientId ?? undefined, parsedAmount);
       toast.success('Pedido facturado');
       setCloseOrder(null);
       setAmountReceived('');
@@ -281,6 +276,7 @@ export function BillingPage() {
           variant="secondary"
           size="sm"
           onClick={() => {
+            setPayments([{ method: 'cash', amount: order.total }]);
             setCloseOrder(order);
             setAmountReceived('');
             setCloseClientId(typeof order.clientId === 'object' ? order.clientId?._id ?? null : order.clientId ?? null);
@@ -319,7 +315,7 @@ export function BillingPage() {
   // for the on-screen modal preview and the print-only copy below.
   const invoiceContent = (order: Order): ReactNode => {
     const saleNumber = order._id.slice(-8).toUpperCase();
-    const methodLabel = paymentOptions.find((option) => option.value === order.paymentMethod)?.label;
+    const methodLabel = order.paymentMethod ? formatOrderPayments(order) : undefined;
 
     return (
       <div className="mx-auto w-full max-w-[320px] font-mono text-xs text-island-dark space-y-2 print:max-w-[80mm] print:text-[11px]">
@@ -523,13 +519,8 @@ export function BillingPage() {
                 </span>
               </div>
             )}
-            <Select
-              label="Método de pago"
-              options={paymentOptions}
-              value={paymentMethod}
-              onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}
-            />
-            {paymentMethod === 'cash' && (
+            <SplitPaymentEditor total={closeOrder.total} value={payments} onChange={setPayments} />
+            {payments.some((p) => p.method === 'cash') && (
               <Input
                 label="Monto recibido (opcional)"
                 type="number"
@@ -546,7 +537,7 @@ export function BillingPage() {
             />
             <div className="flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setCloseOrder(null)}>Cancelar</Button>
-              <Button onClick={handleCloseOrder}>Confirmar factura</Button>
+              <Button onClick={handleCloseOrder} disabled={!paymentsAreValid(payments, closeOrder.total)}>Confirmar factura</Button>
             </div>
           </div>
         </Modal>

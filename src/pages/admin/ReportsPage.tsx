@@ -162,11 +162,12 @@ export function ReportsPage() {
           {/* Payment Method Breakdown */}
           <div className="card">
             <h2 className="font-body text-base font-semibold text-island-dark mb-4">Ingresos por método de pago</h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
                 { label: 'Efectivo', value: sales.revenueByMethod.cash, color: 'bg-success-tint text-success-ink' },
                 { label: 'Tarjeta', value: sales.revenueByMethod.card, color: 'bg-info-tint text-info-ink' },
                 { label: 'Transferencia', value: sales.revenueByMethod.transfer, color: 'bg-gray-100 text-island-dark' },
+                { label: 'Nequi / Daviplata', value: sales.revenueByMethod.nequi, color: 'bg-warning-tint text-warning-ink' },
               ].map((m) => (
                 <div key={m.label} className={`rounded-xl p-4 text-center ${m.color}`}>
                   <p className="text-xs font-body uppercase tracking-wide mb-1">{m.label}</p>

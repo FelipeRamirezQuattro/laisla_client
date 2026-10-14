@@ -59,6 +59,11 @@ export interface CafeTable {
 export type OrderStatus = 'pending' | 'in-progress' | 'ready' | 'delivered' | 'billed' | 'cancelled';
 export type PaymentMethod = 'cash' | 'card' | 'transfer' | 'nequi';
 
+export interface OrderPayment {
+  method: PaymentMethod;
+  amount: number;
+}
+
 export interface OrderItem {
   productId: string;
   productName: string;
@@ -80,7 +85,8 @@ export interface Order {
   status: OrderStatus;
   subtotal: number;
   total: number;
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: PaymentMethod | 'mixed';
+  payments?: OrderPayment[];
   cashShiftId?: string | { _id: string; status: CashShiftStatus; openedAt: string; closedAt?: string } | null;
   notes?: string;
   createdBy: string;

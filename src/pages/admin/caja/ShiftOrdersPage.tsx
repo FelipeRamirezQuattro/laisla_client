@@ -14,7 +14,9 @@ import { Modal } from '../../../components/ui/Modal';
 import { Pagination } from '../../../components/ui/Pagination';
 import { Select } from '../../../components/ui/Select';
 import { PageLoader } from '../../../components/ui/Spinner';
-import type { CafeTable, CashShift, Order, User } from '../../../types';
+import type { CafeTable, CashShift, Order, OrderPayment, User } from '../../../types';
+import { SplitPaymentEditor } from '../../../components/billing/SplitPaymentEditor';
+import { formatOrderPayments, getOrderPayments, paymentsAreValid } from '../../../utils/payments';
 import { useShiftStore } from '../../../store/shiftStore';
 import { confirmAndDeleteShift } from '../../../utils/confirmDeleteShift';
 import { formatCOP } from '../../../utils/formatCurrency';
@@ -25,13 +27,6 @@ const statusLabel: Record<CashShift['status'], string> = {
   COUNTING: 'En conteo',
   CLOSED: 'Cerrado',
   REVIEWED: 'Aprobado',
-};
-
-const paymentLabel: Record<string, string> = {
-  cash: 'Efectivo',
-  card: 'Tarjeta',
-  transfer: 'Transferencia',
-  nequi: 'Nequi',
 };
 
 const errorMessage = (error: unknown, fallback: string) =>
@@ -150,6 +145,31 @@ export function ShiftOrdersPage() {
     }
   };
 
+  const [paymentOrder, setPaymentOrder] = useState<Order | null>(null);
+  const [paymentLines, setPaymentLines] = useState<OrderPayment[]>([]);
+  const [savingPayment, setSavingPayment] = useState(false);
+
+  const openPaymentEdit = (order: Order) => {
+    const current = getOrderPayments(order);
+    setPaymentLines(current.length > 0 ? current : [{ method: 'cash', amount: order.total }]);
+    setPaymentOrder(order);
+  };
+
+  const savePayment = async () => {
+    if (!paymentOrder) return;
+    setSavingPayment(true);
+    try {
+      await ordersApi.updatePayments(paymentOrder._id, paymentLines);
+      toast.success('Método de pago actualizado');
+      setPaymentOrder(null);
+      await Promise.all([fetchOrders(), fetchShifts()]);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Error al cambiar el método de pago'));
+    } finally {
+      setSavingPayment(false);
+    }
+  };
+
   const openEdit = (shift: CashShift) => {
     setEditing(shift);
     setEditOwner(typeof shift.openedBy === 'object' ? (shift.openedBy._id ?? shift.openedBy.id) : shift.openedBy);
@@ -259,7 +279,7 @@ export function ShiftOrdersPage() {
                   <td className="px-3 py-2 text-island-dark">{formatDate(order.closedAt || order.serviceDate || order.createdAt, 'dd/MM/yyyy')}</td>
                   <td className="px-3 py-2 text-island-dark truncate" title={tableName(order)}>{tableName(order)}</td>
                   <td className="px-3 py-2"><OrderStatusBadge status={order.status} /></td>
-                  <td className="px-3 py-2 text-island-dark truncate">{order.paymentMethod ? paymentLabel[order.paymentMethod] : '—'}</td>
+                  <td className="px-3 py-2 text-island-dark truncate">{formatOrderPayments(order)}</td>
                   <td className="px-3 py-2 text-right text-island-dark">{formatCOP(order.total)}</td>
                   <td className="px-3 py-2">
                     <Select
@@ -269,7 +289,12 @@ export function ShiftOrdersPage() {
                       onChange={(e) => assignShift(order, e.target.value)}
                     />
                   </td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                    {order.status === 'billed' && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => openPaymentEdit(order)} title="Editar método de pago">
+                        <Pencil size={14} />
+                      </Button>
+                    )}
                     {isDeletable(order) && (
                       <Button type="button" variant="ghost" size="sm" onClick={() => deleteOrders([order._id])} title="Eliminar pedido">
                         <Trash2 size={14} />
@@ -322,6 +347,24 @@ export function ShiftOrdersPage() {
           </div>
         ))}
       </div>
+
+      {paymentOrder && (
+        <Modal isOpen onClose={() => setPaymentOrder(null)} title="Editar método de pago">
+          <div className="space-y-4">
+            <p className="text-sm text-island-dark/70 font-body">
+              Total del pedido: {formatCOP(paymentOrder.total)}. Si el turno ya está cerrado, sus totales y el
+              efectivo esperado se recalculan automáticamente.
+            </p>
+            <SplitPaymentEditor total={paymentOrder.total} value={paymentLines} onChange={setPaymentLines} />
+            <div className="flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => setPaymentOrder(null)}>Cancelar</Button>
+              <Button onClick={savePayment} disabled={savingPayment || !paymentsAreValid(paymentLines, paymentOrder.total)}>
+                Guardar
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       <Modal isOpen={!!editing} onClose={() => setEditing(null)} title="Editar turno">
         <div className="space-y-4">

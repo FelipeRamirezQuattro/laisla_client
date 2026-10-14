@@ -1,5 +1,5 @@
 import api from './axios';
-import { Order, PaymentMethod } from '../types';
+import { Order, OrderPayment } from '../types';
 
 interface OrdersResponse {
   orders: Order[];
@@ -30,8 +30,10 @@ export const ordersApi = {
     api.post<Order>('/admin/orders', data),
   update: (id: string, data: Partial<Order>) => api.put<Order>(`/admin/orders/${id}`, data),
   deliver: (id: string) => api.patch<Order>(`/admin/orders/${id}/deliver`),
-  close: (id: string, paymentMethod: PaymentMethod, clientId?: string, amountReceived?: number) =>
-    api.patch<Order>(`/admin/orders/${id}/close`, { paymentMethod, clientId, amountReceived }),
+  close: (id: string, payments: OrderPayment[], clientId?: string, amountReceived?: number) =>
+    api.patch<Order>(`/admin/orders/${id}/close`, { payments, clientId, amountReceived }),
+  updatePayments: (id: string, payments: OrderPayment[]) =>
+    api.patch<Order>(`/admin/orders/${id}/payments`, { payments }),
   setShift: (id: string, cashShiftId: string | null) =>
     api.patch<Order>(`/admin/orders/${id}/shift`, { cashShiftId }),
   remove: (id: string) => api.delete(`/admin/orders/${id}`),

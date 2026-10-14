@@ -3,7 +3,7 @@ import api from './axios';
 export interface SalesReport {
   totalRevenue: number;
   totalOrders: number;
-  revenueByMethod: { cash: number; card: number; transfer: number };
+  revenueByMethod: { cash: number; card: number; transfer: number; nequi: number };
   dailyRevenue: Array<{ date: string; revenue: number }>;
 }
 
