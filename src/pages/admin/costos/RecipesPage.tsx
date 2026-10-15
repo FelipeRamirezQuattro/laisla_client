@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { FileSpreadsheet, Plus } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { recipesApi } from '../../../api/costs';
@@ -169,6 +169,11 @@ export function RecipesPage() {
             <Button variant="secondary" onClick={() => setCategoryModalOpen(true)} icon={<Plus size={15} />}>
               Nueva categoría
             </Button>
+          )}
+          {isAdmin && (
+            <Link to="/admin/costos/recetas/importar">
+              <Button variant="secondary" icon={<FileSpreadsheet size={15} />}>Importar Excel</Button>
+            </Link>
           )}
           <Link to="/admin/inventario/recetas/nueva">
             <Button icon={<Plus size={15} />}>Nueva receta</Button>

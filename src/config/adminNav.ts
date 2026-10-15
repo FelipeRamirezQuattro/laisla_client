@@ -178,6 +178,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
   // Reachable only via the Topbar notification bell — kept here so it still
   // gets a correct breadcrumb label instead of falling back to "Admin".
   { to: '/admin/notificaciones', label: 'Notificaciones', Icon: LayoutDashboard, hidden: true },
+  { to: '/admin/costos/recetas/importar', label: 'Importar recetas', Icon: ChefHat, hidden: true },
 ];
 
 /** Flat `path -> label` map for Topbar breadcrumbs, built from every leaf in ADMIN_NAV. */

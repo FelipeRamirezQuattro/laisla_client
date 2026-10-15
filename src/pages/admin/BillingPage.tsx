@@ -189,7 +189,7 @@ export function BillingPage() {
     if (!closeOrder) return;
     try {
       const parsedAmount = amountReceived.trim() ? Number(amountReceived) : undefined;
-      const res = await ordersApi.close(closeOrder._id, payments, closeClientId ?? undefined, parsedAmount);
+      const res = await ordersApi.close(closeOrder._id, closeOrder.total === 0 ? [] : payments, closeClientId ?? undefined, parsedAmount);
       toast.success('Pedido facturado');
       setCloseOrder(null);
       setAmountReceived('');
@@ -340,7 +340,7 @@ export function BillingPage() {
             <div key={`${item.productId}-${item.variantSize ?? ''}-${idx}`}>
               <p className="font-semibold">{item.productName}{item.variantSize ? ` (${item.variantSize})` : ''}</p>
               <div className="flex justify-between">
-                <span>{item.quantity} x {formatCOP(item.unitPrice)}</span>
+                <span>{item.complimentary ? `${item.quantity} x Cortesía` : `${item.quantity} x ${formatCOP(item.unitPrice)}`}</span>
                 <span className="font-semibold">{formatCOP(item.quantity * item.unitPrice)}</span>
               </div>
             </div>
@@ -519,8 +519,14 @@ export function BillingPage() {
                 </span>
               </div>
             )}
-            <SplitPaymentEditor total={closeOrder.total} value={payments} onChange={setPayments} />
-            {payments.some((p) => p.method === 'cash') && (
+            {closeOrder.total === 0 ? (
+              <p className="rounded-lg bg-gray-100 p-3 text-sm text-island-dark font-body">
+                Pedido de cortesía: no hay nada que cobrar. Se facturará con total $0 y se descontarán los insumos.
+              </p>
+            ) : (
+              <SplitPaymentEditor total={closeOrder.total} value={payments} onChange={setPayments} />
+            )}
+            {closeOrder.total > 0 && payments.some((p) => p.method === 'cash') && (
               <Input
                 label="Monto recibido (opcional)"
                 type="number"
@@ -537,7 +543,7 @@ export function BillingPage() {
             />
             <div className="flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setCloseOrder(null)}>Cancelar</Button>
-              <Button onClick={handleCloseOrder} disabled={!paymentsAreValid(payments, closeOrder.total)}>Confirmar factura</Button>
+              <Button onClick={handleCloseOrder} disabled={closeOrder.total > 0 && !paymentsAreValid(payments, closeOrder.total)}>Confirmar factura</Button>
             </div>
           </div>
         </Modal>

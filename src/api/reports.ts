@@ -4,6 +4,7 @@ export interface SalesReport {
   totalRevenue: number;
   totalOrders: number;
   revenueByMethod: { cash: number; card: number; transfer: number; nequi: number };
+  complimentary?: { units: number; value: number };
   dailyRevenue: Array<{ date: string; revenue: number }>;
 }
 

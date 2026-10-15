@@ -15,7 +15,8 @@ import { PageLoader } from '../../../components/ui/Spinner';
 import { DenominationCounter } from '../../../components/caja/DenominationCounter';
 import { emptyDenominationCounts } from '../../../config/denominations';
 import { formatCOP } from '../../../utils/formatCurrency';
-import type { CashBalances, CashMovementType, DenominationInput } from '../../../types';
+import type { CashBalances, CashMovementType, ClosingDifferenceDetails, DenominationInput } from '../../../types';
+import { ClosingDifferencePanel } from '../../../components/caja/ClosingDifferencePanel';
 
 type CloseResult = {
   expectedCash: number;
@@ -49,6 +50,7 @@ export function ShiftDashboardPage() {
   const [closeNotes, setCloseNotes] = useState('');
   const [closeSubmitting, setCloseSubmitting] = useState(false);
   const [closeResult, setCloseResult] = useState<CloseResult | null>(null);
+  const [closeProblem, setCloseProblem] = useState<{ message: string; details: ClosingDifferenceDetails } | null>(null);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -113,6 +115,7 @@ export function ShiftDashboardPage() {
   const handleCloseShift = async () => {
     if (!openShift) return;
     setCloseSubmitting(true);
+    setCloseProblem(null);
     try {
       const res = await cashShiftsApi.close(openShift._id, { denominations: closeDenominations, notes: closeNotes });
       const closingTotal = closeDenominations.reduce((sum, d) => sum + d.value * d.quantity, 0);
@@ -123,8 +126,15 @@ export function ShiftDashboardPage() {
         fiscalWarning: res.data.fiscalWarning,
       });
     } catch (error) {
-      const message = (error as { response?: { data?: { error?: string } } }).response?.data?.error || 'Error al cerrar el turno';
-      toast.error(message);
+      const data = (error as { response?: { data?: { error?: string; details?: ClosingDifferenceDetails } } }).response?.data;
+      const message = data?.error || 'Error al cerrar el turno';
+      if (data?.details) {
+        // El desglose se muestra en el modal (no solo en un toast que desaparece).
+        setCloseProblem({ message, details: data.details });
+        toast.error(data.details.difference < 0 ? 'Falta efectivo en caja: revisa el detalle' : 'Sobra efectivo en caja: revisa el detalle');
+      } else {
+        toast.error(message);
+      }
     } finally {
       setCloseSubmitting(false);
     }
@@ -133,6 +143,7 @@ export function ShiftDashboardPage() {
   const finishClosing = async () => {
     setCloseModalVisible(false);
     setCloseResult(null);
+    setCloseProblem(null);
     setCloseDenominations(emptyDenominationCounts());
     setCloseNotes('');
     await refresh();
@@ -294,9 +305,12 @@ export function ShiftDashboardPage() {
               Cuenta el efectivo final por denominaciones. El resultado y la diferencia se muestran solo después de enviar el conteo.
             </p>
             <DenominationCounter denominations={closeDenominations} onChange={setCloseDenominations} showTotal={false} />
+            {closeProblem && <ClosingDifferencePanel problem={closeProblem} />}
             <div>
-              <label className="text-sm font-medium text-island-dark font-body block mb-1">Notas</label>
-              <textarea className="input-base h-16 resize-none" value={closeNotes} onChange={(e) => setCloseNotes(e.target.value)} />
+              <label className="text-sm font-medium text-island-dark font-body block mb-1">
+                Notas{closeProblem ? ' (obligatorias: explica la diferencia)' : ''}
+              </label>
+              <textarea className={`input-base h-16 resize-none ${closeProblem ? 'border-error' : ''}`} value={closeNotes} onChange={(e) => setCloseNotes(e.target.value)} />
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setCloseModalVisible(false)}>Cancelar</Button>

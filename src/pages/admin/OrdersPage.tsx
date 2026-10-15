@@ -120,10 +120,10 @@ export function OrdersPage() {
     }
 
     setCart((prev) => {
-      const existing = prev.find((item) => item.productId === recipe._id && item.variantSize === variant.size);
+      const existing = prev.find((item) => item.productId === recipe._id && item.variantSize === variant.size && !item.complimentary);
       if (existing) {
         return prev.map((item) =>
-          item.productId === recipe._id && item.variantSize === variant.size
+          item.productId === recipe._id && item.variantSize === variant.size && !item.complimentary
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -151,6 +151,59 @@ export function OrdersPage() {
         .map((item) => itemKey(item) === key ? { ...item, quantity: item.quantity + delta } : item)
         .filter((item) => item.quantity > 0)
     );
+  };
+
+  // Cortesía: la línea pasa a $0 pero conserva producto y cantidad, así que el
+  // backend descuenta los mismos insumos. Si solo se regalan algunas unidades,
+  // la línea se parte en una pagada y una de cortesía.
+  const markComplimentary = (key: string, units: number, reason: string) => {
+    setCart((prev) => {
+      const source = prev.find((item) => itemKey(item) === key);
+      if (!source) return prev;
+      const compKey = `${key}:comp`;
+      const gift: OrderItem = {
+        ...source,
+        quantity: units,
+        complimentary: true,
+        complimentaryReason: reason,
+        originalUnitPrice: source.unitPrice,
+        originalTaxAmount: source.taxAmount ?? 0,
+        unitPrice: 0,
+        taxAmount: 0,
+      };
+      const rest = prev
+        .map((item) => (itemKey(item) === key ? { ...item, quantity: item.quantity - units } : item))
+        .filter((item) => item.quantity > 0);
+      const existing = rest.find((item) => itemKey(item) === compKey);
+      if (existing) {
+        return rest.map((item) =>
+          itemKey(item) === compKey
+            ? {
+                ...item,
+                quantity: item.quantity + units,
+                complimentaryReason: item.complimentaryReason === reason ? reason : `${item.complimentaryReason}; ${reason}`,
+              }
+            : item
+        );
+      }
+      return [...rest, gift];
+    });
+  };
+
+  const unmarkComplimentary = (key: string) => {
+    setCart((prev) => {
+      const gift = prev.find((item) => itemKey(item) === key);
+      if (!gift) return prev;
+      const { complimentary, complimentaryReason, complimentaryBy, originalUnitPrice, originalTaxAmount, ...rest } = gift;
+      void complimentary; void complimentaryReason; void complimentaryBy;
+      const restored: OrderItem = { ...rest, unitPrice: originalUnitPrice ?? 0, taxAmount: originalTaxAmount ?? 0 };
+      const others = prev.filter((item) => itemKey(item) !== key);
+      const paid = others.find((item) => itemKey(item) === itemKey(restored));
+      if (paid) {
+        return others.map((item) => (itemKey(item) === itemKey(restored) ? { ...item, quantity: item.quantity + restored.quantity } : item));
+      }
+      return [...others, restored];
+    });
   };
 
   const removeItem = (key: string) => {
@@ -305,6 +358,8 @@ export function OrdersPage() {
             onClear={() => setCart([])}
             onChangeQty={changeQty}
             onRemoveItem={removeItem}
+            onComplimentary={markComplimentary}
+            onRemoveComplimentary={unmarkComplimentary}
             onConfirm={() => setConfirmOpen(true)}
             disabled={!selectedTableId || cart.length === 0}
           />

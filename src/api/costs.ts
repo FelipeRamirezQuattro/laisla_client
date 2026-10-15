@@ -22,6 +22,21 @@ export const laborOverheadApi = {
     api.put<LaborAndOverheadParams>('/admin/labor-overhead-params', data),
 };
 
+export interface RecipeImportResponse {
+  dryRun: boolean;
+  created?: number;
+  toCreate?: Array<{
+    name: string;
+    category: string;
+    isNewCategory: boolean;
+    variants: Array<{ size: string; salePrice: number; taxType: string }>;
+  }>;
+  skipped: Array<{ name: string; reason: string }>;
+  errors: Array<{ row: number; message: string }>;
+  failed?: Array<{ name: string; reason: string }>;
+  newCategories: string[];
+}
+
 // ── Recipes ───────────────────────────────────────────────────────────────────
 export const recipesApi = {
   getCategories: () => api.get<RecipeCategoryOption[]>('/admin/recipes/categories'),
@@ -39,6 +54,8 @@ export const recipesApi = {
   update: (id: string, data: Partial<Recipe>) =>
     api.put<Recipe>(`/admin/recipes/${id}`, data),
   delete: (id: string) => api.delete(`/admin/recipes/${id}`),
+  importRecipes: (rows: unknown[], dryRun: boolean) =>
+    api.post<RecipeImportResponse>('/admin/recipes/import', { rows, dryRun }),
 };
 
 // ── Projections ───────────────────────────────────────────────────────────────

@@ -74,6 +74,11 @@ export interface OrderItem {
   taxType?: 'NONE' | 'IVA_19' | 'CONSUMO_8';
   taxRate?: number;
   taxAmount?: number;
+  complimentary?: boolean;
+  originalUnitPrice?: number;
+  originalTaxAmount?: number;
+  complimentaryReason?: string;
+  complimentaryBy?: string;
 }
 
 export interface Order {
@@ -1016,4 +1021,19 @@ export interface CashBalances {
     cashAccount?: 'menor' | 'general';
     createdAt: string;
   }>;
+}
+
+// Desglose que devuelve el backend cuando el cierre de turno se rechaza por una diferencia.
+export interface ClosingDifferenceDetails {
+  openingFloat: number;
+  cashSales: number;
+  totalCashIn: number;
+  totalWithdrawals: number;
+  totalExpenses: number;
+  expectedCash: number;
+  counted: number;
+  difference: number;
+  justificationThreshold: number;
+  approvalThreshold: number;
+  needsApproval: boolean;
 }

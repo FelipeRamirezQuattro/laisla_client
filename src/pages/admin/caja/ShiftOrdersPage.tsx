@@ -290,7 +290,7 @@ export function ShiftOrdersPage() {
                     />
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
-                    {order.status === 'billed' && (
+                    {order.status === 'billed' && order.total > 0 && (
                       <Button type="button" variant="ghost" size="sm" onClick={() => openPaymentEdit(order)} title="Editar método de pago">
                         <Pencil size={14} />
                       </Button>

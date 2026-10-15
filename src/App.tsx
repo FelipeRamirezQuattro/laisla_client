@@ -43,6 +43,7 @@ import { DashboardCostosPage } from './pages/admin/costos/DashboardCostosPage';
 import { ParametrosMODGIFPage } from './pages/admin/costos/ParametrosMODGIFPage';
 import { RecipesPage } from './pages/admin/costos/RecipesPage';
 import { RecipeEditorPage } from './pages/admin/costos/RecipeEditorPage';
+import { RecipeImportPage } from './pages/admin/costos/RecipeImportPage';
 import { CostSheetPage } from './pages/admin/costos/CostSheetPage';
 import { DisposablePacksPage } from './pages/admin/costos/DisposablePacksPage';
 import { ProjectionsPage } from './pages/admin/costos/ProjectionsPage';
@@ -110,6 +111,7 @@ function AppRoutes() {
             <Route path="/admin/costos/dashboard" element={<RoleGuard roles={['admin', 'superadmin']}><DashboardCostosPage /></RoleGuard>} />
             <Route path="/admin/costos/parametros" element={<RoleGuard roles={['admin', 'superadmin']}><ParametrosMODGIFPage /></RoleGuard>} />
             <Route path="/admin/costos/recetas" element={<RoleGuard roles={['admin', 'superadmin']}><RecipesPage /></RoleGuard>} />
+            <Route path="/admin/costos/recetas/importar" element={<RoleGuard roles={['admin', 'superadmin']}><RecipeImportPage /></RoleGuard>} />
             <Route path="/admin/costos/recetas/:id" element={<RoleGuard roles={['admin', 'superadmin']}><RecipeEditorPage /></RoleGuard>} />
             <Route path="/admin/costos/recetas/:id/ficha" element={<RoleGuard roles={['admin', 'superadmin']}><CostSheetPage /></RoleGuard>} />
             <Route path="/admin/costos/packs-desechables" element={<RoleGuard roles={['admin', 'superadmin']}><DisposablePacksPage /></RoleGuard>} />

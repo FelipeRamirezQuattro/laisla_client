@@ -101,6 +101,9 @@ export function ReportsPage() {
             <StatCard label="Total pedidos" value={String(sales.totalOrders)} />
             <StatCard label="Ventas efectivo" value={formatCOP(sales.revenueByMethod.cash)} />
             <StatCard label="Ventas tarjeta" value={formatCOP(sales.revenueByMethod.card)} />
+            {sales.complimentary && sales.complimentary.units > 0 && (
+              <StatCard label="Cortesías (valor regalado)" value={`${formatCOP(sales.complimentary.value)} · ${sales.complimentary.units} uds`} />
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

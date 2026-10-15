@@ -26,7 +26,7 @@ export function getOrderPayments(order: Pick<Order, 'total' | 'paymentMethod' | 
 
 export function formatOrderPayments(order: Pick<Order, 'total' | 'paymentMethod' | 'payments'>): string {
   const payments = getOrderPayments(order);
-  if (payments.length === 0) return '—';
+  if (payments.length === 0) return order.total === 0 ? 'Cortesía' : '—';
   if (payments.length === 1) return paymentLabel[payments[0].method];
   return payments.map((p) => `${paymentLabel[p.method]} ${formatCOP(p.amount)}`).join(' + ');
 }
