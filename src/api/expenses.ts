@@ -27,4 +27,5 @@ export const expensesApi = {
     api.post<DailyExpense>('/admin/expenses', data),
   update: (id: string, data: CreateDailyExpensePayload) =>
     api.put<DailyExpense>(`/admin/expenses/${id}`, data),
+  remove: (id: string) => api.delete(`/admin/expenses/${id}`),
 };

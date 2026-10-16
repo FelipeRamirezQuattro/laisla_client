@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Edit3, History, PackagePlus, ReceiptText, RefreshCw } from 'lucide-react';
+import { Edit3, History, PackagePlus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
 import { expensesApi } from '../../api/expenses';
 import { insumosInvApi } from '../../api/inventario';
 import { providersApi } from '../../api/providers';
@@ -8,6 +8,7 @@ import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, todayLocal } from '../../utils/formatDate';
 import { MEASUREMENT_UNITS } from '../../utils/measurementUnits';
 import { useToast } from '../../hooks/useToast';
+import { useConfirm } from '../../hooks/useConfirm';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -91,6 +92,7 @@ export function ExpensesPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const toast = useToast();
+  const confirm = useConfirm();
 
   const loadExpenses = async (date = selectedDate) => {
     const res = await expensesApi.getAll({ date });
@@ -194,6 +196,29 @@ export function ExpensesPage() {
     }
   };
 
+  const deleteExpense = async (expense: DailyExpense) => {
+    const accepted = await confirm({
+      title: 'Eliminar gasto',
+      confirmLabel: 'Eliminar',
+      message: `Se eliminará "${expense.description}" por ${formatCOP(expense.amount)}.${
+        expense.type === 'INSUMO' ? ' También se revertirá la entrada de stock de esa compra.' : ''
+      }`,
+    });
+    if (!accepted) return;
+    try {
+      await expensesApi.remove(expense._id);
+      toast.success('Gasto eliminado');
+      if (editing?._id === expense._id) {
+        setEditing(null);
+        setForm(emptyForm(selectedDate));
+      }
+      await loadExpenses(selectedDate);
+      if (historyOpen) await loadHistory();
+    } catch {
+      toast.error('Error al eliminar el gasto');
+    }
+  };
+
   const startEdit = (expense: DailyExpense) => {
     setEditing(expense);
     setForm({
@@ -289,6 +314,10 @@ export function ExpensesPage() {
                       <Button type="button" variant="ghost" size="sm" onClick={() => startEdit(expense)}>
                         <Edit3 size={14} />
                         Editar
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => deleteExpense(expense)} title="Eliminar gasto">
+                        <Trash2 size={14} />
+                        Eliminar
                       </Button>
                     </td>
                   </tr>
@@ -462,6 +491,10 @@ export function ExpensesPage() {
                         >
                           <Edit3 size={14} />
                           Editar
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => deleteExpense(expense)} title="Eliminar gasto">
+                          <Trash2 size={14} />
+                          Eliminar
                         </Button>
                       </div>
                     </div>
