@@ -24,11 +24,6 @@ const paymentOptions = [
   { value: 'card', label: 'Tarjeta' },
 ];
 
-const cashAccountOptions = [
-  { value: 'menor', label: 'Caja menor (registradora)' },
-  { value: 'general', label: 'Caja general' },
-];
-
 const accountLabel = (expense: DailyExpense) => {
   const method = paymentOptions.find((option) => option.value === (expense.paymentMethod ?? 'cash'))?.label ?? 'Efectivo';
   if ((expense.paymentMethod ?? 'cash') !== 'cash') return method;
@@ -411,14 +406,6 @@ export function ExpensesPage() {
               options={paymentOptions}
               onChange={(event) => setForm({ ...form, paymentMethod: event.target.value as PaymentMethod })}
             />
-            {form.paymentMethod === 'cash' && (
-              <Select
-                label="Sale de"
-                value={form.cashAccount}
-                options={cashAccountOptions}
-                onChange={(event) => setForm({ ...form, cashAccount: event.target.value as 'menor' | 'general' })}
-              />
-            )}
             <div>
               <label className="mb-1 block text-sm font-medium text-island-dark font-body">Notas</label>
               <textarea

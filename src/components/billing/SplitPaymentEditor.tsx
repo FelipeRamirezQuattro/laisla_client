@@ -6,6 +6,8 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 
+const MAX_LINES = 8;
+
 interface Props {
   total: number;
   value: OrderPayment[];
@@ -32,7 +34,7 @@ export function SplitPaymentEditor({ total, value, onChange }: Props) {
 
   const addLine = () => {
     const used = new Set(value.map((p) => p.method));
-    const method = paymentOptions.find((o) => !used.has(o.value))?.value ?? 'cash';
+    const method = paymentOptions.find((o) => !used.has(o.value))?.value ?? value[value.length - 1].method;
     const last = value[value.length - 1];
     // Parte el monto de la última línea para que la nueva no nazca en $0.
     const half = Math.floor(last.amount / 2);
@@ -85,7 +87,7 @@ export function SplitPaymentEditor({ total, value, onChange }: Props) {
           </div>
         );
       })}
-      {value.length < paymentOptions.length && (
+      {value.length < MAX_LINES && (
         <Button type="button" variant="secondary" onClick={addLine}>
           <Plus size={14} /> Dividir cuenta
         </Button>

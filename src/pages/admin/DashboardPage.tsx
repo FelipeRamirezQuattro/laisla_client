@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { AlertTriangle, Banknote, CalendarDays, ChevronRight, ClipboardList, DollarSign, Landmark, Sparkles, Table2, Wallet } from 'lucide-react';
+import { AlertTriangle, Banknote, CalendarDays, ChevronRight, ClipboardList, DollarSign, Landmark, Sparkles, Table2 } from 'lucide-react';
 import { cashShiftsApi } from '../../api/cashShifts';
 import { dashboardApi } from '../../api/dashboard';
 import { useAuthStore } from '../../store/authStore';
@@ -179,9 +179,8 @@ export function DashboardPage() {
             <h2 className="font-body text-lg font-semibold text-island-dark">Saldos actuales</h2>
             <Link to="/admin/caja/saldos" className="font-body text-sm text-island-blue hover:underline">Ver detalle</Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <SummaryCard label="Caja menor" value={formatCOP(balances.cash.menor)} icon={<Banknote size={22} />} color="blue" />
-            <SummaryCard label="Caja general" value={formatCOP(balances.cash.general)} icon={<Wallet size={22} />} color="sky" />
             <SummaryCard label="Transferencia" value={formatCOP(balances.transfer)} icon={<Landmark size={22} />} color="yellow" />
             <SummaryCard label="Nequi" value={formatCOP(balances.nequi)} icon={<Landmark size={22} />} color="yellow" />
             <SummaryCard label="Tarjeta" value={formatCOP(balances.card)} icon={<Landmark size={22} />} color="dark" />

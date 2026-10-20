@@ -14,7 +14,6 @@ import { formatDateTime } from '../../../utils/formatDate';
 
 const accountOptions: Array<{ value: CashAccountKey; label: string }> = [
   { value: 'menor', label: 'Caja menor (registradora)' },
-  { value: 'general', label: 'Caja general' },
   { value: 'transfer', label: 'Transferencia' },
   { value: 'nequi', label: 'Nequi / Daviplata' },
   { value: 'card', label: 'Tarjeta' },
@@ -25,7 +24,6 @@ const errorMessage = (error: unknown, fallback: string) =>
 
 const accountCards = (balances: CashBalances) => [
   { label: 'Caja menor (registradora)', value: balances.cash.menor, hint: 'Efectivo que debe haber en el cajón' },
-  { label: 'Caja general', value: balances.cash.general, hint: 'Efectivo guardado fuera de la registradora' },
   { label: 'Transferencia', value: balances.transfer },
   { label: 'Nequi / Daviplata', value: balances.nequi },
   { label: 'Tarjeta', value: balances.card },
@@ -37,8 +35,8 @@ export function CajaBalancesPage() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<'transfer' | 'calibrate' | null>(null);
   const [from, setFrom] = useState<CashAccountKey>('menor');
-  const [to, setTo] = useState<CashAccountKey>('general');
-  const [account, setAccount] = useState<CashAccountKey>('general');
+  const [to, setTo] = useState<CashAccountKey>('transfer');
+  const [account, setAccount] = useState<CashAccountKey>('transfer');
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
@@ -126,11 +124,6 @@ export function CajaBalancesPage() {
             {card.hint && <p className="text-xs text-island-dark/70 font-body mt-1">{card.hint}</p>}
           </div>
         ))}
-        <div className="card">
-          <p className="text-xs text-island-dark/70 font-body uppercase tracking-wide">Efectivo total</p>
-          <p className="text-2xl font-body font-bold text-island-dark">{formatCOP(balances.cash.total)}</p>
-          <p className="text-xs text-island-dark/70 font-body mt-1">Caja menor + caja general</p>
-        </div>
       </div>
 
       <div className="card">

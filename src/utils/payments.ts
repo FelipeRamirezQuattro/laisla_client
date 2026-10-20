@@ -33,6 +33,5 @@ export function formatOrderPayments(order: Pick<Order, 'total' | 'paymentMethod'
 
 export function paymentsAreValid(payments: OrderPayment[], total: number): boolean {
   if (payments.length === 0 || payments.some((p) => !(p.amount > 0))) return false;
-  if (new Set(payments.map((p) => p.method)).size !== payments.length) return false;
   return Math.abs(payments.reduce((sum, p) => sum + p.amount, 0) - total) <= 0.5;
 }
