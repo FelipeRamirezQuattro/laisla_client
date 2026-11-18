@@ -37,11 +37,29 @@ export interface RecipesWeeklyReport {
   generatedAt: string;
 }
 
+export interface SalesTrends {
+  range: { from: string; to: string; days: number };
+  totals: { units: number; revenue: number };
+  heatmap: Array<{ dow: number; hour: number; units: number; revenue: number }>;
+  byWeekday: Array<{ dow: number; label: string; units: number; revenue: number; occurrences: number; avgUnits: number }>;
+  byHour: Array<{ hour: number; units: number; revenue: number; avgUnitsPerDay: number }>;
+  daily: Array<{ date: string; units: number; revenue: number }>;
+  peaks: {
+    cell: { dow: number; label: string; hour: number; units: number } | null;
+    weekday: { dow: number; label: string; avgUnits: number } | null;
+    hour: { hour: number; units: number } | null;
+  };
+  productId: string | null;
+  products: Array<{ productId: string; name: string; units: number; revenue: number }>;
+}
+
 export const reportsApi = {
   getSales: (params?: { dateFrom?: string; dateTo?: string }) =>
     api.get<SalesReport>('/admin/reports/sales', { params }),
   getProducts: (params?: { dateFrom?: string; dateTo?: string }) =>
     api.get<ProductsReport>('/admin/reports/products', { params }),
+  getSalesTrends: (params: { dateFrom: string; dateTo: string; productId?: string }) =>
+    api.get<SalesTrends>('/admin/reports/sales-trends', { params }),
   getRecipesWeekly: (weeks: number) =>
     api.get<RecipesWeeklyReport>('/admin/reports/recipes-weekly', { params: { weeks } }),
 };

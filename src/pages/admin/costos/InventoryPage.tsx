@@ -69,6 +69,7 @@ export function InventoryPage() {
   const [purchaseQty, setPurchaseQty] = useState('');
   const [purchaseUnit, setPurchaseUnit] = useState<MeasurementUnit>('UND');
   const [purchaseDate, setPurchaseDate] = useState(todayInput());
+  const [purchaseExpiry, setPurchaseExpiry] = useState('');
   const [purchaseProvider, setPurchaseProvider] = useState('');
   const [purchaseNotes, setPurchaseNotes] = useState('');
   const [newProviderName, setNewProviderName] = useState('');
@@ -168,20 +169,30 @@ export function InventoryPage() {
       return;
     }
 
+    const tipoVencimiento = selected.insumo.tipoVencimiento ?? 'NINGUNO';
+    if (tipoVencimiento === 'FECHA' && !purchaseExpiry) {
+      toast.error('Este insumo vence por fecha: indica la fecha de vencimiento de la compra');
+      return;
+    }
+
     setSavingPurchase(true);
     try {
       await stockInvApi.createPurchase(selected.insumo._id, {
         cantidad,
         unidad: purchaseUnit,
         fecha: purchaseDate,
+        // En vida útil se calcula solo (compra + días) si se deja vacío.
+        fechaVencimiento: tipoVencimiento !== 'NINGUNO' && purchaseExpiry ? purchaseExpiry : undefined,
         providerId: purchaseProvider || undefined,
         notas: purchaseNotes,
       });
       toast.success('Compra registrada');
       setPurchaseQty('');
+      setPurchaseExpiry('');
       await Promise.all([fetchStock(), fetchHistory(selected)]);
-    } catch {
-      toast.error('Error al registrar compra');
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      toast.error(message ?? 'Error al registrar compra');
     } finally {
       setSavingPurchase(false);
     }
@@ -649,6 +660,15 @@ export function InventoryPage() {
                     </select>
                   </label>
                   <Input label="Fecha" type="date" value={purchaseDate} onChange={(event) => setPurchaseDate(event.target.value)} />
+                  {selected?.insumo.tipoVencimiento && selected.insumo.tipoVencimiento !== 'NINGUNO' && (
+                    <Input
+                      label={selected.insumo.tipoVencimiento === 'FECHA' ? 'Fecha de vencimiento' : `Vence el (opcional, por defecto ${selected.insumo.vidaUtilDias ?? '?'} días)`}
+                      type="date"
+                      min={purchaseDate}
+                      value={purchaseExpiry}
+                      onChange={(event) => setPurchaseExpiry(event.target.value)}
+                    />
+                  )}
                   <label className="block">
                     <span className="block text-sm font-medium text-island-dark font-body mb-1">Proveedor</span>
                     <select className="input-base" value={purchaseProvider} onChange={(event) => setPurchaseProvider(event.target.value)}>

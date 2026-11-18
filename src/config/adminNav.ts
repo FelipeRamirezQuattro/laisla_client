@@ -103,6 +103,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
       { to: '/admin/events', label: 'Eventos', Icon: CalendarDays },
       { to: '/admin/boletines', label: 'Boletines', Icon: Mail },
       { to: '/admin/reports', label: 'Reportes', Icon: BarChart2 },
+      { to: '/admin/reports/tendencias', label: 'Tendencia de ventas', Icon: TrendingUp },
     ],
   },
 

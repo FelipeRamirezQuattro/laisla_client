@@ -36,6 +36,7 @@ import { MisTareasPage } from './pages/admin/proyectos/MisTareasPage';
 // Inventario diario pages
 import { ControlDiarioPage } from './pages/admin/inventario/ControlDiarioPage';
 import { CatalogoInsumosPage } from './pages/admin/inventario/CatalogoInsumosPage';
+import { SalesTrendsPage } from './pages/admin/SalesTrendsPage';
 import { ReportesInventarioPage } from './pages/admin/inventario/ReportesInventarioPage';
 
 // Cost module pages
@@ -100,6 +101,7 @@ function AppRoutes() {
             <Route path="/admin/caja/shifts/:id/print" element={<ShiftPrintView />} />
             <Route path="/admin/cashflow" element={<Navigate to="/admin/caja" replace />} />
             <Route path="/admin/reports" element={<ReportsPage />} />
+            <Route path="/admin/reports/tendencias" element={<RoleGuard roles={['admin', 'superadmin']}><SalesTrendsPage /></RoleGuard>} />
             <Route path="/admin/mis-tareas" element={<MisTareasPage />} />
             <Route path="/admin/notificaciones" element={<NotificacionesPage />} />
             <Route path="/admin/boletines" element={<RoleGuard roles={['admin', 'superadmin']}><BoletinesPage /></RoleGuard>} />

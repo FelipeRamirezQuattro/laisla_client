@@ -69,6 +69,8 @@ export const stockInvApi = {
     cantidad: number;
     unidad: MeasurementUnit;
     fecha?: string;
+    /** Último día útil del lote; obligatorio si el insumo vence por fecha. */
+    fechaVencimiento?: string;
     providerId?: string;
     notas?: string;
   }) => api.post<InsumoStockMovement>(`${BASE}/stock/insumos/${insumoId}/purchases`, data),
