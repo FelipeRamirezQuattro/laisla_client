@@ -81,16 +81,35 @@ export function calcVariantCosts(input: VariantCostInput): VariantCostResult {
   return { directMaterialCost, laborCost, overheadCost, totalCost, profitAmount, profitPct, grossMarginPct, suggestedPrice, salePriceWithoutTax, taxAmount, finalPrice };
 }
 
+// Días promedio por mes del módulo de costos (igual que el backend).
+export const DAYS_PER_MONTH = 30.4;
+
 export function calcMODResult(params: {
   hourlyWage: number; numberOfWorkers: number; hoursPerDay: number;
   numberOfShifts: number; monthlyCustomers: number; productsPerCustomer: number;
 }) {
   const totalHourlyWage = params.hourlyWage * params.numberOfWorkers * params.hoursPerDay;
   const dailyLabor = totalHourlyWage * params.numberOfShifts;
-  const monthlyLabor = dailyLabor * 30.4;
+  const monthlyLabor = dailyLabor * DAYS_PER_MONTH;
   const denom = params.monthlyCustomers * params.productsPerCustomer;
   const laborPerItem = denom > 0 ? monthlyLabor / denom : 0;
   return { totalHourlyWage, dailyLabor, monthlyLabor, laborPerItem };
+}
+
+// MOD con trabajadores de tarifa y horas propias (espejo de calcMODFromWorkers del backend).
+export function calcMODFromWorkersResult(params: {
+  workers: Array<{ hourlyRate: number; hoursPerDay: number; daysPerMonth: number }>;
+  monthlyCustomers: number; productsPerCustomer: number;
+}) {
+  const totalHourlyWage = params.workers.reduce((s, w) => s + w.hourlyRate * w.hoursPerDay, 0);
+  const monthlyLabor = params.workers.reduce((s, w) => s + w.hourlyRate * w.hoursPerDay * w.daysPerMonth, 0);
+  const denom = params.monthlyCustomers * params.productsPerCustomer;
+  return {
+    totalHourlyWage,
+    dailyLabor: monthlyLabor / DAYS_PER_MONTH,
+    monthlyLabor,
+    laborPerItem: denom > 0 ? monthlyLabor / denom : 0,
+  };
 }
 
 export function calcGIFResult(params: {
@@ -98,7 +117,7 @@ export function calcGIFResult(params: {
   monthlyCustomers: number; productsPerCustomer: number;
 }) {
   const totalMonthlyOverhead = params.overheadItems.reduce((s, i) => s + i.monthlyCost, 0);
-  const dailyOverhead = totalMonthlyOverhead / 30.4;
+  const dailyOverhead = totalMonthlyOverhead / DAYS_PER_MONTH;
   const denom = params.monthlyCustomers * params.productsPerCustomer;
   const overheadPerItem = denom > 0 ? totalMonthlyOverhead / denom : 0;
   return { totalMonthlyOverhead, dailyOverhead, overheadPerItem };

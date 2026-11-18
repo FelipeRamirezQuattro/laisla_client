@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { laborOverheadApi } from '../../../api/costs';
-import { LaborAndOverheadParams } from '../../../types';
+import { workersApi } from '../../../api/workers';
+import { LaborAndOverheadParams, MonthlySuggestion, Worker } from '../../../types';
 import { formatCOPDecimal, formatCOP } from '../../../utils/formatCurrency';
-import { calcMODResult, calcGIFResult } from '../../../utils/costFormulas';
+import { calcMODResult, calcMODFromWorkersResult, calcGIFResult } from '../../../utils/costFormulas';
 import { useToast } from '../../../hooks/useToast';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
@@ -16,6 +18,10 @@ export function ParametrosMODGIFPage() {
   const [saving, setSaving] = useState(false);
   const [cascadeModal, setCascadeModal] = useState(false);
   const [cascadeCount, setCascadeCount] = useState(0);
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [suggestion, setSuggestion] = useState<MonthlySuggestion | null>(null);
+  // Mes cuyos datos se cargaron al formulario con "Usar estos datos" (se guarda junto con los parámetros).
+  const [appliedMonth, setAppliedMonth] = useState<string | null>(null);
 
   // Form state
   const [hourlyWage, setHourlyWage] = useState(0);
@@ -44,9 +50,18 @@ export function ParametrosMODGIFPage() {
     }).catch(() => {
       toast.error('Error al cargar parámetros');
     }).finally(() => setLoading(false));
+    // Auxiliares: si fallan, la página sigue funcionando con los campos manuales.
+    workersApi.getAll().then((res) => setWorkers(res.data.filter((w) => w.active))).catch(() => undefined);
+    laborOverheadApi.suggestion().then((res) => setSuggestion(res.data)).catch(() => undefined);
   }, []);
 
-  const mod = calcMODResult({ hourlyWage, numberOfWorkers, hoursPerDay, numberOfShifts, monthlyCustomers, productsPerCustomer });
+  // Con trabajadores activos la MOD sale de ellos; sin trabajadores, de los campos manuales de siempre.
+  const workersMode = workers.length > 0;
+  const mod = workersMode
+    ? calcMODFromWorkersResult({ workers, monthlyCustomers, productsPerCustomer })
+    : calcMODResult({ hourlyWage, numberOfWorkers, hoursPerDay, numberOfShifts, monthlyCustomers, productsPerCustomer });
+  // Si cambiaron los trabajadores desde el último guardado, el costo de las recetas aún usa la MOD vieja.
+  const laborOutdated = workersMode && !!params && Math.abs(params.monthlyLabor - mod.monthlyLabor) > 1;
   const gif = calcGIFResult({ overheadItems, monthlyCustomers, productsPerCustomer });
 
   const handleSaveClick = async () => {
@@ -65,9 +80,11 @@ export function ParametrosMODGIFPage() {
       await laborOverheadApi.update({
         hourlyWage, numberOfWorkers, hoursPerDay, numberOfShifts,
         monthlyCustomers, productsPerCustomer, ivaRate, overheadItems,
+        ...(appliedMonth ? { baselineMonth: appliedMonth } : {}),
       });
       toast.success('Parámetros actualizados y recetas recalculadas');
       setCascadeModal(false);
+      setAppliedMonth(null);
       const res = await laborOverheadApi.get();
       setParams(res.data);
     } catch {
@@ -75,6 +92,18 @@ export function ParametrosMODGIFPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Carga los datos del mes anterior en el formulario; no guarda nada hasta "Guardar y recalcular".
+  const useSuggestion = () => {
+    if (!suggestion) return;
+    if (suggestion.customers.available) {
+      setMonthlyCustomers(suggestion.customers.monthlyCustomers);
+      setProductsPerCustomer(suggestion.customers.productsPerCustomer);
+    }
+    setOverheadItems(suggestion.overhead.items.map((i) => ({ concept: i.concept, monthlyCost: i.suggested })));
+    setAppliedMonth(suggestion.month);
+    toast.success('Datos cargados en el formulario. Revísalos y pulsa "Guardar y recalcular".');
   };
 
   const updateOverhead = (idx: number, field: 'concept' | 'monthlyCost', value: string | number) =>
@@ -104,11 +133,32 @@ export function ParametrosMODGIFPage() {
           <h2 className="font-body text-lg font-semibold text-island-dark border-b border-island-blue/20 pb-2">
             MOD — Mano de Obra Directa
           </h2>
+          {workersMode ? (
+            <div className="rounded-lg border border-island-blue/20 p-3 text-sm font-body">
+              <p className="text-island-dark">
+                Calculada con <strong>{workers.length} trabajador{workers.length === 1 ? '' : 'es'} activo{workers.length === 1 ? '' : 's'}</strong>, cada uno con su tarifa y sus horas.
+              </p>
+              <Link to="/admin/costos/trabajadores" className="text-island-blue underline">Administrar trabajadores</Link>
+              {laborOutdated && (
+                <p role="status" className="mt-2 rounded bg-warning-tint px-2 py-1 text-warning-ink">
+                  Los trabajadores cambiaron: guarda con "Guardar y recalcular" para actualizar el costo de las recetas.
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs font-body text-island-dark/70">
+              Sin trabajadores registrados se usan estos campos. <Link to="/admin/costos/trabajadores" className="text-island-blue underline">Registrar trabajadores</Link> para calcular la MOD con la tarifa y las horas de cada uno.
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Salario/hora (COP)" type="number" value={hourlyWage} onChange={(e) => setHourlyWage(+e.target.value)} />
-            <Input label="N° trabajadores" type="number" value={numberOfWorkers} onChange={(e) => setNumberOfWorkers(+e.target.value)} />
-            <Input label="Horas/día" type="number" value={hoursPerDay} onChange={(e) => setHoursPerDay(+e.target.value)} />
-            <Input label="N° turnos" type="number" value={numberOfShifts} onChange={(e) => setNumberOfShifts(+e.target.value)} />
+            {!workersMode && (
+              <>
+                <Input label="Salario/hora (COP)" type="number" value={hourlyWage} onChange={(e) => setHourlyWage(+e.target.value)} />
+                <Input label="N° trabajadores" type="number" value={numberOfWorkers} onChange={(e) => setNumberOfWorkers(+e.target.value)} />
+                <Input label="Horas/día" type="number" value={hoursPerDay} onChange={(e) => setHoursPerDay(+e.target.value)} />
+                <Input label="N° turnos" type="number" value={numberOfShifts} onChange={(e) => setNumberOfShifts(+e.target.value)} />
+              </>
+            )}
             <Input label="Clientes/mes" type="number" value={monthlyCustomers} onChange={(e) => setMonthlyCustomers(+e.target.value)} />
             <Input label="Productos/cliente" type="number" step="0.1" value={productsPerCustomer} onChange={(e) => setProductsPerCustomer(+e.target.value)} />
           </div>
@@ -181,6 +231,74 @@ export function ParametrosMODGIFPage() {
           </div>
         </div>
       </div>
+
+      {/* Datos del mes anterior */}
+      {suggestion && (
+        <div className="card space-y-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-island-blue/20 pb-2">
+            <div>
+              <h2 className="font-body text-lg font-semibold text-island-dark">Datos del mes anterior ({suggestion.label})</h2>
+              <p className="text-xs font-body text-island-dark/70">
+                Calculados con tus ventas y tus gastos GIF registrados. No cambian nada hasta que los uses y guardes.
+                {params?.baselineMonth ? ` Última vez aplicados: ${params.baselineMonth}.` : ''}
+              </p>
+            </div>
+            <Button variant="secondary" onClick={useSuggestion} disabled={!suggestion.customers.available && suggestion.overhead.totalPaid === 0}>
+              Usar estos datos
+            </Button>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2 text-sm font-body">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-island-dark">Clientes y productos</h3>
+              {suggestion.customers.available ? (
+                <table className="w-full">
+                  <thead><tr className="text-xs text-island-dark/70"><th className="text-left font-medium"></th><th className="text-right font-medium">Actual</th><th className="text-right font-medium">Mes anterior</th></tr></thead>
+                  <tbody>
+                    <tr><td>Clientes/mes</td><td className="text-right tabular-nums">{suggestion.customers.current.monthlyCustomers.toLocaleString('es-CO')}</td><td className="text-right tabular-nums font-semibold">{suggestion.customers.monthlyCustomers.toLocaleString('es-CO')}</td></tr>
+                    <tr><td>Productos/cliente</td><td className="text-right tabular-nums">{suggestion.customers.current.productsPerCustomer.toLocaleString('es-CO')}</td><td className="text-right tabular-nums font-semibold">{suggestion.customers.productsPerCustomer.toLocaleString('es-CO')}</td></tr>
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-island-dark/70">No hubo ventas facturadas el mes anterior: se conservan los valores actuales.</p>
+              )}
+              <p className="text-xs text-island-dark/60">
+                Un cliente = un pedido facturado ({suggestion.customers.orders} pedidos, {suggestion.customers.units} unidades; sin cortesías).
+              </p>
+              <div className="rounded-lg bg-gray-100 p-3 text-xs space-y-1">
+                <div className="flex justify-between"><span>MOD planificada (mes)</span><span className="font-medium">{formatCOP(suggestion.labor.plannedMonthly)}</span></div>
+                <div className="flex justify-between"><span>Pagado en mano de obra</span><span className="font-medium">{formatCOP(suggestion.labor.paidInMonth)}</span></div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="font-semibold text-island-dark">Gastos indirectos (GIF) pagados</h3>
+              {suggestion.overhead.items.length === 0 ? (
+                <p className="text-island-dark/70">Aún no hay conceptos de GIF.</p>
+              ) : (
+                <table className="w-full">
+                  <thead><tr className="text-xs text-island-dark/70"><th className="text-left font-medium">Concepto</th><th className="text-right font-medium">Actual</th><th className="text-right font-medium">Pagado</th></tr></thead>
+                  <tbody>
+                    {suggestion.overhead.items.map((item) => (
+                      <tr key={item.concept}>
+                        <td>
+                          {item.concept}
+                          {item.status === 'NUEVO' && <span className="ml-1 text-xs text-island-blue">(nuevo)</span>}
+                        </td>
+                        <td className="text-right tabular-nums">{formatCOP(item.current)}</td>
+                        <td className="text-right tabular-nums font-semibold">
+                          {item.status === 'SIN_PAGOS' ? <span className="text-xs font-normal text-island-dark/60" title="Sin pagos el mes anterior: se conserva el valor actual">sin pagos</span> : formatCOP(item.paid)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              <p className="text-xs text-island-dark/60">Los conceptos sin pagos el mes anterior conservan su valor actual.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* IVA */}
       <div className="card max-w-xs">

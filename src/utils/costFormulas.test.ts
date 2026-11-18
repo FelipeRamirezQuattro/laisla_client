@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   calcGIFResult,
   calcIngredientCost,
+  calcMODFromWorkersResult,
   calcMODResult,
   calcMonthProjection,
   calcPricePerUnit,
@@ -86,5 +87,32 @@ describe('costFormulas', () => {
       totalExpenses: 22_000_000,
       profit: 18_000_000
     });
+  });
+});
+
+describe('calcMODFromWorkersResult', () => {
+  const workers = [
+    { hourlyRate: 5_000, hoursPerDay: 8, daysPerMonth: 26 },
+    { hourlyRate: 4_000, hoursPerDay: 4, daysPerMonth: 30.4 },
+    { hourlyRate: 6_000, hoursPerDay: 6, daysPerMonth: 20 },
+  ];
+
+  it('suma el costo de cada trabajador con su tarifa, horas y días', () => {
+    const r = calcMODFromWorkersResult({ workers, monthlyCustomers: 600, productsPerCustomer: 2 });
+    expect(r.monthlyLabor).toBeCloseTo(2_246_400, 2);
+    expect(r.totalHourlyWage).toBe(92_000);
+    expect(r.laborPerItem).toBeCloseTo(1_872, 4);
+  });
+
+  it('con trabajadores iguales coincide con el cálculo manual (3 × $2.000 × 8 h = $1.459.200/mes)', () => {
+    const same = Array.from({ length: 3 }, () => ({ hourlyRate: 2_000, hoursPerDay: 8, daysPerMonth: 30.4 }));
+    const a = calcMODFromWorkersResult({ workers: same, monthlyCustomers: 600, productsPerCustomer: 2 });
+    const b = calcMODResult({ hourlyWage: 2_000, numberOfWorkers: 3, hoursPerDay: 8, numberOfShifts: 1, monthlyCustomers: 600, productsPerCustomer: 2 });
+    expect(a.monthlyLabor).toBeCloseTo(b.monthlyLabor, 6);
+    expect(a.laborPerItem).toBeCloseTo(b.laborPerItem, 6);
+  });
+
+  it('sin demanda no divide entre cero', () => {
+    expect(calcMODFromWorkersResult({ workers, monthlyCustomers: 0, productsPerCustomer: 2 }).laborPerItem).toBe(0);
   });
 });

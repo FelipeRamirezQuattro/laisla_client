@@ -1,6 +1,6 @@
 import api from './axios';
 import type {
-  DisposablePack, LaborAndOverheadParams,
+  DisposablePack, LaborAndOverheadParams, MonthlySuggestion,
   Recipe, RecipeCategoryOption, Projection, ActualResult,
 } from '../types';
 
@@ -20,6 +20,9 @@ export const laborOverheadApi = {
     api.get<{ affectedRecipes: number }>('/admin/labor-overhead-params/cascade-preview'),
   update: (data: Partial<LaborAndOverheadParams>) =>
     api.put<LaborAndOverheadParams>('/admin/labor-overhead-params', data),
+  // Datos del mes anterior (o del mes indicado, 'yyyy-MM'): solo calcula, no guarda.
+  suggestion: (month?: string) =>
+    api.get<MonthlySuggestion>('/admin/labor-overhead-params/suggestion', { params: month ? { month } : undefined }),
 };
 
 export interface RecipeImportResponse {

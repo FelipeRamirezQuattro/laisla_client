@@ -1,5 +1,5 @@
 import api from './axios';
-import type { DailyExpense, ExpenseCategory, MeasurementUnit, PaymentMethod } from '../types';
+import type { DailyExpense, DailyExpenseType, ExpenseCategory, MeasurementUnit, PaymentMethod } from '../types';
 
 export interface DailyExpensesResponse {
   expenses: DailyExpense[];
@@ -8,12 +8,14 @@ export interface DailyExpensesResponse {
 
 export interface CreateDailyExpensePayload {
   date: string;
-  type: 'INSUMO' | 'OTRO';
+  type: DailyExpenseType;
   description: string;
   amount: number;
   paymentMethod: PaymentMethod;
   cashAccount?: 'menor' | 'general';
   categoriaGasto?: ExpenseCategory;
+  workerId?: string;
+  gifConcept?: string;
   fechaVencimiento?: string;
   insumoId?: string;
   providerId?: string;

@@ -25,6 +25,7 @@ import {
   Package,
   CircleDollarSign,
   UserCog,
+  HardHat,
   Landmark,
   FileText,
   Settings2,
@@ -130,6 +131,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     items: [
       { to: '/admin/costos/dashboard', label: 'Dashboard Costos', Icon: TrendingUp },
       { to: '/admin/costos/parametros', label: 'Parámetros MOD/GIF', Icon: SlidersHorizontal },
+      { to: '/admin/costos/trabajadores', label: 'Trabajadores', Icon: HardHat },
       { to: '/admin/costos/inventario/control', label: 'Control Diario', Icon: ClipboardCheck },
       { to: '/admin/costos/inventario/catalogo', label: 'Catálogo de Insumos', Icon: Package },
       { to: '/admin/costos/recetas', label: 'Recetas', Icon: ChefHat },

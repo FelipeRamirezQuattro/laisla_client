@@ -231,7 +231,7 @@ export interface CashMovement {
   createdAt: string;
 }
 
-export type DailyExpenseType = 'INSUMO' | 'OTRO';
+export type DailyExpenseType = 'INSUMO' | 'OTRO' | 'MANO_OBRA' | 'GIF';
 export type ExpenseCategory = 'SERVICIOS' | 'ARRIENDO' | 'NOMINA' | 'TRANSPORTE' | 'LIMPIEZA' | 'MANTENIMIENTO' | 'OTROS';
 
 export interface DailyExpense {
@@ -243,6 +243,8 @@ export interface DailyExpense {
   paymentMethod?: PaymentMethod;
   cashAccount?: 'menor' | 'general';
   categoriaGasto?: ExpenseCategory | null;
+  workerId?: string | Worker | null;
+  gifConcept?: string | null;
   insumoId?: string | Insumo;
   providerId?: string | Provider;
   quantity?: number;
@@ -479,7 +481,38 @@ export interface LaborAndOverheadParams {
   dailyOverhead: number;
   overheadPerItem: number;
   ivaRate: number;
+  baselineMonth?: string | null;
   updatedAt: string;
+}
+
+export interface Worker {
+  _id: string;
+  name: string;
+  role?: string;
+  hourlyRate: number;
+  hoursPerDay: number;
+  daysPerMonth: number;
+  active: boolean;
+}
+
+export interface MonthlySuggestion {
+  month: string;
+  label: string;
+  customers: {
+    available: boolean;
+    orders: number;
+    units: number;
+    monthlyCustomers: number;
+    productsPerCustomer: number;
+    current: { monthlyCustomers: number; productsPerCustomer: number };
+  };
+  overhead: {
+    items: Array<{ concept: string; current: number; paid: number; status: 'PAGADO' | 'SIN_PAGOS' | 'NUEVO'; suggested: number }>;
+    totalPaid: number;
+    currentTotal: number;
+    suggestedTotal: number;
+  };
+  labor: { mode: 'WORKERS' | 'MANUAL'; workersCount: number; plannedMonthly: number; paidInMonth: number };
 }
 
 export interface RecipeIngredient {

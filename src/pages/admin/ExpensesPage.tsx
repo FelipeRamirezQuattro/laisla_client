@@ -3,7 +3,9 @@ import { Edit3, History, PackagePlus, Plus, ReceiptText, RefreshCw, Trash2 } fro
 import { expensesApi, type LastInsumoPrice } from '../../api/expenses';
 import { insumosInvApi } from '../../api/inventario';
 import { providersApi } from '../../api/providers';
-import type { DailyExpense, ExpenseCategory, Insumo, InsumoCategoria, MeasurementUnit, PaymentMethod, Provider } from '../../types';
+import { workersApi } from '../../api/workers';
+import { laborOverheadApi } from '../../api/costs';
+import type { DailyExpense, DailyExpenseType, ExpenseCategory, Insumo, InsumoCategoria, MeasurementUnit, PaymentMethod, Provider, Worker } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, todayLocal } from '../../utils/formatDate';
 import { MEASUREMENT_UNITS } from '../../utils/measurementUnits';
@@ -18,7 +20,10 @@ import { Combobox } from '../../components/ui/Combobox';
 import { PageLoader } from '../../components/ui/Spinner';
 import { Drawer } from '../../components/ui/Drawer';
 
-type ExpenseType = 'INSUMO' | 'OTRO';
+type ExpenseType = DailyExpenseType;
+
+// Valor del select de concepto GIF que abre el campo de texto para un concepto nuevo.
+const OTHER_CONCEPT = '__otro__';
 
 const paymentOptions = [
   { value: 'cash', label: 'Efectivo' },
@@ -61,6 +66,9 @@ interface FormState {
   paymentMethod: PaymentMethod;
   cashAccount: 'menor' | 'general';
   categoriaGasto: ExpenseCategory | '';
+  workerId: string;
+  gifConcept: string; // concepto elegido, u OTHER_CONCEPT para escribir uno nuevo
+  gifConceptCustom: string;
   fechaVencimiento: string;
   insumoId: string;
   providerId: string;
@@ -77,6 +85,9 @@ const emptyForm = (date = todayLocal()): FormState => ({
   paymentMethod: 'cash',
   cashAccount: 'menor',
   categoriaGasto: '',
+  workerId: '',
+  gifConcept: '',
+  gifConceptCustom: '',
   fechaVencimiento: '',
   insumoId: '',
   providerId: '',
@@ -87,6 +98,24 @@ const emptyForm = (date = todayLocal()): FormState => ({
 
 function providerName(provider?: string | Provider) {
   return typeof provider === 'object' && provider ? provider.name : '';
+}
+
+function workerName(worker?: string | Worker | null) {
+  return typeof worker === 'object' && worker ? worker.name : '';
+}
+
+// Texto de la columna "Relación" según el tipo de gasto.
+function expenseRelation(expense: DailyExpense) {
+  switch (expense.type) {
+    case 'INSUMO':
+      return `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`;
+    case 'MANO_OBRA':
+      return `Mano de obra · ${workerName(expense.workerId) || 'trabajador'}`;
+    case 'GIF':
+      return `GIF · ${expense.gifConcept ?? ''}`;
+    default:
+      return `Gasto general · ${categoryLabel(expense.categoriaGasto)}`;
+  }
 }
 
 function insumoName(insumo?: string | Insumo) {
@@ -105,6 +134,10 @@ export function ExpensesPage() {
   const { user } = useAuth();
   // Crear insumos exige rol de administrador en el backend.
   const canCreateInsumo = user?.role === 'admin' || user?.role === 'superadmin';
+  // Pagos de nómina y gastos indirectos: solo administradores (el backend también lo exige).
+  const canManagePayroll = canCreateInsumo;
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [gifConcepts, setGifConcepts] = useState<string[]>([]);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [form, setForm] = useState<FormState>(emptyForm());
   const [editing, setEditing] = useState<DailyExpense | null>(null);
@@ -146,6 +179,10 @@ export function ExpensesPage() {
 
   useEffect(() => {
     if (canCreateInsumo) insumosInvApi.getCategorias().then((res) => setInsumoCategories(res.data)).catch(() => undefined);
+    if (canManagePayroll) {
+      workersApi.getAll().then((res) => setWorkers(res.data.filter((w) => w.active))).catch(() => undefined);
+      laborOverheadApi.get().then((res) => setGifConcepts(res.data.overheadItems.map((i) => i.concept).filter(Boolean))).catch(() => undefined);
+    }
     loadLastPrices();
     Promise.all([
       loadExpenses(selectedDate),
@@ -186,7 +223,11 @@ export function ExpensesPage() {
 
   // Referencia de costo × cantidad, solo si la unidad coincide: primero lo último que se pagó,
   // y si nunca se ha comprado, el precio de lista (que es por presentación).
+  const selectedWorker = useMemo(() => workers.find((w) => w._id === form.workerId), [workers, form.workerId]);
   const suggestion = useMemo(() => {
+    if (form.type === 'MANO_OBRA' && selectedWorker) {
+      return { amount: Math.round(selectedWorker.hourlyRate * selectedWorker.hoursPerDay * selectedWorker.daysPerMonth), label: 'Costo mensual del trabajador' };
+    }
     if (form.type !== 'INSUMO' || !selectedInsumo || !form.quantity) return null;
     const quantity = Number(form.quantity);
     if (lastPrice && form.unit === lastPrice.unit) {
@@ -197,7 +238,7 @@ export function ExpensesPage() {
       return { amount: Math.round((selectedInsumo.precioLista * quantity) / presentacion), label: 'Precio de lista' };
     }
     return null;
-  }, [form.type, form.quantity, form.unit, selectedInsumo, lastPrice]);
+  }, [form.type, form.quantity, form.unit, selectedInsumo, lastPrice, selectedWorker]);
 
   const loadHistory = async () => {
     setHistoryLoading(true);
@@ -268,6 +309,15 @@ export function ExpensesPage() {
       toast.error('Selecciona la categoría del gasto');
       return;
     }
+    if (form.type === 'MANO_OBRA' && !form.workerId) {
+      toast.error('Selecciona el trabajador');
+      return;
+    }
+    const gifConcept = form.gifConcept === OTHER_CONCEPT ? form.gifConceptCustom.trim() : form.gifConcept;
+    if (form.type === 'GIF' && !gifConcept) {
+      toast.error('Selecciona o escribe el concepto del gasto indirecto');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -279,6 +329,8 @@ export function ExpensesPage() {
         paymentMethod: form.paymentMethod,
         cashAccount: form.paymentMethod === 'cash' ? form.cashAccount : undefined,
         categoriaGasto: form.type === 'OTRO' && form.categoriaGasto ? form.categoriaGasto : undefined,
+        workerId: form.type === 'MANO_OBRA' ? form.workerId : undefined,
+        gifConcept: form.type === 'GIF' ? gifConcept : undefined,
         fechaVencimiento: form.type === 'INSUMO' && form.fechaVencimiento ? form.fechaVencimiento : undefined,
         insumoId: form.type === 'INSUMO' ? form.insumoId : undefined,
         providerId: form.type === 'INSUMO' && form.providerId ? form.providerId : undefined,
@@ -340,6 +392,9 @@ export function ExpensesPage() {
       paymentMethod: expense.paymentMethod ?? 'cash',
       cashAccount: expense.cashAccount ?? 'menor',
       categoriaGasto: expense.categoriaGasto ?? '',
+      workerId: typeof expense.workerId === 'object' && expense.workerId ? expense.workerId._id : expense.workerId ?? '',
+      gifConcept: expense.gifConcept ? (gifConcepts.includes(expense.gifConcept) ? expense.gifConcept : OTHER_CONCEPT) : '',
+      gifConceptCustom: expense.gifConcept && !gifConcepts.includes(expense.gifConcept) ? expense.gifConcept : '',
       fechaVencimiento: '',
       insumoId: typeof expense.insumoId === 'object' && expense.insumoId ? expense.insumoId._id : expense.insumoId ?? '',
       providerId: typeof expense.providerId === 'object' && expense.providerId ? expense.providerId._id : expense.providerId ?? '',
@@ -416,9 +471,7 @@ export function ExpensesPage() {
                       </div>
                     </td>
                     <td className="px-3 py-3 text-island-dark/70">
-                      {expense.type === 'INSUMO'
-                        ? `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`
-                        : `Gasto general · ${categoryLabel(expense.categoriaGasto)}`}
+                      {expenseRelation(expense)}
                       <p className="text-xs">{accountLabel(expense)}{expense.cashShiftId ? '' : ' · fuera de turno'}</p>
                     </td>
                     <td className="px-3 py-3 text-island-dark/70">{providerName(expense.providerId) || '-'}</td>
@@ -465,6 +518,12 @@ export function ExpensesPage() {
               options={[
                 { value: 'INSUMO', label: 'Compra de insumo' },
                 { value: 'OTRO', label: 'Gasto general' },
+                ...(canManagePayroll
+                  ? [
+                      { value: 'MANO_OBRA', label: 'Pago de mano de obra' },
+                      { value: 'GIF', label: 'Gasto indirecto (GIF)' },
+                    ]
+                  : []),
               ]}
               onChange={(event) => setForm({ ...form, type: event.target.value as ExpenseType })}
             />
@@ -539,8 +598,46 @@ export function ExpensesPage() {
               />
             )}
 
+            {form.type === 'MANO_OBRA' && (
+              <>
+                <Combobox
+                  label="Trabajador"
+                  placeholder="Escribe para buscar un trabajador…"
+                  emptyText="No hay trabajadores activos con ese nombre"
+                  value={form.workerId}
+                  options={workers.map((w) => ({ value: w._id, label: w.name, hint: w.role || undefined }))}
+                  onChange={(value) => setForm({ ...form, workerId: value })}
+                />
+                {workers.length === 0 && (
+                  <p className="-mt-2 text-xs text-island-dark/70 font-body">
+                    Aún no hay trabajadores: regístralos en Costos &amp; Finanzas → Trabajadores.
+                  </p>
+                )}
+              </>
+            )}
+
+            {form.type === 'GIF' && (
+              <>
+                <Select
+                  label="Concepto del gasto indirecto"
+                  placeholder="Selecciona un concepto"
+                  value={form.gifConcept}
+                  options={[...gifConcepts.map((c) => ({ value: c, label: c })), { value: OTHER_CONCEPT, label: 'Otro concepto…' }]}
+                  onChange={(event) => setForm({ ...form, gifConcept: event.target.value })}
+                />
+                {form.gifConcept === OTHER_CONCEPT && (
+                  <Input
+                    label="Nombre del concepto"
+                    value={form.gifConceptCustom}
+                    onChange={(event) => setForm({ ...form, gifConceptCustom: event.target.value })}
+                    placeholder="Ej: Seguro, mantenimiento de equipos"
+                  />
+                )}
+              </>
+            )}
+
             <Input
-              label={form.type === 'INSUMO' ? 'Detalle del gasto' : 'Detalle'}
+              label={form.type === 'INSUMO' ? 'Detalle del gasto' : form.type === 'MANO_OBRA' || form.type === 'GIF' ? 'Detalle (opcional)' : 'Detalle'}
               value={form.description}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
               placeholder={form.type === 'INSUMO' ? 'Ej: Compra urgente de leche' : 'Ej: Transporte, papelería, arreglo menor'}
@@ -632,9 +729,7 @@ export function ExpensesPage() {
                       <div>
                         <p className="font-body font-semibold text-island-dark">{expense.description}</p>
                         <p className="text-xs text-island-dark/70 font-body">
-                          {formatDate(expense.date)} · {expense.type === 'INSUMO'
-                            ? `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`
-                            : `Gasto general · ${categoryLabel(expense.categoriaGasto)}`}
+                          {formatDate(expense.date)} · {expenseRelation(expense)}
                         </p>
                         {providerName(expense.providerId) && (
                           <p className="mt-1 text-xs text-island-dark/70 font-body">Proveedor: {providerName(expense.providerId)}</p>
