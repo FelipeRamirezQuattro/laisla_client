@@ -232,6 +232,7 @@ export interface CashMovement {
 }
 
 export type DailyExpenseType = 'INSUMO' | 'OTRO';
+export type ExpenseCategory = 'SERVICIOS' | 'ARRIENDO' | 'NOMINA' | 'TRANSPORTE' | 'LIMPIEZA' | 'MANTENIMIENTO' | 'OTROS';
 
 export interface DailyExpense {
   _id: string;
@@ -241,6 +242,7 @@ export interface DailyExpense {
   amount: number;
   paymentMethod?: PaymentMethod;
   cashAccount?: 'menor' | 'general';
+  categoriaGasto?: ExpenseCategory | null;
   insumoId?: string | Insumo;
   providerId?: string | Provider;
   quantity?: number;
@@ -608,9 +610,14 @@ export interface Insumo {
   nivelBueno?: string;
   nivelRegular?: string;
   nivelAgotado?: string;
+  stockMinimo?: number | null;
+  tipoVencimiento?: TipoVencimiento;
+  vidaUtilDias?: number | null;
   activo: boolean;
   orden: number;
 }
+
+export type TipoVencimiento = 'NINGUNO' | 'FECHA' | 'VIDA_UTIL';
 
 export interface CategoriaConInsumos {
   categoria: InsumoCategoria;
@@ -642,7 +649,7 @@ export interface RevisionInsumoDetalle {
   compradoEn?: string;
 }
 
-export type StockMovementTipo = 'VENTA_AUTOMATICA' | 'COMPRA' | 'AJUSTE_MANUAL' | 'REVISION_MANUAL';
+export type StockMovementTipo = 'VENTA_AUTOMATICA' | 'COMPRA' | 'AJUSTE_MANUAL' | 'REVISION_MANUAL' | 'VENCIMIENTO';
 export type StockMovementEstado = 'PENDIENTE' | 'APROBADO' | 'RECHAZADO';
 
 export interface InsumoStockMovement {
@@ -788,6 +795,9 @@ export type NotificationType =
   | 'task_due_soon'
   | 'task_overdue'
   | 'project_created'
+  | 'stock_low'
+  | 'stock_high_usage'
+  | 'insumo_expired'
   | 'general';
 
 export interface Notification {
@@ -796,7 +806,7 @@ export interface Notification {
   type: NotificationType;
   title: string;
   message: string;
-  entityType?: 'task' | 'project';
+  entityType?: 'task' | 'project' | 'insumo';
   entityId?: string;
   linkTo?: string;
   isRead: boolean;

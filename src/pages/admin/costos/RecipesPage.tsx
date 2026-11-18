@@ -16,7 +16,7 @@ import { PageLoader } from '../../../components/ui/Spinner';
 
 export function RecipesPage() {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<RecipeCategoryOption[]>([]);
   const [loading, setLoading] = useState(true);

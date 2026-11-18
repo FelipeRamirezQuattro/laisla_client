@@ -27,6 +27,7 @@ const movementLabel: Record<string, string> = {
   COMPRA: 'Compra',
   AJUSTE_MANUAL: 'Ajuste manual',
   REVISION_MANUAL: 'Revisión manual',
+  VENCIMIENTO: 'Vencido',
 };
 
 function localDateStr(d: Date): string {
@@ -88,7 +89,7 @@ export function InventoryPage() {
   const [creatingInsumo, setCreatingInsumo] = useState(false);
   const purchaseSectionRef = useRef<HTMLElement | null>(null);
   const toast = useToast();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   const fetchStock = useCallback(async () => {
     setLoading(true);

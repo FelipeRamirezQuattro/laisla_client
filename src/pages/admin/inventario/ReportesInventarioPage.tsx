@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { reportesInvApi } from '../../../api/inventario';
 import { useToast } from '../../../hooks/useToast';
 import { PageLoader } from '../../../components/ui/Spinner';
+import { RecetasSemanalSection } from './RecetasSemanalSection';
 import type { ReporteAgotamiento, ReporteCumplimiento, ReporteInsumoCritico } from '../../../types';
 
 type Period = 7 | 30 | 90;
@@ -57,6 +58,9 @@ export function ReportesInventarioPage() {
           ))}
         </div>
       </div>
+
+      {/* Tendencia de ventas por receta: no depende del selector de período de abajo */}
+      <RecetasSemanalSection />
 
       {loading ? <PageLoader /> : (
         <>

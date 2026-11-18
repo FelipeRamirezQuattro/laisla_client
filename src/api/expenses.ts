@@ -1,5 +1,5 @@
 import api from './axios';
-import type { DailyExpense, MeasurementUnit, PaymentMethod } from '../types';
+import type { DailyExpense, ExpenseCategory, MeasurementUnit, PaymentMethod } from '../types';
 
 export interface DailyExpensesResponse {
   expenses: DailyExpense[];
@@ -13,6 +13,8 @@ export interface CreateDailyExpensePayload {
   amount: number;
   paymentMethod: PaymentMethod;
   cashAccount?: 'menor' | 'general';
+  categoriaGasto?: ExpenseCategory;
+  fechaVencimiento?: string;
   insumoId?: string;
   providerId?: string;
   quantity?: number;
@@ -20,7 +22,18 @@ export interface CreateDailyExpensePayload {
   notes?: string;
 }
 
+export interface LastInsumoPrice {
+  insumoId: string;
+  amount: number;
+  quantity: number;
+  unit: MeasurementUnit;
+  /** Valor por unidad de compra (amount / quantity). */
+  unitPrice: number;
+  date: string;
+}
+
 export const expensesApi = {
+  getLastPrices: () => api.get<LastInsumoPrice[]>('/admin/expenses/last-prices'),
   getAll: (params?: Record<string, string>) =>
     api.get<DailyExpensesResponse>('/admin/expenses', { params }),
   create: (data: CreateDailyExpensePayload) =>

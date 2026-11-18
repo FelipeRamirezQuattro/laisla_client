@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Edit3, History, PackagePlus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
-import { expensesApi } from '../../api/expenses';
+import { Edit3, History, PackagePlus, Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
+import { expensesApi, type LastInsumoPrice } from '../../api/expenses';
 import { insumosInvApi } from '../../api/inventario';
 import { providersApi } from '../../api/providers';
-import type { DailyExpense, Insumo, MeasurementUnit, PaymentMethod, Provider } from '../../types';
+import type { DailyExpense, ExpenseCategory, Insumo, InsumoCategoria, MeasurementUnit, PaymentMethod, Provider } from '../../types';
 import { formatCOP } from '../../utils/formatCurrency';
 import { formatDate, todayLocal } from '../../utils/formatDate';
 import { MEASUREMENT_UNITS } from '../../utils/measurementUnits';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
+import { useAuth } from '../../hooks/useAuth';
+import { InsumoEditModal } from './inventario/InsumoEditModal';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { Combobox } from '../../components/ui/Combobox';
 import { PageLoader } from '../../components/ui/Spinner';
 import { Drawer } from '../../components/ui/Drawer';
 
@@ -23,6 +26,26 @@ const paymentOptions = [
   { value: 'nequi', label: 'Nequi / Daviplata' },
   { value: 'card', label: 'Tarjeta' },
 ];
+
+const categoryOptions: { value: ExpenseCategory; label: string }[] = [
+  { value: 'SERVICIOS', label: 'Servicios' },
+  { value: 'ARRIENDO', label: 'Arriendo' },
+  { value: 'NOMINA', label: 'Nómina' },
+  { value: 'TRANSPORTE', label: 'Transporte' },
+  { value: 'LIMPIEZA', label: 'Limpieza' },
+  { value: 'MANTENIMIENTO', label: 'Mantenimiento' },
+  { value: 'OTROS', label: 'Otros' },
+];
+
+const categoryLabel = (category?: ExpenseCategory | null) =>
+  categoryOptions.find((option) => option.value === category)?.label ?? 'Sin categoría';
+
+// Suma días a una fecha 'YYYY-MM-DD' sin depender de la zona horaria del navegador.
+const addDaysToDateString = (date: string, days: number) => {
+  const [y, m, d] = date.split('-').map(Number);
+  const result = new Date(Date.UTC(y, m - 1, d + days));
+  return result.toISOString().slice(0, 10);
+};
 
 const accountLabel = (expense: DailyExpense) => {
   const method = paymentOptions.find((option) => option.value === (expense.paymentMethod ?? 'cash'))?.label ?? 'Efectivo';
@@ -37,6 +60,8 @@ interface FormState {
   amount: number | '';
   paymentMethod: PaymentMethod;
   cashAccount: 'menor' | 'general';
+  categoriaGasto: ExpenseCategory | '';
+  fechaVencimiento: string;
   insumoId: string;
   providerId: string;
   quantity: number | '';
@@ -46,11 +71,13 @@ interface FormState {
 
 const emptyForm = (date = todayLocal()): FormState => ({
   date,
-  type: 'OTRO',
+  type: 'INSUMO',
   description: '',
   amount: '',
   paymentMethod: 'cash',
   cashAccount: 'menor',
+  categoriaGasto: '',
+  fechaVencimiento: '',
   insumoId: '',
   providerId: '',
   quantity: '',
@@ -71,6 +98,13 @@ export function ExpensesPage() {
   const [expenses, setExpenses] = useState<DailyExpense[]>([]);
   const [total, setTotal] = useState(0);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
+  const [categoryByInsumo, setCategoryByInsumo] = useState<Record<string, string>>({});
+  const [lastPrices, setLastPrices] = useState<Record<string, LastInsumoPrice>>({});
+  const [insumoCategories, setInsumoCategories] = useState<InsumoCategoria[]>([]);
+  const [createInsumoOpen, setCreateInsumoOpen] = useState(false);
+  const { user } = useAuth();
+  // Crear insumos exige rol de administrador en el backend.
+  const canCreateInsumo = user?.role === 'admin' || user?.role === 'superadmin';
   const [providers, setProviders] = useState<Provider[]>([]);
   const [form, setForm] = useState<FormState>(emptyForm());
   const [editing, setEditing] = useState<DailyExpense | null>(null);
@@ -95,10 +129,27 @@ export function ExpensesPage() {
     setTotal(res.data.total);
   };
 
+  const loadInsumos = () =>
+    insumosInvApi.getAgrupados().then((res) => {
+      setInsumos(res.data.flatMap((group) => group.insumos));
+      setCategoryByInsumo(
+        Object.fromEntries(res.data.flatMap((group) => group.insumos.map((i) => [i._id, group.categoria.nombre])))
+      );
+    });
+
+  // El último precio es auxiliar: si falla, el formulario funciona igual.
+  const loadLastPrices = () =>
+    expensesApi
+      .getLastPrices()
+      .then((res) => setLastPrices(Object.fromEntries(res.data.map((row) => [row.insumoId, row]))))
+      .catch(() => undefined);
+
   useEffect(() => {
+    if (canCreateInsumo) insumosInvApi.getCategorias().then((res) => setInsumoCategories(res.data)).catch(() => undefined);
+    loadLastPrices();
     Promise.all([
       loadExpenses(selectedDate),
-      insumosInvApi.getAgrupados().then((res) => setInsumos(res.data.flatMap((group) => group.insumos))),
+      loadInsumos(),
       providersApi.getAll({ limit: 200 }).then((res) => setProviders(res.data.providers)),
     ])
       .catch(() => toast.error('Error al cargar gastos'))
@@ -114,6 +165,39 @@ export function ExpensesPage() {
     () => insumos.find((item) => item._id === form.insumoId),
     [form.insumoId, insumos]
   );
+
+  const insumoOptions = useMemo(
+    () =>
+      insumos.map((insumo) => ({
+        value: insumo._id,
+        label: insumo.nombre,
+        hint: [
+          categoryByInsumo[insumo._id],
+          insumo.unidad,
+          lastPrices[insumo._id] && `Último: ${formatCOP(lastPrices[insumo._id].unitPrice)}/${lastPrices[insumo._id].unit}`,
+        ]
+          .filter(Boolean)
+          .join(' · '),
+      })),
+    [insumos, categoryByInsumo, lastPrices]
+  );
+
+  const lastPrice = form.insumoId ? lastPrices[form.insumoId] : undefined;
+
+  // Referencia de costo × cantidad, solo si la unidad coincide: primero lo último que se pagó,
+  // y si nunca se ha comprado, el precio de lista (que es por presentación).
+  const suggestion = useMemo(() => {
+    if (form.type !== 'INSUMO' || !selectedInsumo || !form.quantity) return null;
+    const quantity = Number(form.quantity);
+    if (lastPrice && form.unit === lastPrice.unit) {
+      return { amount: Math.round(lastPrice.unitPrice * quantity), label: 'Último precio' };
+    }
+    if (selectedInsumo.precioLista && form.unit === selectedInsumo.unidad) {
+      const presentacion = selectedInsumo.cantidadPresentacion || 1;
+      return { amount: Math.round((selectedInsumo.precioLista * quantity) / presentacion), label: 'Precio de lista' };
+    }
+    return null;
+  }, [form.type, form.quantity, form.unit, selectedInsumo, lastPrice]);
 
   const loadHistory = async () => {
     setHistoryLoading(true);
@@ -134,13 +218,31 @@ export function ExpensesPage() {
 
   useEffect(() => {
     if (form.type === 'INSUMO' && selectedInsumo) {
+      const principal =
+        typeof selectedInsumo.proveedorPrincipalId === 'object' && selectedInsumo.proveedorPrincipalId
+          ? selectedInsumo.proveedorPrincipalId._id
+          : selectedInsumo.proveedorPrincipalId ?? '';
       setForm((current) => ({
         ...current,
         unit: selectedInsumo.unidad,
+        // Al editar no se cambia el proveedor guardado.
+        providerId: editing ? current.providerId : current.providerId || principal,
         description: current.description || `Compra de ${selectedInsumo.nombre}`,
       }));
     }
   }, [form.type, selectedInsumo?._id]);
+
+  // Vida útil: propone fecha de compra + N días (editable). Al editar un gasto no se toca el
+  // vencimiento guardado salvo que el usuario escriba una fecha.
+  useEffect(() => {
+    if (editing || form.type !== 'INSUMO' || !selectedInsumo) return;
+    const dias = selectedInsumo.vidaUtilDias;
+    setForm((current) => ({
+      ...current,
+      fechaVencimiento:
+        selectedInsumo.tipoVencimiento === 'VIDA_UTIL' && dias ? addDaysToDateString(current.date, dias) : '',
+    }));
+  }, [editing, form.type, form.date, selectedInsumo?._id]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -153,8 +255,17 @@ export function ExpensesPage() {
       toast.error('Selecciona el insumo y la cantidad comprada');
       return;
     }
+    if (form.type === 'INSUMO' && !editing && selectedInsumo?.tipoVencimiento === 'FECHA' && !form.fechaVencimiento) {
+      toast.error('Este insumo vence por fecha: indica la fecha de vencimiento de la compra');
+      return;
+    }
     if (form.type === 'OTRO' && !form.description.trim()) {
       toast.error('Ingresa el detalle del gasto');
+      return;
+    }
+    // La categoría se exige solo al crear: los gastos antiguos no la tienen.
+    if (form.type === 'OTRO' && !editing && !form.categoriaGasto) {
+      toast.error('Selecciona la categoría del gasto');
       return;
     }
 
@@ -167,6 +278,8 @@ export function ExpensesPage() {
         amount,
         paymentMethod: form.paymentMethod,
         cashAccount: form.paymentMethod === 'cash' ? form.cashAccount : undefined,
+        categoriaGasto: form.type === 'OTRO' && form.categoriaGasto ? form.categoriaGasto : undefined,
+        fechaVencimiento: form.type === 'INSUMO' && form.fechaVencimiento ? form.fechaVencimiento : undefined,
         insumoId: form.type === 'INSUMO' ? form.insumoId : undefined,
         providerId: form.type === 'INSUMO' && form.providerId ? form.providerId : undefined,
         quantity: form.type === 'INSUMO' ? Number(form.quantity) : undefined,
@@ -183,9 +296,11 @@ export function ExpensesPage() {
       setEditing(null);
       setForm(emptyForm(selectedDate));
       await loadExpenses(selectedDate);
+      loadLastPrices();
       if (historyOpen) await loadHistory();
-    } catch {
-      toast.error('Error al registrar gasto');
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      toast.error(message ?? 'Error al registrar gasto');
     } finally {
       setSaving(false);
     }
@@ -208,6 +323,7 @@ export function ExpensesPage() {
         setForm(emptyForm(selectedDate));
       }
       await loadExpenses(selectedDate);
+      loadLastPrices();
       if (historyOpen) await loadHistory();
     } catch {
       toast.error('Error al eliminar el gasto');
@@ -223,6 +339,8 @@ export function ExpensesPage() {
       amount: expense.amount,
       paymentMethod: expense.paymentMethod ?? 'cash',
       cashAccount: expense.cashAccount ?? 'menor',
+      categoriaGasto: expense.categoriaGasto ?? '',
+      fechaVencimiento: '',
       insumoId: typeof expense.insumoId === 'object' && expense.insumoId ? expense.insumoId._id : expense.insumoId ?? '',
       providerId: typeof expense.providerId === 'object' && expense.providerId ? expense.providerId._id : expense.providerId ?? '',
       quantity: expense.quantity ?? '',
@@ -300,7 +418,7 @@ export function ExpensesPage() {
                     <td className="px-3 py-3 text-island-dark/70">
                       {expense.type === 'INSUMO'
                         ? `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`
-                        : 'Gasto general'}
+                        : `Gasto general · ${categoryLabel(expense.categoriaGasto)}`}
                       <p className="text-xs">{accountLabel(expense)}{expense.cashShiftId ? '' : ' · fuera de turno'}</p>
                     </td>
                     <td className="px-3 py-3 text-island-dark/70">{providerName(expense.providerId) || '-'}</td>
@@ -345,21 +463,37 @@ export function ExpensesPage() {
               label="Tipo"
               value={form.type}
               options={[
-                { value: 'OTRO', label: 'Gasto general' },
                 { value: 'INSUMO', label: 'Compra de insumo' },
+                { value: 'OTRO', label: 'Gasto general' },
               ]}
               onChange={(event) => setForm({ ...form, type: event.target.value as ExpenseType })}
             />
 
             {form.type === 'INSUMO' && (
               <>
-                <Select
+                <Combobox
                   label="Insumo"
-                  placeholder="Selecciona un insumo"
+                  placeholder="Escribe para buscar un insumo…"
+                  emptyText="No hay insumos con ese nombre"
                   value={form.insumoId}
-                  options={insumos.map((insumo) => ({ value: insumo._id, label: insumo.nombre }))}
-                  onChange={(event) => setForm({ ...form, insumoId: event.target.value, description: '' })}
+                  options={insumoOptions}
+                  onChange={(value) => setForm({ ...form, insumoId: value, description: '', providerId: '' })}
                 />
+                {lastPrice && (
+                  <p className="-mt-2 text-xs text-island-dark/70 font-body">
+                    Última compra: {lastPrice.quantity} {lastPrice.unit} por {formatCOP(lastPrice.amount)} (
+                    {formatCOP(lastPrice.unitPrice)}/{lastPrice.unit}) · {formatDate(lastPrice.date)}
+                  </p>
+                )}
+                {canCreateInsumo && (
+                  <button
+                    type="button"
+                    onClick={() => setCreateInsumoOpen(true)}
+                    className="-mt-2 inline-flex items-center gap-1 self-start text-xs font-medium text-island-blue hover:underline font-body"
+                  >
+                    <Plus size={12} /> ¿No está? Crear insumo nuevo
+                  </button>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <Input
                     label="Cantidad"
@@ -383,7 +517,26 @@ export function ExpensesPage() {
                   options={providers.map((provider) => ({ value: provider._id, label: provider.name }))}
                   onChange={(event) => setForm({ ...form, providerId: event.target.value })}
                 />
+                {selectedInsumo && selectedInsumo.tipoVencimiento && selectedInsumo.tipoVencimiento !== 'NINGUNO' && (
+                  <Input
+                    label={selectedInsumo.tipoVencimiento === 'FECHA' ? 'Fecha de vencimiento' : 'Vence el (vida útil)'}
+                    type="date"
+                    value={form.fechaVencimiento}
+                    min={form.date}
+                    onChange={(event) => setForm({ ...form, fechaVencimiento: event.target.value })}
+                  />
+                )}
               </>
+            )}
+
+            {form.type === 'OTRO' && (
+              <Select
+                label="Categoría"
+                placeholder="Selecciona una categoría"
+                value={form.categoriaGasto}
+                options={categoryOptions}
+                onChange={(event) => setForm({ ...form, categoriaGasto: event.target.value as ExpenseCategory })}
+              />
             )}
 
             <Input
@@ -400,6 +553,15 @@ export function ExpensesPage() {
               value={form.amount}
               onChange={(event) => setForm({ ...form, amount: event.target.value === '' ? '' : +event.target.value })}
             />
+            {suggestion !== null && Number(form.amount) !== suggestion.amount && (
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, amount: suggestion.amount })}
+                className="-mt-2 text-left text-xs text-island-dark/70 underline font-body"
+              >
+                {suggestion.label}: {formatCOP(suggestion.amount)} · usar este valor
+              </button>
+            )}
             <Select
               label="Se paga con"
               value={form.paymentMethod}
@@ -427,6 +589,19 @@ export function ExpensesPage() {
           </form>
         </aside>
       </div>
+
+      <InsumoEditModal
+        isOpen={createInsumoOpen}
+        insumo={null}
+        categorias={insumoCategories}
+        onClose={() => setCreateInsumoOpen(false)}
+        onSaved={async (created) => {
+          setCreateInsumoOpen(false);
+          // Recarga el catálogo y deja el insumo nuevo ya seleccionado en el formulario.
+          await loadInsumos().catch(() => toast.error('No se pudo actualizar la lista de insumos'));
+          setForm((current) => ({ ...current, type: 'INSUMO', insumoId: created._id, description: '', providerId: '' }));
+        }}
+      />
 
       <Drawer
         isOpen={historyOpen}
@@ -459,7 +634,7 @@ export function ExpensesPage() {
                         <p className="text-xs text-island-dark/70 font-body">
                           {formatDate(expense.date)} · {expense.type === 'INSUMO'
                             ? `${insumoName(expense.insumoId)} · ${expense.quantity ?? 0} ${expense.unit ?? ''}`
-                            : 'Gasto general'}
+                            : `Gasto general · ${categoryLabel(expense.categoriaGasto)}`}
                         </p>
                         {providerName(expense.providerId) && (
                           <p className="mt-1 text-xs text-island-dark/70 font-body">Proveedor: {providerName(expense.providerId)}</p>

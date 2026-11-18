@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Banknote, Bell, ChevronDown, ClipboardList, FolderOpen, KeyRound, LogOut, Menu } from 'lucide-react';
+import { Banknote, Bell, ChevronDown, ClipboardList, FolderOpen, KeyRound, LogOut, Menu, PackageSearch } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import { useShiftStore } from '../../store/shiftStore';
@@ -17,6 +17,7 @@ const breadcrumbMap = buildBreadcrumbMap();
 function notificationIcon(notification: Notification) {
   if (notification.entityType === 'task') return <ClipboardList size={16} />;
   if (notification.entityType === 'project') return <FolderOpen size={16} />;
+  if (notification.entityType === 'insumo') return <PackageSearch size={16} />;
   return <Bell size={16} />;
 }
 

@@ -16,6 +16,7 @@ import { useConfirm } from "../../../hooks/useConfirm";
 import { PageLoader } from "../../../components/ui/Spinner";
 import { Modal } from "../../../components/ui/Modal";
 import { Input } from "../../../components/ui/Input";
+import { InsumoEditModal } from "./InsumoEditModal";
 import { formatNumber } from "../../../utils/formatCurrency";
 import {
   MEASUREMENT_UNITS,
@@ -192,7 +193,7 @@ export function CatalogoInsumosPage() {
   const { user } = useAuth();
   const toast = useToast();
   const confirm = useConfirm();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
 
   const [grupos, setGrupos] = useState<CategoriaConInsumos[]>([]);
   const [categorias, setCategorias] = useState<InsumoCategoria[]>([]);
@@ -209,6 +210,7 @@ export function CatalogoInsumosPage() {
     unidad: MeasurementUnit;
     cantidadPresentacion: number;
   } | null>(null);
+  const [editingInsumo, setEditingInsumo] = useState<Insumo | null>(null);
   const [categoryModal, setCategoryModal] = useState(false);
   const [editingCategory, setEditingCategory] =
     useState<InsumoCategoria | null>(null);
@@ -869,14 +871,22 @@ export function CatalogoInsumosPage() {
                         </td>
                         <td className="px-3 py-2">
                           {isAdmin && (
-                            <button
-                              onClick={() =>
-                                toggleInsumo(insumo._id, insumo.activo)
-                              }
-                              className={`text-xs px-2 py-1 rounded-lg font-medium ${insumo.activo ? "bg-error-tint text-error-ink hover:bg-error-tint" : "bg-success-tint text-success hover:bg-success-tint"}`}
-                            >
-                              {insumo.activo ? "Desactivar" : "Reactivar"}
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setEditingInsumo(insumo)}
+                                className="btn-ghost py-1 text-xs flex items-center gap-1"
+                              >
+                                <Pencil size={13} /> Editar
+                              </button>
+                              <button
+                                onClick={() =>
+                                  toggleInsumo(insumo._id, insumo.activo)
+                                }
+                                className={`text-xs px-2 py-1 rounded-lg font-medium ${insumo.activo ? "bg-error-tint text-error-ink hover:bg-error-tint" : "bg-success-tint text-success hover:bg-success-tint"}`}
+                              >
+                                {insumo.activo ? "Desactivar" : "Reactivar"}
+                              </button>
+                            </div>
                           )}
                           {!isAdmin && (
                             <span
@@ -972,6 +982,17 @@ export function CatalogoInsumosPage() {
           </table>
         </div>
       )}
+
+      <InsumoEditModal
+        isOpen={!!editingInsumo}
+        insumo={editingInsumo}
+        categorias={categorias}
+        onClose={() => setEditingInsumo(null)}
+        onSaved={() => {
+          setEditingInsumo(null);
+          load();
+        }}
+      />
 
       <Modal
         isOpen={categoryModal}

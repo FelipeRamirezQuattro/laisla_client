@@ -1,4 +1,4 @@
-import { Bell, ClipboardList, FolderOpen } from 'lucide-react';
+import { Bell, ClipboardList, FolderOpen, PackageSearch } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationsApi } from '../../api/notifications';
@@ -11,6 +11,7 @@ import type { Notification } from '../../types';
 function iconFor(notification: Notification) {
   if (notification.entityType === 'task') return <ClipboardList size={18} />;
   if (notification.entityType === 'project') return <FolderOpen size={18} />;
+  if (notification.entityType === 'insumo') return <PackageSearch size={18} />;
   return <Bell size={18} />;
 }
 
